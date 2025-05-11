@@ -59,7 +59,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
       whileHover={{ y: -8, transition: { duration: 0.2 } }}
-      className="group relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+      className="group relative bg-black/80 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 dark:to-white/5 z-0 group-hover:opacity-100 opacity-0 transition-opacity duration-300" />
 
