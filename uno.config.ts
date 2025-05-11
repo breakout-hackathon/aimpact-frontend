@@ -273,7 +273,7 @@ export default defineConfig({
       },
       unit: 'em',
     }),
-    presetWind(),
+    // presetWind(),
   ]
 });
 
