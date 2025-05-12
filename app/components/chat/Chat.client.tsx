@@ -132,6 +132,7 @@ export const ChatImpl = memo(
     );
     const supabaseAlert = useStore(workbenchStore.supabaseAlert);
     const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
+    console.log(`Prompt id: ${promptId}`)
 
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');

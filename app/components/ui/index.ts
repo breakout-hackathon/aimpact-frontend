@@ -20,6 +20,7 @@ export * from './LoadingDots';
 export * from './LoadingOverlay';
 export * from './EmptyState';
 export * from './SearchInput';
+export * from './RepositoryStats';
 export * from './StatusIndicator';
 export * from './FilterChip';
 

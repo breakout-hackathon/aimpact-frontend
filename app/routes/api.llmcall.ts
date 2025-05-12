@@ -110,6 +110,9 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
       }
 
       logger.info(`Generating response Provider: ${provider.name}, Model: ${modelDetails.name}`);
+      logger.info(`Messages:` +
+                  `System: ${system}` +
+                  `User message: ${message}`)
 
       const result = await generateText({
         system,
