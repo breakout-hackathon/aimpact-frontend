@@ -413,7 +413,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
   return (
     <RadixDialog.Root open={open}>
       <RadixDialog.Portal>
-        <div className="fixed inset-0 flex items-center justify-center z-[100]">
+        <div className="fixed inset-0 flex items-center justify-center z-[100] modern-scrollbar">
           <RadixDialog.Overlay asChild>
             <motion.div
               className="absolute inset-0 bg-black/70 dark:bg-black/80 backdrop-blur-sm"

@@ -320,13 +320,13 @@ const diffPanelStyles = 'h-full overflow-auto diff-panel-content';
 
 // Updated color styles for better consistency
 const diffLineStyles = {
-  added: 'bg-green-500/10 dark:bg-green-500 border-l-4 border-green-500',
+  added: 'bg-green-500/10 dark:bg-green-500/20 border-l-4 border-green-500',
   removed: 'bg-red-500/10 dark:bg-red-500/20 border-l-4 border-red-500',
   unchanged: '',
 };
 
 const changeColorStyles = {
-  added: 'text-green-700 dark:text-green-500 bg-green-500/10 dark:bg-green-500',
+  added: 'text-green-700 dark:text-green-500 bg-green-500/10 dark:bg-green-500/20',
   removed: 'text-red-700 dark:text-red-500 bg-red-500/10 dark:bg-red-500/20',
   unchanged: 'text-bolt-elements-textPrimary',
 };

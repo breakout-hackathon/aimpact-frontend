@@ -2,6 +2,7 @@ export * from './useMessageParser';
 export * from './usePromptEnhancer';
 export * from './useShortcuts';
 export * from './useSnapScroll';
+export * from './StickToBottom';
 export * from './useEditChatDescription';
 export { default } from './useViewport';
 export { useUpdateCheck } from './useUpdateCheck';

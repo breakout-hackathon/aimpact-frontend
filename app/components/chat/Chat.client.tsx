@@ -8,7 +8,7 @@ import { useChat } from 'ai/react';
 import { useAnimate } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
-import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
+import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -310,6 +310,9 @@ export const ChatImpl = memo(
         return;
       }
 
+      // If no locked items, proceed normally with the original message
+      const finalMessageContent = messageContent;
+
       runAnimation();
 
       if (!chatStarted) {
@@ -317,7 +320,7 @@ export const ChatImpl = memo(
 
         if (autoSelectTemplate) {
           const { template, title } = await selectStarterTemplate({
-            message: messageContent,
+            message: finalMessageContent,
             model,
             provider,
           });
@@ -342,7 +345,7 @@ export const ChatImpl = memo(
                   content: [
                     {
                       type: 'text',
-                      text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${messageContent}`,
+                      text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${finalMessageContent}`,
                     },
                     ...imageDataList.map((imageData) => ({
                       type: 'image',
@@ -387,7 +390,7 @@ export const ChatImpl = memo(
             content: [
               {
                 type: 'text',
-                text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${messageContent}`,
+                text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${finalMessageContent}`,
               },
               ...imageDataList.map((imageData) => ({
                 type: 'image',
@@ -426,7 +429,7 @@ export const ChatImpl = memo(
           content: [
             {
               type: 'text',
-              text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${userUpdateArtifact}${messageContent}`,
+              text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${userUpdateArtifact}${finalMessageContent}`,
             },
             ...imageDataList.map((imageData) => ({
               type: 'image',
@@ -442,7 +445,7 @@ export const ChatImpl = memo(
           content: [
             {
               type: 'text',
-              text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${messageContent}`,
+              text: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${finalMessageContent}`,
             },
             ...imageDataList.map((imageData) => ({
               type: 'image',
@@ -483,8 +486,6 @@ export const ChatImpl = memo(
       [],
     );
 
-    const [messageRef, scrollRef] = useSnapScroll();
-
     useEffect(() => {
       const storedApiKeys = Cookies.get('apiKeys');
 
@@ -522,8 +523,6 @@ export const ChatImpl = memo(
         provider={provider}
         setProvider={handleProviderChange}
         providerList={activeProviders}
-        messageRef={messageRef}
-        scrollRef={scrollRef}
         handleInputChange={(e) => {
           onTextareaChange(e);
           debouncedCachePrompt(e);

@@ -21,6 +21,7 @@ export default function Home() {
     event.preventDefault();
 
     if (!promptInput) {
+      navigate('/chat');
       return;
     }
 
@@ -74,7 +75,7 @@ export default function Home() {
                     setPromptInput(value.target.value);
                   }}
                   placeholder="What do you want to build?"
-                  className="w-full py-2 px-4 border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-xl"
+                  className="w-full py-2 px-4 border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-xl text-black"
                 />
               </div>
               <Button

@@ -4,6 +4,8 @@ import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { PortDropdown } from './PortDropdown';
 import { ScreenshotSelector } from './ScreenshotSelector';
+import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
+import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 
 type ResizeSide = 'left' | 'right' | null;
 
@@ -53,12 +55,10 @@ export const Preview = memo(() => {
   const [activePreviewIndex, setActivePreviewIndex] = useState(0);
   const [isPortDropdownOpen, setIsPortDropdownOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isPreviewOnly, setIsPreviewOnly] = useState(false);
   const hasSelectedPreview = useRef(false);
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
-
-  const [url, setUrl] = useState('');
+  const [displayPath, setDisplayPath] = useState('/');
   const [iframeUrl, setIframeUrl] = useState<string | undefined>();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
 
@@ -86,38 +86,21 @@ export const Preview = memo(() => {
   const [isLandscape, setIsLandscape] = useState(false);
   const [showDeviceFrame, setShowDeviceFrame] = useState(true);
   const [showDeviceFrameInPreview, setShowDeviceFrameInPreview] = useState(false);
+  const expoUrl = useStore(expoUrlAtom);
+  const [isExpoQrModalOpen, setIsExpoQrModalOpen] = useState(false);
 
   useEffect(() => {
     if (!activePreview) {
-      setUrl('');
       setIframeUrl(undefined);
+      setDisplayPath('/');
 
       return;
     }
 
     const { baseUrl } = activePreview;
-    setUrl(baseUrl);
     setIframeUrl(baseUrl);
+    setDisplayPath('/');
   }, [activePreview]);
-
-  const validateUrl = useCallback(
-    (value: string) => {
-      if (!activePreview) {
-        return false;
-      }
-
-      const { baseUrl } = activePreview;
-
-      if (value === baseUrl) {
-        return true;
-      } else if (value.startsWith(baseUrl)) {
-        return ['/', '?', '#'].includes(value.charAt(baseUrl.length));
-      }
-
-      return false;
-    },
-    [activePreview],
-  );
 
   const findMinPortIndex = useCallback(
     (minIndex: number, preview: { port: number }, index: number, array: { port: number }[]) => {
@@ -565,6 +548,12 @@ export const Preview = memo(() => {
     }
   };
 
+  const openInNewTab = () => {
+    if (activePreview?.baseUrl) {
+      window.open(activePreview?.baseUrl, '_blank');
+    }
+  };
+
   // Function to get the correct frame padding based on orientation
   const getFramePadding = useCallback(() => {
     if (!selectedWindowSize) {
@@ -630,10 +619,7 @@ export const Preview = memo(() => {
   }, [showDeviceFrameInPreview]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`w-full h-full flex flex-col relative ${isPreviewOnly ? 'fixed inset-0 z-50 bg-white' : ''}`}
-    >
+    <div ref={containerRef} className={`w-full h-full flex flex-col relative`}>
       {isPortDropdownOpen && (
         <div className="z-iframe-overlay w-full h-full absolute" onClick={() => setIsPortDropdownOpen(false)} />
       )}
@@ -647,50 +633,60 @@ export const Preview = memo(() => {
           />
         </div>
 
-        <div className="flex-grow flex items-center gap-1 bg-bolt-elements-preview-addressBar-background border border-bolt-elements-borderColor text-bolt-elements-preview-addressBar-text rounded-full px-3 py-1 text-sm hover:bg-bolt-elements-preview-addressBar-backgroundHover hover:focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive">
+        <div className="flex-grow flex items-center gap-1 bg-bolt-elements-preview-addressBar-background border border-bolt-elements-borderColor text-bolt-elements-preview-addressBar-text rounded-full px-1 py-1 text-sm hover:bg-bolt-elements-preview-addressBar-backgroundHover hover:focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive">
+          <PortDropdown
+            activePreviewIndex={activePreviewIndex}
+            setActivePreviewIndex={setActivePreviewIndex}
+            isDropdownOpen={isPortDropdownOpen}
+            setHasSelectedPreview={(value) => (hasSelectedPreview.current = value)}
+            setIsDropdownOpen={setIsPortDropdownOpen}
+            previews={previews}
+          />
           <input
-            title="URL"
+            title="URL Path"
             ref={inputRef}
             className="w-full bg-transparent outline-none"
             type="text"
-            value={url}
+            value={displayPath}
             onChange={(event) => {
-              setUrl(event.target.value);
+              setDisplayPath(event.target.value);
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && validateUrl(url)) {
-                setIframeUrl(url);
+              if (event.key === 'Enter' && activePreview) {
+                let targetPath = displayPath.trim();
+
+                if (!targetPath.startsWith('/')) {
+                  targetPath = '/' + targetPath;
+                }
+
+                const fullUrl = activePreview.baseUrl + targetPath;
+                setIframeUrl(fullUrl);
+                setDisplayPath(targetPath);
 
                 if (inputRef.current) {
                   inputRef.current.blur();
                 }
               }
             }}
+            disabled={!activePreview}
           />
         </div>
 
         <div className="flex items-center gap-2">
-          {previews.length > 1 && (
-            <PortDropdown
-              activePreviewIndex={activePreviewIndex}
-              setActivePreviewIndex={setActivePreviewIndex}
-              isDropdownOpen={isPortDropdownOpen}
-              setHasSelectedPreview={(value) => (hasSelectedPreview.current = value)}
-              setIsDropdownOpen={setIsPortDropdownOpen}
-              previews={previews}
-            />
-          )}
-
           <IconButton
             icon="i-ph:devices"
             onClick={toggleDeviceMode}
             title={isDeviceModeOn ? 'Switch to Responsive Mode' : 'Switch to Device Mode'}
           />
 
+          {expoUrl && <IconButton icon="i-ph:qr-code" onClick={() => setIsExpoQrModalOpen(true)} title="Show QR" />}
+
+          <ExpoQrModal open={isExpoQrModalOpen} onClose={() => setIsExpoQrModalOpen(false)} />
+
           {isDeviceModeOn && (
             <>
               <IconButton
-                icon="i-ph:rotate-right"
+                icon="i-ph:device-rotate"
                 onClick={() => setIsLandscape(!isLandscape)}
                 title={isLandscape ? 'Switch to Portrait' : 'Switch to Landscape'}
               />
@@ -703,59 +699,16 @@ export const Preview = memo(() => {
           )}
 
           <IconButton
-            icon="i-ph:layout-light"
-            onClick={() => setIsPreviewOnly(!isPreviewOnly)}
-            title={isPreviewOnly ? 'Show Full Interface' : 'Show Preview Only'}
-          />
-
-          <IconButton
             icon={isFullscreen ? 'i-ph:arrows-in' : 'i-ph:arrows-out'}
             onClick={toggleFullscreen}
             title={isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
           />
 
-          {/* Simple preview button */}
-          <IconButton
-            icon="i-ph:browser"
-            onClick={() => {
-              if (!activePreview?.baseUrl) {
-                console.warn('[Preview] No active preview available');
-                return;
-              }
-
-              const match = activePreview.baseUrl.match(
-                /^https?:\/\/([^.]+)\.local-credentialless\.webcontainer-api\.io/,
-              );
-
-              if (!match) {
-                console.warn('[Preview] Invalid WebContainer URL:', activePreview.baseUrl);
-                return;
-              }
-
-              const previewId = match[1];
-              const previewUrl = `/webcontainer/preview/${previewId}`;
-
-              // Open in a new window with simple parameters
-              window.open(
-                previewUrl,
-                `preview-${previewId}`,
-                'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no,resizable=yes',
-              );
-            }}
-            title="Open Preview in New Window"
-          />
-
           <div className="flex items-center relative">
             <IconButton
-              icon="i-ph:arrow-square-out"
-              onClick={() => openInNewWindow(selectedWindowSize)}
-              title={`Open Preview in ${selectedWindowSize.name} Window`}
-            />
-            <IconButton
-              icon="i-ph:caret-down"
+              icon="i-ph:list"
               onClick={() => setIsWindowSizeDropdownOpen(!isWindowSizeDropdownOpen)}
-              className="ml-1"
-              title="Select Window Size"
+              title="New Window Options"
             />
 
             {isWindowSizeDropdownOpen && (
@@ -764,11 +717,51 @@ export const Preview = memo(() => {
                 <div className="absolute right-0 top-full mt-2 z-50 min-w-[240px] max-h-[400px] overflow-y-auto bg-white dark:bg-black rounded-xl shadow-2xl border border-[#E5E7EB] dark:border-[rgba(255,255,255,0.1)] overflow-hidden">
                   <div className="p-3 border-b border-[#E5E7EB] dark:border-[rgba(255,255,255,0.1)]">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-[#111827] dark:text-gray-300">Device Options</span>
+                      <span className="text-sm font-medium text-[#111827] dark:text-gray-300">Window Options</span>
                     </div>
                     <div className="flex flex-col gap-2">
+                      <button
+                        className={`flex w-full justify-between items-center text-start bg-transparent text-xs text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary`}
+                        onClick={() => {
+                          openInNewTab();
+                        }}
+                      >
+                        <span>Open in new tab</span>
+                        <div className="i-ph:arrow-square-out h-5 w-4" />
+                      </button>
+                      <button
+                        className={`flex w-full justify-between items-center text-start bg-transparent text-xs text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary`}
+                        onClick={() => {
+                          if (!activePreview?.baseUrl) {
+                            console.warn('[Preview] No active preview available');
+                            return;
+                          }
+
+                          const match = activePreview.baseUrl.match(
+                            /^https?:\/\/([^.]+)\.local-credentialless\.webcontainer-api\.io/,
+                          );
+
+                          if (!match) {
+                            console.warn('[Preview] Invalid WebContainer URL:', activePreview.baseUrl);
+                            return;
+                          }
+
+                          const previewId = match[1];
+                          const previewUrl = `/webcontainer/preview/${previewId}`;
+
+                          // Open in a new window with simple parameters
+                          window.open(
+                            previewUrl,
+                            `preview-${previewId}`,
+                            'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no,resizable=yes',
+                          );
+                        }}
+                      >
+                        <span>Open in new window</span>
+                        <div className="i-ph:browser h-5 w-4" />
+                      </button>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-[#6B7280] dark:text-gray-400">Show Device Frame</span>
+                        <span className="text-xs text-bolt-elements-textTertiary">Show Device Frame</span>
                         <button
                           className={`w-10 h-5 rounded-full transition-colors duration-200 ${
                             showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
@@ -786,7 +779,7 @@ export const Preview = memo(() => {
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-[#6B7280] dark:text-gray-400">Landscape Mode</span>
+                        <span className="text-xs text-bolt-elements-textTertiary">Landscape Mode</span>
                         <button
                           className={`w-10 h-5 rounded-full transition-colors duration-200 ${
                             isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
@@ -959,7 +952,7 @@ export const Preview = memo(() => {
                   className="border-none w-full h-full bg-bolt-elements-background-depth-1"
                   src={iframeUrl}
                   sandbox="allow-scripts allow-forms allow-popups allow-modals allow-storage-access-by-user-activation allow-same-origin"
-                  allow="cross-origin-isolated"
+                  allow="geolocation; ch-ua-full-version-list; cross-origin-isolated; screen-wake-lock; publickey-credentials-get; shared-storage-select-url; ch-ua-arch; bluetooth; compute-pressure; ch-prefers-reduced-transparency; deferred-fetch; usb; ch-save-data; publickey-credentials-create; shared-storage; deferred-fetch-minimal; run-ad-auction; ch-ua-form-factors; ch-downlink; otp-credentials; payment; ch-ua; ch-ua-model; ch-ect; autoplay; camera; private-state-token-issuance; accelerometer; ch-ua-platform-version; idle-detection; private-aggregation; interest-cohort; ch-viewport-height; local-fonts; ch-ua-platform; midi; ch-ua-full-version; xr-spatial-tracking; clipboard-read; gamepad; display-capture; keyboard-map; join-ad-interest-group; ch-width; ch-prefers-reduced-motion; browsing-topics; encrypted-media; gyroscope; serial; ch-rtt; ch-ua-mobile; window-management; unload; ch-dpr; ch-prefers-color-scheme; ch-ua-wow64; attribution-reporting; fullscreen; identity-credentials-get; private-state-token-redemption; hid; ch-ua-bitness; storage-access; sync-xhr; ch-device-memory; ch-viewport-width; picture-in-picture; magnetometer; clipboard-write; microphone"
                 />
               )}
               <ScreenshotSelector

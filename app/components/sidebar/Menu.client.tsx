@@ -363,7 +363,7 @@ export const Menu = () => {
           <div className="p-4 space-y-3">
             <div className="flex gap-2">
               <a
-                href="/"
+                href="/chat"
                 className="flex-1 flex gap-2 items-center bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg px-4 py-2 transition-colors"
               >
                 <span className="inline-block i-ph:plus-circle h-4 w-4" />
