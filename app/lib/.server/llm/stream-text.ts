@@ -183,7 +183,7 @@ ${lockedFilesListString}
   // console.log(systemPrompt, processedMessages);
 
   logger.debug(`Server system prompt: ${systemPrompt}`)
-  logger.debug(`User messages: ${messages.map(message => message + "\n")}`)
+  // logger.debug(`User messages: ${messages.map(message => message + "\n")}`)
 
   return await _streamText({
     model: provider.getModelInstance({

@@ -67,7 +67,11 @@ export default class OpenAIProvider extends BaseProvider {
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
   }): LanguageModelV1 {
-    const { model, serverEnv, apiKeys, providerSettings } = options;
+    let { model } = options;
+    const { serverEnv, apiKeys, providerSettings } = options;
+    // if (model.startsWith("o") && model.endsWith("mini")) {
+      // model += "-high"
+    // }
 
     const { apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
@@ -85,6 +89,6 @@ export default class OpenAIProvider extends BaseProvider {
       apiKey,
     });
 
-    return openai(model);
+    return openai(model, { reasoningEffort: "high" });
   }
 }

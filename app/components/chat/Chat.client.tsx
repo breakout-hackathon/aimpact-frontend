@@ -191,6 +191,8 @@ export const ChatImpl = memo(
         );
       },
       onFinish: (message, response) => {
+        logger.debug("ON FINISH")
+        logger.debug(response.usage)
         const usage = response.usage;
         setData(undefined);
 

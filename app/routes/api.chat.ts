@@ -37,6 +37,7 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
+  logger.debug("Test")
   const { messages, files, promptId, contextOptimization, supabase } = await request.json<{
     messages: Messages;
     files: any;
