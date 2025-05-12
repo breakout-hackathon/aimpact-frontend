@@ -9,8 +9,11 @@ import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import tailwindcss from '@tailwindcss/vite';
+import babel from 'vite-plugin-babel';
 
 dotenv.config();
+
+const reactCompilerConfig = {};
 
 // Get detailed git info with fallbacks
 const getGitInfo = () => {
@@ -133,6 +136,13 @@ export default defineConfig((config) => {
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
+      babel({
+        filter: /\.[jt]sx?$/,
+        babelConfig: {
+          presets: ['@babel/preset-typescript'], // if you use TypeScript
+          plugins: [['babel-plugin-react-compiler', reactCompilerConfig]],
+        },
+      }),
     ],
     envPrefix: [
       'VITE_',
