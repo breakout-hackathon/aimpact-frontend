@@ -12,29 +12,19 @@ import { WORK_DIR } from '~/utils/constants';
 import { createSummary } from '~/lib/.server/llm/create-summary';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 
+const defaultAPiKeys = {
+  OpenAI: process.env.OPENAI_API_KEY as string,
+}
+
+const providersSetings = {
+  OpenAI: { enabled: true },
+} 
+
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
 }
 
 const logger = createScopedLogger('api.chat');
-
-function parseCookies(cookieHeader: string): Record<string, string> {
-  const cookies: Record<string, string> = {};
-
-  const items = cookieHeader.split(';').map((cookie) => cookie.trim());
-
-  items.forEach((item) => {
-    const [name, ...rest] = item.split('=');
-
-    if (name && rest) {
-      const decodedName = decodeURIComponent(name.trim());
-      const decodedValue = decodeURIComponent(rest.join('=').trim());
-      cookies[decodedName] = decodedValue;
-    }
-  });
-
-  return cookies;
-}
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
   logger.debug("Test")
@@ -53,11 +43,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     };
   }>();
 
-  const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
-  const providerSettings: Record<string, IProviderSetting> = JSON.parse(
-    parseCookies(cookieHeader || '').providers || '{}',
-  );
+  // const cookieHeader = request.headers.get('Cookie');
+  const apiKeys: Record<string, string> = defaultAPiKeys; // JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
+  const providerSettings: Record<string, IProviderSetting> = providersSetings;
 
   const stream = new SwitchableStream();
 

@@ -165,7 +165,6 @@ export const ChatImpl = memo(
     } = useChat({
       api: '/api/chat',
       body: {
-        apiKeys,
         files,
         promptId,
         contextOptimization: contextOptimizationEnabled,

@@ -5,10 +5,14 @@ import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ClientOnly } from 'remix-utils/client-only';
+import {
+  DynamicContextProvider,
+} from "@dynamic-labs/sdk-react-core";
+import { SolanaWalletConnectors } from "@dynamic-labs/solana";
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
@@ -65,6 +69,27 @@ export const Head = createHead(() => (
   </>
 ));
 
+function Providers({ children }: { children: React.ReactNode }) {
+  console.log(process.env.DYNAMIC_ENVIROMENT_ID)
+
+  return (
+    // <DynamicContextProvider 
+    //   settings={{
+    //     environmentId: "ef8d5320-bb51-49c8-9932-5926b6646175",
+    //     walletConnectors: [SolanaWalletConnectors],
+    //   }}
+    // >
+      <ClientOnly>{() => 
+        <SolanaProvider>
+          <DndProvider backend={HTML5Backend}>
+            {children}
+          </DndProvider>
+        </SolanaProvider>
+      }</ClientOnly>
+    // </DynamicContextProvider>
+  )
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
 
@@ -74,7 +99,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
+      <Providers>{children}</Providers>
       <ScrollRestoration />
       <Scripts />
     </>
@@ -82,6 +107,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
+import { SolanaProvider } from './components/providers/SolanaProvider';
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -96,8 +122,15 @@ export default function App() {
   }, []);
 
   return (
-    <Layout>
-      <Outlet />
-    </Layout>
+    <DynamicContextProvider 
+      settings={{
+        environmentId: "ef8d5320-bb51-49c8-9932-5926b6646175",
+        walletConnectors: [SolanaWalletConnectors],
+      }}
+    >
+      <Layout>
+        <Outlet />
+      </Layout>
+    </DynamicContextProvider>
   );
 }

@@ -44,7 +44,7 @@ import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { useStore } from '@nanostores/react';
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 
-const TEXTAREA_MIN_HEIGHT = 76;
+const TEXTAREA_MIN_HEIGHT = 95;
 
 interface BaseChatProps {
   textareaRef?: React.RefObject<HTMLTextAreaElement> | undefined;
@@ -443,7 +443,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
                     <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
                   </svg>
-                  <div className='mb-3'>
+                  {/* <div className='mb-3'>
                     <ClientOnly>
                       {() => (
                         <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
@@ -472,7 +472,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         </div>
                       )}
                     </ClientOnly>
-                  </div>
+                  </div> */}
                   <FilePreview
                     files={uploadedFiles}
                     imageDataList={imageDataList}
