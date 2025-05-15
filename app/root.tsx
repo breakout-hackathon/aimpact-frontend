@@ -73,22 +73,15 @@ function Providers({ children }: { children: React.ReactNode }) {
   console.log(process.env.DYNAMIC_ENVIROMENT_ID)
 
   return (
-    // <DynamicContextProvider 
-    //   settings={{
-    //     environmentId: "ef8d5320-bb51-49c8-9932-5926b6646175",
-    //     walletConnectors: [SolanaWalletConnectors],
-    //   }}
-    // >
-      <ClientOnly>{() => 
-        <SolanaProvider>
-          <AuthProvider>
-            <DndProvider backend={HTML5Backend}>
-              {children}
-            </DndProvider>
-          </AuthProvider>
-        </SolanaProvider>
-      }</ClientOnly>
-    // </DynamicContextProvider>
+    <ClientOnly>{() => 
+      <SolanaProvider>
+        <AuthProvider>
+          <DndProvider backend={HTML5Backend}>
+            {children}
+          </DndProvider>
+        </AuthProvider>
+      </SolanaProvider>
+    }</ClientOnly>
   )
 }
 

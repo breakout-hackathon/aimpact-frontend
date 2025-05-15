@@ -132,7 +132,8 @@ export const ChatImpl = memo(
     );
     const supabaseAlert = useStore(workbenchStore.supabaseAlert);
     const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
-    console.log(`Prompt id: ${promptId}`)
+    // console.log(`Auto select template: ${autoSelectTemplate}`)
+    // console.log(`Prompt id: ${promptId}`)
 
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
@@ -211,6 +212,7 @@ export const ChatImpl = memo(
       },
       initialMessages,
       initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
+      experimental_throttle: 50,
     });
     useEffect(() => {
       const prompt = searchParams.get('prompt');

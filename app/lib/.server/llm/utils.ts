@@ -4,18 +4,10 @@ import { IGNORE_PATTERNS, type FileMap } from './constants';
 import ignore from 'ignore';
 import type { ContextAnnotation } from '~/types/context';
 
-type MessageContentType = {
-  type: string;
-  text: string;
-}
-
-type Parts = Message["parts"];
-
 export function extractPropertiesFromMessage(message: Omit<Message, 'id'>): {
   model: string;
   provider: string;
   content: string;
-  parts: Parts,
 } {
   const textContent = Array.isArray(message.content)
     ? message.content.find((item) => item.type === 'text')?.text || ''
@@ -36,19 +28,20 @@ export function extractPropertiesFromMessage(message: Omit<Message, 'id'>): {
    */
   const provider = providerMatch ? providerMatch[1] : DEFAULT_PROVIDER.name;
 
-  const parts: Parts = [];
-  let cleanedContent = message.content;
-  // (message.content as MessageContentType).map((item) => {
-  //   if (item.type === 'text') {
-  //     return {
-  //       type: 'text',
-  //       text: item.text?.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, ''),
-  //     };
-    // }
-    // return item; // Preserve image_url and other types as is
-  // })
+  const cleanedContent = Array.isArray(message.content)
+    ? message.content.map((item) => {
+        if (item.type === 'text') {
+          return {
+            type: 'text',
+            text: item.text?.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, ''),
+          };
+        }
 
-  return { model, provider, content: cleanedContent, parts };
+        return item; // Preserve image_url and other types as is
+      })
+    : textContent.replace(MODEL_REGEX, '').replace(PROVIDER_REGEX, '');
+
+  return { model, provider, content: cleanedContent };
 }
 
 export function simplifyBoltActions(input: string): string {

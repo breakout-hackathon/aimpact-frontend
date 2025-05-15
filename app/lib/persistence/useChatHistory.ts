@@ -211,7 +211,8 @@ ${value.content}
         summary: chatSummary,
       };
 
-      // localStorage.setItem(`snapshot:${id}`, JSON.stringify(snapshot)); // Remove localStorage usage
+
+      localStorage.setItem(`snapshot:${id}`, JSON.stringify(snapshot)); // Remove localStorage usage
       try {
         await setSnapshot(db, id, snapshot);
       } catch (error) {
@@ -274,24 +275,38 @@ ${value.content}
       }
     },
     storeMessageHistory: async (messages: Message[]) => {
-      if (!db || messages.length === 0) {
+      let _urlId = urlId;
+      let chatSummary: string | undefined = undefined;
+      const lastMessage = messages[messages.length - 1];
+
+
+      // if (lastMessage.role === 'assistant') {
+      //   const annotations = lastMessage.annotations as JSONValue[];
+      //   const filteredAnnotations = (annotations?.filter(
+      //     (annotation: JSONValue) =>
+      //       annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
+      //   ) || []) as { type: string; value: any } & { [key: string]: any }[];
+
+      //   if (filteredAnnotations.find((annotation) => annotation.type === 'chatSummary')) {
+      //     chatSummary = filteredAnnotations.find((annotation) => annotation.type === 'chatSummary')?.summary;
+      //   }
+      // }
+      // console.log(takeSnapshot(messages[messages.length - 1].id, workbenchStore.files.get(), _urlId, chatSummary));
+
+      if (messages.length === 0) {
         return;
       }
 
       const { firstArtifact } = workbenchStore;
       messages = messages.filter((m) => !m.annotations?.includes('no-store'));
 
-      let _urlId = urlId;
+      // if (!urlId && firstArtifact?.id) {
+      //   const urlId = await getUrlId(db, firstArtifact.id);
+      //   _urlId = urlId;
+      //   navigateChat(urlId);
+      //   setUrlId(urlId);
+      // }
 
-      if (!urlId && firstArtifact?.id) {
-        const urlId = await getUrlId(db, firstArtifact.id);
-        _urlId = urlId;
-        navigateChat(urlId);
-        setUrlId(urlId);
-      }
-
-      let chatSummary: string | undefined = undefined;
-      const lastMessage = messages[messages.length - 1];
 
       if (lastMessage.role === 'assistant') {
         const annotations = lastMessage.annotations as JSONValue[];
@@ -310,6 +325,8 @@ ${value.content}
       if (!description.get() && firstArtifact?.title) {
         description.set(firstArtifact?.title);
       }
+
+      if (!db) return;
 
       // Ensure chatId.get() is used here as well
       if (initialMessages.length === 0 && !chatId.get()) {

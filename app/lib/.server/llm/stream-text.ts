@@ -201,9 +201,5 @@ ${lockedFilesListString}
     maxTokens: dynamicMaxTokens,
     messages: convertToCoreMessages(processedMessages as any),
     ...options,
-    onError: (event) => {
-      logger.info("Error in stream:")
-      logger.error(event.error)
-    }
   });
 }

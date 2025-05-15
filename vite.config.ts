@@ -99,7 +99,8 @@ export default defineConfig((config) => {
       target: 'esnext',
     },
     plugins: [
-      tailwindcss(),
+      UnoCSS(),
+      // tailwindcss(),
       nodePolyfills({
         include: ['buffer', 'process', 'util', 'stream'],
         globals: {
@@ -132,7 +133,6 @@ export default defineConfig((config) => {
           v3_lazyRouteDiscovery: true,
         },
       }),
-      UnoCSS(),
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),

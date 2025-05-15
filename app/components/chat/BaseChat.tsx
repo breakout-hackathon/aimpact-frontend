@@ -635,7 +635,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           a new line
                         </div>
                       ) : null}
-                      {/* <SupabaseConnection /> */}
+                      <SupabaseConnection />
                       <ExpoQrModal open={qrModalOpen} onClose={() => setQrModalOpen(false)} />
                     </div>
                   </div>
