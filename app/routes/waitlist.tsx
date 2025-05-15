@@ -32,21 +32,10 @@ export default function Waitlist() {
 
     setIsSubmitting(true);
 
-    // Simulate async submission
-    setTimeout(() => {
-      // Simulate random error (1 in 10 chance)
-      if (Math.random() < 0.1) {
-        setError('Server error. Please try again.');
-        setIsSubmitting(false);
-
-        return;
-      }
-
-      setSuccessMessage("You've been added to our waitlist!");
-      setShowSuccessModal(true);
-      setIsSubmitting(false);
-      setEmail('');
-    }, 1000);
+    setSuccessMessage("You've been added to our waitlist!");
+    setShowSuccessModal(true);
+    setIsSubmitting(false);
+    setEmail('');
   };
 
   // Show success modal when submission is successful

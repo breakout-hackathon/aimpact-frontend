@@ -9,7 +9,7 @@ import { useAnimate } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
-import { useChatHistory } from '~/lib/persistence';
+import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
@@ -38,8 +38,8 @@ const logger = createScopedLogger('Chat');
 export function Chat() {
   renderLogger.trace('Chat');
 
-  const { ready, initialMessages, storeMessageHistory } = useChatHistory();
-  // const title = useStore(description);
+  const { ready, initialMessages, storeMessageHistory, importChat, exportChat } = useChatHistory();
+  const title = useStore(description);
   useEffect(() => {
     workbenchStore.setReloadedMessages(initialMessages.map((m) => m.id));
   }, [initialMessages]);
@@ -48,11 +48,11 @@ export function Chat() {
     <>
       {ready && (
         <ChatImpl
-          // description={title}
+          description={title}
           initialMessages={initialMessages}
-          // exportChat={exportChat}
+          exportChat={exportChat}
           storeMessageHistory={storeMessageHistory}
-          // importChat={importChat}
+          importChat={importChat}
         />
       )}
       <ToastContainer
@@ -108,8 +108,8 @@ const processSampledMessages = createSampler(
 interface ChatProps {
   initialMessages: Message[];
   storeMessageHistory: (messages: Message[]) => Promise<void>;
-  // importChat: (description: string, messages: Message[]) => Promise<void>;
-  // exportChat: () => void;
+  importChat: (description: string, messages: Message[]) => Promise<void>;
+  exportChat: () => void;
   description?: string;
 }
 

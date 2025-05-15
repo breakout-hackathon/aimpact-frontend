@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from '@remix-run/react';
-import { mockProjects } from '~/routes/projects';
+import { mockProjects } from '~/utils/mockProjects';
 
 export default function Project() {
   const params = useParams();

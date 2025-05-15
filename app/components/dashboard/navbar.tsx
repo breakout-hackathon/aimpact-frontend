@@ -2,12 +2,16 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Search, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 
-const Navbar = () => {
+interface NavBarProps {
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
   const { scrollY } = useScroll();
-  const backgroundColor = useTransform(scrollY, [0, 100], ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.8)']);
+  const backgroundColor = useTransform(scrollY, [0, 100], ['rgba(20, 20, 20, 0)', 'rgba(20, 20, 20, 0.8)']);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -46,6 +50,8 @@ const Navbar = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.currentTarget.value || "")}
                   placeholder="Search projects..."
                   className="pl-10 pr-4 py-2 w-40 lg:w-60 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all duration-200"
                 />

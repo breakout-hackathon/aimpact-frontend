@@ -612,7 +612,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           onStop={stopListening}
                           disabled={isStreaming}
                         />
-                        {/* {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>} */}
+                        {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                         <IconButton
                           title="Model Settings"
                           className={classNames('transition-all flex items-center gap-1', {
@@ -635,7 +635,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           a new line
                         </div>
                       ) : null}
-                      <SupabaseConnection />
+                      {/* <SupabaseConnection /> */}
                       <ExpoQrModal open={qrModalOpen} onClose={() => setQrModalOpen(false)} />
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import type { Project } from '@/types/project';
-import { BadgeCustom } from '@/components/ui/badge-custom';
+import { BadgeCustom, type BadgeCustomProps } from '@/components/ui/badge-custom';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { ExternalLink } from 'lucide-react';
@@ -24,7 +24,7 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ project, index }: ProjectCardProps) => {
-  const { token, title, description, category, riskLevel, launchDate, website } = project;
+  const { token, title, description, category, riskLevel, launchDate, website, id: projectId } = project;
 
   /*
    * const isPriceUp = token.priceChangePercentage24h > 0;
@@ -61,13 +61,14 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
+      transition={{ duration: 0.15, delay: index * 0.1 }}
       whileHover={{ y: -8, transition: { duration: 0.2 } }}
-      className="group relative bg-black/80 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+      className="group relative bg-black/65 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 dark:to-white/5 z-0 group-hover:opacity-100 opacity-0 transition-opacity duration-300" />
 
-      <div className="p-6 relative z-10">
+       {/* onClick={() => window.location.href = `/projects/${index}`} */}
+      <a className="block p-6 relative z-10 cursor-pointer" href={`/projects/${index}`}>
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
             {token.icon && (
@@ -79,7 +80,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
               <h3 className="text-xl font-bold text-foreground">{title}</h3>
               <div className="flex items-center mt-1">
                 {/* <span className="text-2xl font-bold mr-2">{token.symbol}</span> */}
-                <BadgeCustom variant={getCategoryVariant(category)}>{category}</BadgeCustom>
+                <BadgeCustom variant={getCategoryVariant(category) as BadgeCustomProps["variant"]}>{category}</BadgeCustom>
               </div>
             </div>
           </div>
@@ -138,7 +139,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
             </motion.a>
           )}
         </div>
-      </div>
+      </a>
 
       {/* Bottom gradient bar - changes color based on price movement */}
       {/* <div
