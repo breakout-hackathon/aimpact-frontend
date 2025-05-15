@@ -181,7 +181,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           toolChoice: 'none',
           onFinish: async ({ text: content, finishReason, usage }) => {
             logger.debug('usage', JSON.stringify(usage));
-
+            
+            console.log(usage);
             if (usage) {
               cumulativeUsage.completionTokens += usage.completionTokens || 0;
               cumulativeUsage.promptTokens += usage.promptTokens || 0;
@@ -265,7 +266,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           order: progressCounter++,
           message: 'Generating Response',
         } satisfies ProgressAnnotation);
-
+        
+        logger.info("Before Stream text");
         const result = await streamText({
           messages,
           env: context.cloudflare?.env,
@@ -292,7 +294,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         })();
         result.mergeIntoDataStream(dataStream);
       },
-      onError: (error: any) => `Custom error: ${error.message}`,
+      onError: (error: any) => {
+        logger.error("Before error (onError)")
+        return `Custom error: ${error.message}`
+      },
     }).pipeThrough(
       new TransformStream({
         transform: (chunk, controller) => {

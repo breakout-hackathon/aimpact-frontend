@@ -54,6 +54,8 @@ export async function streamText(props: {
   let processedMessages = messages.map((message) => {
     if (message.role === 'user') {
       const { model, provider, content } = extractPropertiesFromMessage(message);
+      logger.info(content)
+      logger.info(message)
       currentModel = model;
       currentProvider = provider;
 
@@ -182,8 +184,11 @@ ${lockedFilesListString}
 
   // console.log(systemPrompt, processedMessages);
 
-  logger.debug(`Server system prompt: ${systemPrompt}`)
+  // logger.debug(`Server system prompt: ${systemPrompt}`)
   // logger.debug(`User messages: ${messages.map(message => message + "\n")}`)
+  
+  logger.info(JSON.stringify(processedMessages, null, 4))
+  logger.info(JSON.stringify(convertToCoreMessages(processedMessages as any), null, 4))
 
   return await _streamText({
     model: provider.getModelInstance({
@@ -196,5 +201,9 @@ ${lockedFilesListString}
     maxTokens: dynamicMaxTokens,
     messages: convertToCoreMessages(processedMessages as any),
     ...options,
+    onError: (event) => {
+      logger.info("Error in stream:")
+      logger.error(event.error)
+    }
   });
 }
