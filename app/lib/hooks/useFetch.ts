@@ -32,7 +32,7 @@ export function useFetch<T = any>() {
     throw error;
   }, []);
 
-  const fetchDataAuthorized = useCallback(async (url: string, options: FetchOptions = {}): Promise<T> => {
+  const fetchDataAuthorized = useCallback(async (url: string, options: FetchOptions = {}): Promise<T | null> => {
     const { showError = true, ...fetchOptions } = options;
     
     setState(prev => ({ ...prev, loading: true, error: null }));
@@ -48,8 +48,6 @@ export function useFetch<T = any>() {
 
       headers.set('Authorization', `Bearer ${authToken}`);
 
-      console.log('fetch options', fetchOptions);
-
       const response = await fetch(url, {
         ...fetchOptions,
         headers,
@@ -64,7 +62,11 @@ export function useFetch<T = any>() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json() as T;
+      let data: T | null = null;
+      const text = await response.text();
+      if (text) {
+        data = JSON.parse(text) as T;
+      }
       setState({ data, error: null, loading: false });
       return data;
     } catch (error) {
@@ -72,7 +74,7 @@ export function useFetch<T = any>() {
     }
   }, [disconnect, handleError]);
 
-  const fetchDataUnauthorized = useCallback(async (url: string, options: FetchOptions = {}): Promise<T> => {
+  const fetchDataUnauthorized = useCallback(async (url: string, options: FetchOptions = {}): Promise<T | null> => {
     const { showError = true, ...fetchOptions } = options;
     
     setState(prev => ({ ...prev, loading: true, error: null }));
@@ -89,7 +91,11 @@ export function useFetch<T = any>() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json() as T;
+      let data: T | null = null;
+      const text = await response.text();
+      if (text) {
+        data = JSON.parse(text) as T;
+      }
       setState({ data, error: null, loading: false });
       return data;
     } catch (error) {
