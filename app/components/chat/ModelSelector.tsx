@@ -449,7 +449,7 @@ export const ModelSelector = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       setModel?.(modelOption.name);
-                      console.log(`Current model: ${modelOption.name}`)
+                      console.log(`Current model: ${modelOption.name}`);
                       setIsModelDropdownOpen(false);
                       setModelSearchQuery('');
                     }}

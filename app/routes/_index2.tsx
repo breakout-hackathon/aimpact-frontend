@@ -19,23 +19,29 @@ export default function Waitlist() {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
+
     if (!email) {
       setError('Email is required');
       return;
     }
+
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
       return;
     }
+
     setIsSubmitting(true);
+
     // Simulate async submission
     setTimeout(() => {
       // Simulate random error (1 in 10 chance)
       if (Math.random() < 0.1) {
         setError('Server error. Please try again.');
         setIsSubmitting(false);
+
         return;
       }
+
       setSuccessMessage("You've been added to our waitlist!");
       setShowSuccessModal(true);
       setIsSubmitting(false);

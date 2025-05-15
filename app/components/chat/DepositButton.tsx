@@ -1,46 +1,48 @@
-import { useState } from "react"
-import { Form, useNavigation } from "@remix-run/react"
-import { Info } from "@phosphor-icons/react";
-import WithTooltip from "./Tooltip";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useState } from 'react';
+import { Form, useNavigation } from '@remix-run/react';
+import { Info } from '@phosphor-icons/react';
+import WithTooltip from './Tooltip';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function DepositButton() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [txHash, setTxHash] = useState("");
-  const [error, setError] = useState("");
-  const navigation = useNavigation()
-  const { signMessage, publicKey } = useWallet()
-  const isSubmitting = navigation.state === "submitting"
+  const [isOpen, setIsOpen] = useState(false);
+  const [txHash, setTxHash] = useState('');
+  const [error, setError] = useState('');
+  const navigation = useNavigation();
+  const { signMessage, publicKey } = useWallet();
+  const isSubmitting = navigation.state === 'submitting';
 
   const solanaTxHashRegex = /^[1-9A-HJ-NP-Za-km-z]{88}$/;
 
   const handleToggle = () => {
-    setIsOpen(!isOpen)
-  }
+    setIsOpen(!isOpen);
+  };
 
-  const validateTxHash = () => {
-
-  }
+  const validateTxHash = () => {};
 
   const handleChangeTxHash = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
 
     setTxHash(e.target.value);
+
     if (solanaTxHashRegex.test(txHash)) {
-      setError("Solana Transaction Hash is invalid.");
+      setError('Solana Transaction Hash is invalid.');
       return;
     }
 
     setTxHash(txHash);
-  }
+  };
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    if (!signMessage || !publicKey) return;
-    if (!txHash) {
-      setError("Transaction Hash is required.");
+    if (!signMessage || !publicKey) {
       return;
     }
-  
+
+    if (!txHash) {
+      setError('Transaction Hash is required.');
+      return;
+    }
+
     const message = `You are confirming this txId: ${txHash}\n${Date.now()}`;
     const encodedMessage = new TextEncoder().encode(message);
     const signature = await signMessage(encodedMessage);
@@ -50,13 +52,14 @@ export default function DepositButton() {
       txHash,
       address: publicKey.toBase58(),
     };
-    
-    const response = await fetch("/api/deposit", { body: JSON.stringify(payload) });
+
+    const response = await fetch('/api/deposit', { body: JSON.stringify(payload) });
+
     if (!response.ok) {
-      setError("Failed to process deposit request.");
+      setError('Failed to process deposit request.');
       return;
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -84,7 +87,7 @@ export default function DepositButton() {
                 <div className="flex gap-2 items-center">
                   <h3 className="text-lg font-medium leading-6">Deposit Funds</h3>
                   <WithTooltip tooltip="test" position="right">
-                    <Info size={20} className="text-gray-500 flex"  />
+                    <Info size={20} className="text-gray-500 flex" />
                   </WithTooltip>
                 </div>
                 <div className="mt-4">
@@ -104,13 +107,7 @@ export default function DepositButton() {
                       />
                     </div>
 
-                    <div
-                    className={`mt-2 text-sm ${
-                        error ? "text-red-600" : "text-green-600"
-                    }`}
-                    >
-                        {error}
-                    </div>
+                    <div className={`mt-2 text-sm ${error ? 'text-red-600' : 'text-green-600'}`}>{error}</div>
 
                     <div className="mt-5 sm:mt-6">
                       <button
@@ -119,7 +116,7 @@ export default function DepositButton() {
                         onClick={handleSubmit}
                         className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm disabled:opacity-50"
                       >
-                        {isSubmitting ? "Submitting..." : "Submit"}
+                        {isSubmitting ? 'Submitting...' : 'Submit'}
                       </button>
                     </div>
                   </Form>
@@ -130,5 +127,5 @@ export default function DepositButton() {
         </div>
       )}
     </div>
-  )
+  );
 }

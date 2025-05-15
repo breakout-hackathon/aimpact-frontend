@@ -5,7 +5,7 @@
  *--------------------------------------------------------------------------------------------
  */
 
- import {
+import {
   type DependencyList,
   type MutableRefObject,
   type RefCallback,

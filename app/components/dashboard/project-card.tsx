@@ -26,32 +26,36 @@ interface ProjectCardProps {
 const ProjectCard = ({ project, index }: ProjectCardProps) => {
   const { token, title, description, category, riskLevel, launchDate, website } = project;
 
-  // const isPriceUp = token.priceChangePercentage24h > 0;
-  // const priceChangeColor = isPriceUp ? "text-emerald-500" : "text-rose-500";
-  // const priceChangeIcon = isPriceUp ? (
-  //   <ArrowUpRight className="w-4 h-4" />
-  // ) : (
-  //   <ArrowDownRight className="w-4 h-4" />
-  // );
+  /*
+   * const isPriceUp = token.priceChangePercentage24h > 0;
+   * const priceChangeColor = isPriceUp ? "text-emerald-500" : "text-rose-500";
+   * const priceChangeIcon = isPriceUp ? (
+   *   <ArrowUpRight className="w-4 h-4" />
+   * ) : (
+   *   <ArrowDownRight className="w-4 h-4" />
+   * );
+   */
 
   const getCategoryVariant = (category: string): string => {
     return category.toLowerCase() as any;
   };
 
-  // const getRiskVariant = (risk: string): string => {
-  //   switch (risk) {
-  //     case "Low":
-  //       return "success";
-  //     case "Medium":
-  //       return "warning";
-  //     case "High":
-  //       return "negative";
-  //     case "Extreme":
-  //       return "destructive";
-  //     default:
-  //       return "secondary";
-  //   }
-  // };
+  /*
+   * const getRiskVariant = (risk: string): string => {
+   *   switch (risk) {
+   *     case "Low":
+   *       return "success";
+   *     case "Medium":
+   *       return "warning";
+   *     case "High":
+   *       return "negative";
+   *     case "Extreme":
+   *       return "destructive";
+   *     default:
+   *       return "secondary";
+   *   }
+   * };
+   */
 
   return (
     <motion.div

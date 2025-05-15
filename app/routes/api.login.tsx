@@ -1,5 +1,5 @@
-import { createCookieSessionStorage, type ActionFunctionArgs } from "@remix-run/node";
-import { PublicKey,  } from "@solana/web3.js";
+import { createCookieSessionStorage, type ActionFunctionArgs } from '@remix-run/node';
+import { PublicKey } from '@solana/web3.js';
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -24,4 +24,3 @@ export async function action({ request }: ActionFunctionArgs) {
     console.log(message, signature, address);
   } catch {}
 }
-  

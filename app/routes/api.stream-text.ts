@@ -9,76 +9,86 @@
 
 // const logger = createScopedLogger("api.chat");
 
-// export async function action({ request, context }: ActionFunctionArgs) {
-//   try {
-//     // Parse the request body
-//     const {
-//       messages,
-//       files,
-//       providerSettings,
-//       promptId,
-//       contextOptimization = false,
-//       contextFiles,
-//       summary,
-//       messageSliceId,
-//     } = await request.json<{
-//         messages: Omit<Message, "id">[];
-//         env?: Env;
-//         options?: StreamingOptions;
-//         files?: FileMap;
-//         providerSettings?: Record<string, IProviderSetting>;
-//         promptId?: string;
-//         contextOptimization?: boolean;
-//         contextFiles?: FileMap;
-//         summary?: string;
-//         messageSliceId?: number;
-//     }>();
-    
-//     if (!messages || !Array.isArray(messages)) {
-//       return json({ error: "Valid messages array is required" }, { status: 400 });
-//     }
+/*
+ * export async function action({ request, context }: ActionFunctionArgs) {
+ *   try {
+ *     // Parse the request body
+ *     const {
+ *       messages,
+ *       files,
+ *       providerSettings,
+ *       promptId,
+ *       contextOptimization = false,
+ *       contextFiles,
+ *       summary,
+ *       messageSliceId,
+ *     } = await request.json<{
+ *         messages: Omit<Message, "id">[];
+ *         env?: Env;
+ *         options?: StreamingOptions;
+ *         files?: FileMap;
+ *         providerSettings?: Record<string, IProviderSetting>;
+ *         promptId?: string;
+ *         contextOptimization?: boolean;
+ *         contextFiles?: FileMap;
+ *         summary?: string;
+ *         messageSliceId?: number;
+ *     }>();
+ */
 
-//     logger.info("Processing chat request", { 
-//       messageCount: messages.length,
-//       hasContextFiles: !!contextFiles,
-//       contextOptimization
-//     });
+/*
+ *     if (!messages || !Array.isArray(messages)) {
+ *       return json({ error: "Valid messages array is required" }, { status: 400 });
+ *     }
+ */
 
-//     // Get the streaming response from our custom streamText implementation
-//     const stream = await streamText({
-//       messages: messages as Omit<Message, "id">[],
-//       env: context.env as Env, // Pass environment from Remix context
-//       options: {
-//         temperature: 0.7,
-//         // supabaseConnection: {
-//           // isConnected: context.supabase?.isConnected || false,
-//           // hasSelectedProject: context.supabase?.hasSelectedProject || false,
-//           // credentials: context.supabase?.credentials
-//         // }
-//       },
-//       apiKeys: apiKeys as Record<string, string>,
-//       files: files as FileMap,
-//       providerSettings: providerSettings as Record<string, IProviderSetting>,
-//       promptId,
-//       contextOptimization,
-//       contextFiles: contextFiles as FileMap,
-//       summary,
-//       messageSliceId,
-//     });
+/*
+ *     logger.info("Processing chat request", {
+ *       messageCount: messages.length,
+ *       hasContextFiles: !!contextFiles,
+ *       contextOptimization
+ *     });
+ */
 
-//     // Return the streaming response
-//     return stream;
-//   } catch (error) {
-//     logger.error("Error generating streaming response:", error);
-//     return json(
-//       { 
-//         error: "An error occurred while processing your request",
-//         details: process.env.NODE_ENV === "development" ? String(error) : undefined
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
+/*
+ *     // Get the streaming response from our custom streamText implementation
+ *     const stream = await streamText({
+ *       messages: messages as Omit<Message, "id">[],
+ *       env: context.env as Env, // Pass environment from Remix context
+ *       options: {
+ *         temperature: 0.7,
+ *         // supabaseConnection: {
+ *           // isConnected: context.supabase?.isConnected || false,
+ *           // hasSelectedProject: context.supabase?.hasSelectedProject || false,
+ *           // credentials: context.supabase?.credentials
+ *         // }
+ *       },
+ *       apiKeys: apiKeys as Record<string, string>,
+ *       files: files as FileMap,
+ *       providerSettings: providerSettings as Record<string, IProviderSetting>,
+ *       promptId,
+ *       contextOptimization,
+ *       contextFiles: contextFiles as FileMap,
+ *       summary,
+ *       messageSliceId,
+ *     });
+ */
+
+/*
+ *     // Return the streaming response
+ *     return stream;
+ *   } catch (error) {
+ *     logger.error("Error generating streaming response:", error);
+ *     return json(
+ *       {
+ *         error: "An error occurred while processing your request",
+ *         details: process.env.NODE_ENV === "development" ? String(error) : undefined
+ *       },
+ *       { status: 500 }
+ *     );
+ *   }
+ * }
+ */
 
 // // Optionally handle GET requests with an explanation
 // export async function loader() {

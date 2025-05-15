@@ -8,7 +8,6 @@ import * as dotenv from 'dotenv';
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import tailwindcss from '@tailwindcss/vite';
 import babel from 'vite-plugin-babel';
 
 dotenv.config();
@@ -95,8 +94,31 @@ export default defineConfig((config) => {
       __PKG_OPTIONAL_DEPENDENCIES: JSON.stringify(pkg.optionalDependencies),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     },
+    // resolve: {
+    //   alias: {
+    //     "util/types": "node:util"
+    //   },
+    // },
     build: {
       target: 'esnext',
+      rollupOptions: {
+        external: [
+          'vite',
+          'electron',
+          'fs',
+          'util',
+  
+          // Add all Node.js built-in modules as external
+          'node:fs',
+          'node:path',
+          'node:url',
+          'node:util',
+          'node:stream',
+          'node:events',
+          'electron-store',
+          '@remix-run/node',
+        ],
+      },
     },
     plugins: [
       UnoCSS(),
@@ -132,6 +154,7 @@ export default defineConfig((config) => {
           v3_throwAbortReason: true,
           v3_lazyRouteDiscovery: true,
         },
+        serverModuleFormat: 'esm',
       }),
       tsconfigPaths(),
       chrome129IssuePlugin(),

@@ -3,7 +3,7 @@
  * Preventing TS checks with files presented in the video for a better presentation.
  */
 import { useStore } from '@nanostores/react';
-import type { Message } from 'ai';
+import type { Message, UIMessage } from 'ai';
 import { useChat } from '@ai-sdk/react';
 import { useAnimate } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -89,7 +89,7 @@ export function Chat() {
 
 const processSampledMessages = createSampler(
   (options: {
-    messages: Message[];
+    messages: UIMessage[];
     initialMessages: Message[];
     isLoading: boolean;
     parseMessages: (messages: Message[], isLoading: boolean) => void;
@@ -132,8 +132,11 @@ export const ChatImpl = memo(
     );
     const supabaseAlert = useStore(workbenchStore.supabaseAlert);
     const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
-    // console.log(`Auto select template: ${autoSelectTemplate}`)
-    // console.log(`Prompt id: ${promptId}`)
+
+    /*
+     * console.log(`Auto select template: ${autoSelectTemplate}`)
+     * console.log(`Prompt id: ${promptId}`)
+     */
 
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
@@ -191,8 +194,9 @@ export const ChatImpl = memo(
         );
       },
       onFinish: (message, response) => {
-        logger.debug("ON FINISH")
-        logger.debug(response.usage)
+        logger.debug('ON FINISH');
+        logger.debug(response.usage);
+
         const usage = response.usage;
         setData(undefined);
 

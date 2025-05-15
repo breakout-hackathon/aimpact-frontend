@@ -86,33 +86,42 @@ export const selectStarterTemplate = async (options: { message: string; model: s
     template: 'blank',
     title: '',
   };
-  // const { message, model, provider } = options;
-  // const requestBody = {
-  //   message,
-  //   model,
-  //   provider,
-  //   system: starterTemplateSelectionPrompt(templates),
-  // };
-  // const response = await fetch('/api/llmcall', {
-  //   method: 'POST',
-  //   body: JSON.stringify(requestBody),
-  // });
-  // const respJson: { text: string } = await response.json();
-  // console.log(respJson);
 
-  // const { text } = respJson;
-  // const selectedTemplate = parseSelectedTemplate(text);
+  /*
+   * const { message, model, provider } = options;
+   * const requestBody = {
+   *   message,
+   *   model,
+   *   provider,
+   *   system: starterTemplateSelectionPrompt(templates),
+   * };
+   * const response = await fetch('/api/llmcall', {
+   *   method: 'POST',
+   *   body: JSON.stringify(requestBody),
+   * });
+   * const respJson: { text: string } = await response.json();
+   * console.log(respJson);
+   */
 
-  // if (selectedTemplate) {
-  //   return selectedTemplate;
-  // } else {
-  //   console.log('No template selected, using blank template');
+  /*
+   * const { text } = respJson;
+   * const selectedTemplate = parseSelectedTemplate(text);
+   */
 
-  //   return {
-  //     template: 'blank',
-  //     title: '',
-  //   };
-  // }
+  /*
+   * if (selectedTemplate) {
+   *   return selectedTemplate;
+   * } else {
+   *   console.log('No template selected, using blank template');
+   */
+
+  /*
+   *   return {
+   *     template: 'blank',
+   *     title: '',
+   *   };
+   * }
+   */
 };
 
 const getGitHubRepoContent = async (

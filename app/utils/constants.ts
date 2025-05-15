@@ -24,5 +24,4 @@ PROVIDER_LIST.forEach((provider) => {
 
 // starter Templates
 
-export const STARTER_TEMPLATES: Template[] = [
-];
+export const STARTER_TEMPLATES: Template[] = [];

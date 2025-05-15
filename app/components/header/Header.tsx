@@ -42,13 +42,23 @@ export function Header() {
         }
         </ClientOnly>
       </div> */}
-      <div className='flex justify-center items-center gap-2'>
-        { connected && <DepositButton /> }
-        
-        <WalletMultiButton style={
-          {fontSize: "16px", fontStyle: "normal", height: "42px", borderRadius: "8px", padding: "0 16px", display: "flex", alignItems: "center",
-              justifyContent: "center", whiteSpace: "nowrap", fontWeight: 500}
-        }  />
+      <div className="flex justify-center items-center gap-2">
+        {connected && <DepositButton />}
+
+        <WalletMultiButton
+          style={{
+            fontSize: '16px',
+            fontStyle: 'normal',
+            height: '42px',
+            borderRadius: '8px',
+            padding: '0 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            whiteSpace: 'nowrap',
+            fontWeight: 500,
+          }}
+        />
       </div>
       {/* <WalletMultiButton style={{fontSize: "12px", height: "42px", borderRadius: "8px", padding: "0 16px"}}  /> */}
     </header>

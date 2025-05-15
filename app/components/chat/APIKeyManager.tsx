@@ -85,10 +85,7 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
     setIsEditing(false);
   };
 
-  return (
-    <>
-    </>
-  );
+  return <></>;
 
   return (
     <div className="flex items-center justify-between py-3 px-1">
