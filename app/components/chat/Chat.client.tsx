@@ -9,7 +9,7 @@ import { useAnimate } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
-import { description, useChatHistory } from '~/lib/persistence';
+import { useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
@@ -38,8 +38,8 @@ const logger = createScopedLogger('Chat');
 export function Chat() {
   renderLogger.trace('Chat');
 
-  const { ready, initialMessages, storeMessageHistory, importChat, exportChat } = useChatHistory();
-  const title = useStore(description);
+  const { ready, initialMessages, storeMessageHistory } = useChatHistory();
+  // const title = useStore(description);
   useEffect(() => {
     workbenchStore.setReloadedMessages(initialMessages.map((m) => m.id));
   }, [initialMessages]);
@@ -48,11 +48,11 @@ export function Chat() {
     <>
       {ready && (
         <ChatImpl
-          description={title}
+          // description={title}
           initialMessages={initialMessages}
-          exportChat={exportChat}
+          // exportChat={exportChat}
           storeMessageHistory={storeMessageHistory}
-          importChat={importChat}
+          // importChat={importChat}
         />
       )}
       <ToastContainer
@@ -108,13 +108,13 @@ const processSampledMessages = createSampler(
 interface ChatProps {
   initialMessages: Message[];
   storeMessageHistory: (messages: Message[]) => Promise<void>;
-  importChat: (description: string, messages: Message[]) => Promise<void>;
-  exportChat: () => void;
+  // importChat: (description: string, messages: Message[]) => Promise<void>;
+  // exportChat: () => void;
   description?: string;
 }
 
 export const ChatImpl = memo(
-  ({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
+  ({ description, initialMessages, storeMessageHistory,  }: ChatProps) => {
     useShortcuts();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -140,7 +140,7 @@ export const ChatImpl = memo(
 
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
-      return savedModel || DEFAULT_MODEL;
+      return DEFAULT_MODEL || savedModel;
     });
     const [provider, setProvider] = useState(() => {
       const savedProvider = Cookies.get('selectedProvider');
@@ -531,9 +531,9 @@ export const ChatImpl = memo(
           debouncedCachePrompt(e);
         }}
         handleStop={abort}
-        description={description}
-        importChat={importChat}
-        exportChat={exportChat}
+        // description={description}
+        // importChat={importChat}
+        // exportChat={exportChat}
         messages={messages.map((message, i) => {
           if (message.role === 'user') {
             return message;

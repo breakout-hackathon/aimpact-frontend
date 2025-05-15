@@ -25,3 +25,5 @@ PROVIDER_LIST.forEach((provider) => {
 // starter Templates
 
 export const STARTER_TEMPLATES: Template[] = [];
+
+export const BACKEND_HOST = 'https://aimpact-backend-git-main-vladfo-s-projects.vercel.app';
