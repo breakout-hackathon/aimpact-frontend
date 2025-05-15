@@ -13,6 +13,7 @@ type AuthContextType = {
   isAuthorized: boolean;
   jwtToken: string;
   userInfo: UserInfo;
+  disconnect: () => Promise<void>;
 }
 
 type RequestMessageResponseType = {
@@ -40,15 +41,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log(`Public Key: ${publicKey}`)
     console.log(`Is Auth: ${isAuthorized}`)
+
     const checkCreds = async () => {
       if (!allowedLocations.includes(window.location.pathname)) return;
-      
-      console.log(!connected, typeof signMessage, isAuthorized);
-      if (!publicKey || !connected || !signMessage || (connected && isAuthorized)) return;
-      console.log(123)
-      const allCookies = Cookies.get();
-      const authToken = allCookies.authToken;
-      if (!authToken) {
+      if (connected && isAuthorized) return;
+
+      if (!connected || !signMessage || !publicKey) {
+        console.log("Disconnecting")
+        Cookies.remove("authToken");
+        setIsAuthorized(false);
+        return;
+      }
+
+      const authToken = Cookies.get('authToken');
+
+      if (!authToken || authToken === 'undefined') {
         const requestMessage = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/requestMessage`, {
           method: "POST",
           // body: JSON.stringify({ walletAddress: publicKey.toBase58() }),
@@ -90,11 +97,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           setJwtToken(responseData.accessToken);
           setIsAuthorized(true);
+          Cookies.set("authToken", responseData.accessToken);
         } catch (error) {
           console.error(error);
           if (error instanceof WalletSignMessageError) {
             // alert("User rejected sign request");
-            await disconnect();
+            await handleDisconnect();
           } else {
             // alert("Unnexpectd error");
           }
@@ -106,10 +114,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     checkCreds()
-  }, [publicKey])
+  }, [publicKey, connected, signMessage, disconnect])
+
+  const handleDisconnect = async () => {
+    Cookies.remove("authToken");
+    setIsAuthorized(false);
+    await disconnect();
+  }
 
   return (
-    <AuthContext.Provider value={{ isAuthorized, jwtToken, userInfo }}>
+    <AuthContext.Provider value={{ isAuthorized, jwtToken, userInfo, disconnect: handleDisconnect }}>
       {children}
     </AuthContext.Provider>
   )

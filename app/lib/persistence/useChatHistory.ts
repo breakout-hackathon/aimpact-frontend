@@ -16,7 +16,7 @@ import type { Snapshot } from './types';
 import { webcontainer } from '~/lib/webcontainer';
 import { detectProjectCommands, createCommandActionsString } from '~/utils/projectCommands';
 import type { ContextAnnotation } from '~/types/context';
-import { createProject, getMessages, getSnapshot, setMessages, setSnapshot } from './http-db';
+import { useHttpDb } from './http-db';
 
 export interface ChatHistoryItem {
   id: string;
@@ -38,6 +38,8 @@ export function useChatHistory() {
   const navigate = useNavigate();
   const { id: mixedId } = useLoaderData<{ id?: string }>();
   const [searchParams] = useSearchParams();
+
+  const { getMessages, getSnapshot, setMessages, setSnapshot, createProject } = useHttpDb();
 
   const [archivedMessages, setArchivedMessages] = useState<Message[]>([]);
   const [initialMessages, setInitialMessages] = useState<Message[]>([]);
@@ -263,7 +265,7 @@ ${value.content}
       let _urlId = urlId;
 
       if (!urlId && firstArtifact?.id) {
-        const urlId = await createProject(`Sample Project ${firstArtifact.title || firstArtifact.id}`);
+        const urlId = await createProject(`Sample Project ${firstArtifact.title || firstArtifact.id || Date.now()}`);
         _urlId = urlId;
         navigateChat(urlId);
         setUrlId(urlId);
@@ -294,7 +296,7 @@ ${value.content}
       if (initialMessages.length === 0 && !chatId.get()) {
         let nextId;
         if (!urlId) {
-          nextId = await createProject(`Sample Project ${firstArtifact?.title || firstArtifact?.id}`);
+          nextId = await createProject(`Sample Project ${firstArtifact?.title || firstArtifact?.id || Date.now()}`);
         } else {
           nextId = urlId;
         }

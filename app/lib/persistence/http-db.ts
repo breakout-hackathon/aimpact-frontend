@@ -4,8 +4,9 @@ import type { ChatHistoryItem } from "./useChatHistory";
 import type { IChatMetadata } from "./db";
 import type { Message } from "ai";
 import type { FileMap } from "../stores/files";
+import { useFetch } from "~/lib/hooks/useFetch";
 
-interface HttpProject {
+interface ProjectResponse {
   id: string;
   name: string;
   description?: string;
@@ -14,14 +15,14 @@ interface HttpProject {
   updatedAt: string;
 }
 
-interface HttpChat {
+interface ChatResponse {
   projectId: string;
   messages: Message[];
   metadata?: IChatMetadata;
   createdAt: string;
 }
 
-interface HttpSnapshot {
+interface SnapshotResponse {
   projectId: string;
   files: FileMap;
   chatIndex: string;
@@ -29,54 +30,74 @@ interface HttpSnapshot {
   updatedAt: string;
 }
 
-export async function getProject(projectId: string): Promise<HttpProject> {
-  const response = await fetch(`${BACKEND_HOST}/project/${projectId}`);
-  return await response.json() as HttpProject;
-}
+const host = import.meta.env.PUBLIC_BACKEND_URL;
 
-export async function createProject(name: string): Promise<string> {
-  const response = await fetch(`${BACKEND_HOST}/project`, {
-    method: 'POST',
-    body: JSON.stringify({ name })
-  });
-  const project = await response.json() as HttpProject;
-  return project.id;
-}
+export function useHttpDb() {
+  const { fetchDataAuthorized } = useFetch();
 
-export async function getMessages(projectId: string): Promise<ChatHistoryItem> {
-  const response = await fetch(`${BACKEND_HOST}/project/${projectId}/chat`);
-  const storedMessages = await response.json() as HttpChat;
-  
-  return {
-    id: projectId,
-    urlId: projectId,
-    messages: storedMessages.messages,
-    timestamp: new Date(storedMessages.createdAt).toISOString(),
-    metadata: storedMessages.metadata,
+  const getProject = async (projectId: string): Promise<ProjectResponse> => {
+    return fetchDataAuthorized(`${host}/project/${projectId}`);
   };
-}
 
-export async function setMessages(projectId: string, messages: Message[], description?: string, metadata?: IChatMetadata): Promise<void> {
-  await fetch(`${BACKEND_HOST}/project/${projectId}/chat`, {
-    method: 'POST',
-    body: JSON.stringify({ messages, description, metadata }),
-  });
-}
+  const createProject = async (name: string): Promise<string> => {
+    const project = await fetchDataAuthorized(`${host}/project`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }) as ProjectResponse;
+    return project.id;
+  };
 
-export async function getSnapshot(projectId: string): Promise<Snapshot | undefined> {
-  const response = await fetch(`${BACKEND_HOST}/project/${projectId}/snapshot`);
-  const snapshot = await response.json() as HttpSnapshot;
+  const getMessages = async (projectId: string): Promise<ChatHistoryItem> => {
+    const storedMessages = await fetchDataAuthorized(`${host}/project/${projectId}/chat`) as ChatResponse;
+    
+    return {
+      id: projectId,
+      urlId: projectId,
+      messages: storedMessages.messages,
+      timestamp: new Date(storedMessages.createdAt).toISOString(),
+      metadata: storedMessages.metadata,
+    };
+  };
+
+  const setMessages = async (projectId: string, messages: Message[], description?: string, metadata?: IChatMetadata): Promise<void> => {
+    await fetchDataAuthorized(`${host}/project/${projectId}/chat`, {
+      method: 'POST',
+      body: JSON.stringify({ messages, description, metadata }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  };
+
+  const getSnapshot = async (projectId: string): Promise<Snapshot | undefined> => {
+    const snapshot = await fetchDataAuthorized(`${host}/project/${projectId}/snapshot`) as SnapshotResponse;
+
+    return {
+      chatIndex: snapshot.chatIndex,
+      files: snapshot.files,
+      summary: snapshot.summary,
+    };
+  };
+
+  const setSnapshot = async (projectId: string, snapshot: Snapshot): Promise<void> => {
+    await fetchDataAuthorized(`${host}/project/${projectId}/snapshot`, {
+      method: 'POST',
+      body: JSON.stringify(snapshot),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  };
 
   return {
-    chatIndex: snapshot.chatIndex,
-    files: snapshot.files,
-    summary: snapshot.summary,
+    getProject,
+    createProject,
+    getMessages,
+    setMessages,
+    getSnapshot,
+    setSnapshot,
   };
-};
-
-export async function setSnapshot(projectId: string, snapshot: Snapshot): Promise<void> {
-  await fetch(`${BACKEND_HOST}/project/${projectId}/snapshot`, {
-    method: 'POST',
-    body: JSON.stringify(snapshot),
-  });
 }
