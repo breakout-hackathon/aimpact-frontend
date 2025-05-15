@@ -50,8 +50,12 @@ export function useHttpDb() {
     return project.id;
   };
 
-  const getMessages = async (projectId: string): Promise<ChatHistoryItem> => {
+  const getMessages = async (projectId: string): Promise<ChatHistoryItem | undefined> => {
     const storedMessages = await fetchDataAuthorized(`${host}/project/${projectId}/chat`) as ChatResponse;
+
+    if (!storedMessages) {
+      return undefined;
+    }
     
     return {
       id: projectId,
@@ -74,6 +78,10 @@ export function useHttpDb() {
 
   const getSnapshot = async (projectId: string): Promise<Snapshot | undefined> => {
     const snapshot = await fetchDataAuthorized(`${host}/project/${projectId}/snapshot`) as SnapshotResponse;
+
+    if (!snapshot) {
+      return undefined;
+    }
 
     return {
       chatIndex: snapshot.chatIndex,

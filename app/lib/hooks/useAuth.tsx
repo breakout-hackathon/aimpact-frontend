@@ -34,18 +34,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [jwtToken, setJwtToken] = useState('');
   const [userInfo, setUserInfo] = useState<UserInfo>({});
-  const allowedLocations = ['/chat'];
+  
+  const allowedLocations: string[] = [/*'/chat' */];
 
   useEffect(() => {
     console.log(`Public Key: ${publicKey}`);
     console.log(`Is Auth: ${isAuthorized}`);
 
     const checkCreds = async () => {
-      if (!allowedLocations.includes(window.location.pathname)) return;
+      if (allowedLocations.includes(window.location.pathname)) return;
       if (connected && isAuthorized) return;
 
       if (!connected || !signMessage || !publicKey) {
-        console.log("Disconnecting")
         Cookies.remove("authToken");
         setIsAuthorized(false);
         return;
@@ -96,7 +96,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           const responseData: LoginWalletResponseType = await response.json();
-          console.log(responseData);
 
           setJwtToken(responseData.accessToken);
           setIsAuthorized(true);
