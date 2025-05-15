@@ -12,7 +12,7 @@ type AuthContextType = {
   jwtToken: string;
   userInfo: UserInfo;
   disconnect: () => Promise<void>;
-}
+};
 
 type RequestMessageResponseType = {
   nonce: string;
@@ -41,13 +41,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log(`Is Auth: ${isAuthorized}`);
 
     const checkCreds = async () => {
-      if (!allowedLocations.includes(window.location.pathname)) return;
-      if (connected && isAuthorized) return;
+      if (!allowedLocations.includes(window.location.pathname)) {
+        return;
+      }
+
+      if (connected && isAuthorized) {
+        return;
+      }
 
       if (!connected || !signMessage || !publicKey) {
-        console.log("Disconnecting")
-        Cookies.remove("authToken");
+        console.log('Disconnecting');
+        Cookies.remove('authToken');
         setIsAuthorized(false);
+
         return;
       }
 
@@ -100,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           setJwtToken(responseData.accessToken);
           setIsAuthorized(true);
-          Cookies.set("authToken", responseData.accessToken);
+          Cookies.set('authToken', responseData.accessToken);
         } catch (error) {
           console.error(error);
 
@@ -117,20 +123,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    checkCreds()
-  }, [publicKey, connected, signMessage, disconnect])
+    checkCreds();
+  }, [publicKey, connected, signMessage, disconnect]);
 
   const handleDisconnect = async () => {
-    Cookies.remove("authToken");
+    Cookies.remove('authToken');
     setIsAuthorized(false);
     await disconnect();
-  }
+  };
 
   return (
     <AuthContext.Provider value={{ isAuthorized, jwtToken, userInfo, disconnect: handleDisconnect }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {

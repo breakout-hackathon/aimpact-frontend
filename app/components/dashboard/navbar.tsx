@@ -51,7 +51,7 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.currentTarget.value || "")}
+                  onChange={(e) => setSearchQuery(e.currentTarget.value || '')}
                   placeholder="Search projects..."
                   className="pl-10 pr-4 py-2 w-40 lg:w-60 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all duration-200"
                 />

@@ -90,6 +90,7 @@ export default class OpenAIProvider extends BaseProvider {
 
     const openai = createOpenAI({
       apiKey,
+
       // compatibility: 'strict'
     });
 

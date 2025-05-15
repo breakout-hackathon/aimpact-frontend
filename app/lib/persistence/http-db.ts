@@ -1,10 +1,10 @@
-import { BACKEND_HOST } from "~/utils/constants";
-import type { Snapshot } from "./types";
-import type { ChatHistoryItem } from "./useChatHistory";
-import type { IChatMetadata } from "./db";
-import type { Message } from "ai";
-import type { FileMap } from "../stores/files";
-import { useFetch } from "~/lib/hooks/useFetch";
+import { BACKEND_HOST } from '~/utils/constants';
+import type { Snapshot } from './types';
+import type { ChatHistoryItem } from './useChatHistory';
+import type { IChatMetadata } from './db';
+import type { Message } from 'ai';
+import type { FileMap } from '../stores/files';
+import { useFetch } from '~/lib/hooks/useFetch';
 
 interface ProjectResponse {
   id: string;
@@ -40,19 +40,19 @@ export function useHttpDb() {
   };
 
   const createProject = async (name: string): Promise<string> => {
-    const project = await fetchDataAuthorized(`${host}/project`, {
+    const project = (await fetchDataAuthorized(`${host}/project`, {
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: {
         'Content-Type': 'application/json',
       },
-    }) as ProjectResponse;
+    })) as ProjectResponse;
     return project.id;
   };
 
   const getMessages = async (projectId: string): Promise<ChatHistoryItem> => {
-    const storedMessages = await fetchDataAuthorized(`${host}/project/${projectId}/chat`) as ChatResponse;
-    
+    const storedMessages = (await fetchDataAuthorized(`${host}/project/${projectId}/chat`)) as ChatResponse;
+
     return {
       id: projectId,
       urlId: projectId,
@@ -62,7 +62,12 @@ export function useHttpDb() {
     };
   };
 
-  const setMessages = async (projectId: string, messages: Message[], description?: string, metadata?: IChatMetadata): Promise<void> => {
+  const setMessages = async (
+    projectId: string,
+    messages: Message[],
+    description?: string,
+    metadata?: IChatMetadata,
+  ): Promise<void> => {
     await fetchDataAuthorized(`${host}/project/${projectId}/chat`, {
       method: 'POST',
       body: JSON.stringify({ messages, description, metadata }),
@@ -73,7 +78,7 @@ export function useHttpDb() {
   };
 
   const getSnapshot = async (projectId: string): Promise<Snapshot | undefined> => {
-    const snapshot = await fetchDataAuthorized(`${host}/project/${projectId}/snapshot`) as SnapshotResponse;
+    const snapshot = (await fetchDataAuthorized(`${host}/project/${projectId}/snapshot`)) as SnapshotResponse;
 
     return {
       chatIndex: snapshot.chatIndex,

@@ -20,33 +20,38 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const getFilteredProjects = () => {
-    return projects.filter(project => {
-      return project.title.toLowerCase().includes(searchQuery.toLowerCase())
-    })
-  }
+    return projects.filter((project) => {
+      return project.title.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  };
 
-  useEffect(() => {
-    
-  }, [searchQuery])
+  useEffect(() => {}, [searchQuery]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // useLayoutEffect(() => {
-  //   const el = inputRef.current;
-  //   if (!el) return;
-  //   el.style.height = "auto";
-  //   el.style.height = `${el.scrollHeight}px`
-  // }, [promptInput]);
+  /*
+   * useLayoutEffect(() => {
+   *   const el = inputRef.current;
+   *   if (!el) return;
+   *   el.style.height = "auto";
+   *   el.style.height = `${el.scrollHeight}px`
+   * }, [promptInput]);
+   */
 
   const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
     const el = inputRef.current;
-    if (!el) return;
 
-    el.style.height = "auto";
+    if (!el) {
+      return;
+    }
+
+    el.style.height = 'auto';
+
     const newHeight = `${el.scrollHeight}px`;
 
     // requestAnimationFrame(() => {
-      el.style.height = newHeight;
+    el.style.height = newHeight;
+
     // });
 
     setPromptInput(e.currentTarget.value);
@@ -106,16 +111,20 @@ export default function Home() {
                 <textarea
                   ref={inputRef}
                   value={promptInput}
-                  // onChange={(obj) => {
-                  //   // console.log(obj.currentTarget.scrollHeight. obj.current)
-                  //   setPromptInput(obj.target.value);
-                  //   const el = obj.currentTarget;
+                  /*
+                   * onChange={(obj) => {
+                   *   // console.log(obj.currentTarget.scrollHeight. obj.current)
+                   *   setPromptInput(obj.target.value);
+                   *   const el = obj.currentTarget;
+                   */
 
-                  //   requestAnimationFrame(() => {
-                  //     el.style.height = "auto";
-                  //     el.style.height = `${el.scrollHeight}px`;
-                  //   });
-                  // }}
+                  /*
+                   *   requestAnimationFrame(() => {
+                   *     el.style.height = "auto";
+                   *     el.style.height = `${el.scrollHeight}px`;
+                   *   });
+                   * }}
+                   */
                   onInput={handleInput}
                   rows={1}
                   placeholder="What do you want to build?"

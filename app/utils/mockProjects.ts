@@ -1,10 +1,9 @@
-import type { Project } from "~/types/project";
+import type { Project } from '~/types/project';
 
 // Helper function to generate a random ID
 const generateId = (): string => {
   return Math.random().toString(36).substring(2, 15);
 };
-
 
 // Mock data for blockchain projects
 export const mockProjects: Project[] = [

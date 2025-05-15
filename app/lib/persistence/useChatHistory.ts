@@ -5,12 +5,7 @@ import { generateId, type JSONValue, type Message } from 'ai';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { logStore } from '~/lib/stores/logs'; // Import logStore
-import {
-  openDatabase,
-  duplicateChat,
-  createChatFromMessages,
-  type IChatMetadata,
-} from './db';
+import { openDatabase, duplicateChat, createChatFromMessages, type IChatMetadata } from './db';
 import type { FileMap } from '~/lib/stores/files';
 import type { Snapshot } from './types';
 import { webcontainer } from '~/lib/webcontainer';
@@ -311,6 +306,7 @@ ${value.content}
       // Ensure chatId.get() is used here as well
       if (initialMessages.length === 0 && !chatId.get()) {
         let nextId;
+
         if (!urlId) {
           nextId = await createProject(`Sample Project ${firstArtifact?.title || firstArtifact?.id || Date.now()}`);
         } else {

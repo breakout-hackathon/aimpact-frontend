@@ -67,7 +67,7 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
     >
       <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 dark:to-white/5 z-0 group-hover:opacity-100 opacity-0 transition-opacity duration-300" />
 
-       {/* onClick={() => window.location.href = `/projects/${index}`} */}
+      {/* onClick={() => window.location.href = `/projects/${index}`} */}
       <a className="block p-6 relative z-10 cursor-pointer" href={`/projects/${index}`}>
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -80,7 +80,9 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
               <h3 className="text-xl font-bold text-foreground">{title}</h3>
               <div className="flex items-center mt-1">
                 {/* <span className="text-2xl font-bold mr-2">{token.symbol}</span> */}
-                <BadgeCustom variant={getCategoryVariant(category) as BadgeCustomProps["variant"]}>{category}</BadgeCustom>
+                <BadgeCustom variant={getCategoryVariant(category) as BadgeCustomProps['variant']}>
+                  {category}
+                </BadgeCustom>
               </div>
             </div>
           </div>

@@ -20,9 +20,11 @@ export function Header() {
         'border-bolt-elements-borderColor': chat.started,
       })}
     >
-      <a className="flex items-center gap-2 z-logo cursor-pointer" href='/'>
-        <button className='text-bolt-elements-textPrimary rounded-md px-4 py-2 border border-bolt-elements-borderColorActive bg-transparent 
-          hover:border-[#694ec3] flex items-center gap-2'>
+      <a className="flex items-center gap-2 z-logo cursor-pointer" href="/">
+        <button
+          className="text-bolt-elements-textPrimary rounded-md px-4 py-2 border border-bolt-elements-borderColorActive bg-transparent 
+          hover:border-[#694ec3] flex items-center gap-2"
+        >
           <ArrowLeft size={16} /> Projects
         </button>
       </a>
@@ -52,20 +54,22 @@ export function Header() {
 
         <ClientOnly>
           {() => {
-            return <WalletMultiButton
-              style={{
-                fontSize: '16px',
-                fontStyle: 'normal',
-                height: '42px',
-                borderRadius: '8px',
-                padding: '0 16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                whiteSpace: 'nowrap',
-                fontWeight: 500,
-              }}
-            />
+            return (
+              <WalletMultiButton
+                style={{
+                  fontSize: '16px',
+                  fontStyle: 'normal',
+                  height: '42px',
+                  borderRadius: '8px',
+                  padding: '0 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  whiteSpace: 'nowrap',
+                  fontWeight: 500,
+                }}
+              />
+            );
           }}
         </ClientOnly>
       </div>

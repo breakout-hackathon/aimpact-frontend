@@ -24,78 +24,86 @@ export function useFetch<T = any>() {
   const handleError = useCallback((error: unknown, showError: boolean) => {
     const errorMessage = error instanceof Error ? error.message : 'An error occurred';
     setState({ data: null, error: error as Error, loading: false });
-    
+
     if (showError) {
       toast.error(errorMessage);
     }
-    
+
     throw error;
   }, []);
 
-  const fetchDataAuthorized = useCallback(async (url: string, options: FetchOptions = {}): Promise<T> => {
-    const { showError = true, ...fetchOptions } = options;
-    
-    setState(prev => ({ ...prev, loading: true, error: null }));
+  const fetchDataAuthorized = useCallback(
+    async (url: string, options: FetchOptions = {}): Promise<T> => {
+      const { showError = true, ...fetchOptions } = options;
 
-    try {
-      const authToken = Cookies.get('authToken');
-      const headers = new Headers(fetchOptions.headers);
+      setState((prev) => ({ ...prev, loading: true, error: null }));
 
-      if (!authToken) {
-        Cookies.remove('authToken');
-        throw new Error('No authentication token found');
+      try {
+        const authToken = Cookies.get('authToken');
+        const headers = new Headers(fetchOptions.headers);
+
+        if (!authToken) {
+          Cookies.remove('authToken');
+          throw new Error('No authentication token found');
+        }
+
+        headers.set('Authorization', `Bearer ${authToken}`);
+
+        console.log('fetch options', fetchOptions);
+
+        const response = await fetch(url, {
+          ...fetchOptions,
+          headers,
+        });
+
+        if (response.status === 401) {
+          await disconnect();
+          throw new Error('Session expired. Please reconnect your wallet.');
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = (await response.json()) as T;
+        setState({ data, error: null, loading: false });
+
+        return data;
+      } catch (error) {
+        return handleError(error, showError);
       }
+    },
+    [disconnect, handleError],
+  );
 
-      headers.set('Authorization', `Bearer ${authToken}`);
+  const fetchDataUnauthorized = useCallback(
+    async (url: string, options: FetchOptions = {}): Promise<T> => {
+      const { showError = true, ...fetchOptions } = options;
 
-      console.log('fetch options', fetchOptions);
+      setState((prev) => ({ ...prev, loading: true, error: null }));
 
-      const response = await fetch(url, {
-        ...fetchOptions,
-        headers,
-      });
+      try {
+        const headers = new Headers(fetchOptions.headers);
 
-      if (response.status === 401) {
-        await disconnect();
-        throw new Error('Session expired. Please reconnect your wallet.');
+        const response = await fetch(url, {
+          ...fetchOptions,
+          headers,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = (await response.json()) as T;
+        setState({ data, error: null, loading: false });
+
+        return data;
+      } catch (error) {
+        return handleError(error, showError);
       }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json() as T;
-      setState({ data, error: null, loading: false });
-      return data;
-    } catch (error) {
-      return handleError(error, showError);
-    }
-  }, [disconnect, handleError]);
-
-  const fetchDataUnauthorized = useCallback(async (url: string, options: FetchOptions = {}): Promise<T> => {
-    const { showError = true, ...fetchOptions } = options;
-    
-    setState(prev => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const headers = new Headers(fetchOptions.headers);
-
-      const response = await fetch(url, {
-        ...fetchOptions,
-        headers,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json() as T;
-      setState({ data, error: null, loading: false });
-      return data;
-    } catch (error) {
-      return handleError(error, showError);
-    }
-  }, [handleError]);
+    },
+    [handleError],
+  );
 
   const reset = useCallback(() => {
     setState({ data: null, error: null, loading: false });
@@ -107,4 +115,4 @@ export function useFetch<T = any>() {
     fetchDataUnauthorized,
     reset,
   };
-} 
+}
