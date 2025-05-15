@@ -334,7 +334,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
       >
-        <ClientOnly>{() => <Menu />}</ClientOnly>
+        {/* <ClientOnly>{() => <Menu />}</ClientOnly> */}
         <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
             {!chatStarted && (
