@@ -33,7 +33,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [jwtToken, setJwtToken] = useState('');
   const [userInfo, setUserInfo] = useState<UserInfo>({});
-  const allowedLocations = ['/chat'];
+  
+  const allowedLocations: string[] = [/*'/chat' */];
 
   useEffect(() => {
     console.log(`Public Key: ${publicKey}`);
@@ -101,7 +102,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           const responseData: LoginWalletResponseType = await response.json();
-          console.log(responseData);
 
           setJwtToken(responseData.accessToken);
           setIsAuthorized(true);

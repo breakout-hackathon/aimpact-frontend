@@ -49,8 +49,6 @@ export function useFetch<T = any>() {
 
         headers.set('Authorization', `Bearer ${authToken}`);
 
-        console.log('fetch options', fetchOptions);
-
         const response = await fetch(url, {
           ...fetchOptions,
           headers,
