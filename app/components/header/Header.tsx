@@ -50,7 +50,11 @@ export function Header() {
         </ClientOnly>
       </div> */}
       <div className="flex justify-center items-center gap-2">
-        {connected && <DepositButton />}
+      <ClientOnly>
+        {() => {
+          return connected ?? <DepositButton />
+        }}
+      </ClientOnly>
 
         <ClientOnly>
           {() => {

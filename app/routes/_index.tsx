@@ -28,6 +28,7 @@ export default function Home() {
   useEffect(() => {}, [searchQuery]);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   /*
    * useLayoutEffect(() => {
@@ -106,25 +107,17 @@ export default function Home() {
               vision of how blockchain technology could evolve.
             </p> */}
 
-            <form className="flex items-center gap-2 mb-8 w-full max-w-md mt-6" onSubmit={onSubmitBuildForm}>
+            <form className="flex items-center gap-2 mb-8 w-full max-w-md mt-6" ref={formRef} onSubmit={onSubmitBuildForm}>
               <div className="flex-1 h-10 relative flex items-center">
                 <textarea
                   ref={inputRef}
                   value={promptInput}
-                  /*
-                   * onChange={(obj) => {
-                   *   // console.log(obj.currentTarget.scrollHeight. obj.current)
-                   *   setPromptInput(obj.target.value);
-                   *   const el = obj.currentTarget;
-                   */
-
-                  /*
-                   *   requestAnimationFrame(() => {
-                   *     el.style.height = "auto";
-                   *     el.style.height = `${el.scrollHeight}px`;
-                   *   });
-                   * }}
-                   */
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      formRef?.current?.submit();
+                    }
+                  }}
                   onInput={handleInput}
                   rows={1}
                   placeholder="What do you want to build?"

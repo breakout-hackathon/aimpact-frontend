@@ -1,5 +1,4 @@
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getUtf8Encoder } from '@solana/kit';
 import Cookies from 'js-cookie';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { WalletSignMessageError } from '@solana/wallet-adapter-base';
