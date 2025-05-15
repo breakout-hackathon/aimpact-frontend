@@ -54,7 +54,7 @@ const Navbar = () => {
 
             <div className="flex items-center space-x-2">
               {/* Mobile menu button */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="icon"
                 className="md:hidden text-white"
@@ -62,14 +62,14 @@ const Navbar = () => {
                 aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
               >
                 {isMenuOpen ? <X /> : <Menu />}
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
       </motion.header>
 
       {/* Mobile Navigation */}
-      {isMenuOpen && (
+      {/* {isMenuOpen && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -108,7 +108,7 @@ const Navbar = () => {
             </div>
           </div>
         </motion.div>
-      )}
+      )} */}
     </>
   );
 };

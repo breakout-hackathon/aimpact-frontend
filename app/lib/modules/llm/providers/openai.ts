@@ -87,8 +87,9 @@ export default class OpenAIProvider extends BaseProvider {
 
     const openai = createOpenAI({
       apiKey,
+      // compatibility: 'strict'
     });
 
-    return openai(model, { reasoningEffort: "high" });
+    return openai(model, { reasoningEffort: 'high' });
   }
 }
