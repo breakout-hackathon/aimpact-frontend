@@ -81,9 +81,11 @@ function Providers({ children }: { children: React.ReactNode }) {
     // >
       <ClientOnly>{() => 
         <SolanaProvider>
-          <DndProvider backend={HTML5Backend}>
-            {children}
-          </DndProvider>
+          <AuthProvider>
+            <DndProvider backend={HTML5Backend}>
+              {children}
+            </DndProvider>
+          </AuthProvider>
         </SolanaProvider>
       }</ClientOnly>
     // </DynamicContextProvider>
@@ -108,6 +110,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 import { logStore } from './lib/stores/logs';
 import { SolanaProvider } from './components/providers/SolanaProvider';
+import { AuthProvider } from './lib/hooks/useAuth';
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -122,15 +125,8 @@ export default function App() {
   }, []);
 
   return (
-    <DynamicContextProvider 
-      settings={{
-        environmentId: "ef8d5320-bb51-49c8-9932-5926b6646175",
-        walletConnectors: [SolanaWalletConnectors],
-      }}
-    >
-      <Layout>
-        <Outlet />
-      </Layout>
-    </DynamicContextProvider>
+    <Layout>
+      <Outlet />
+    </Layout>
   );
 }
