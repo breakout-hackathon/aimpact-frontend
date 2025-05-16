@@ -12,8 +12,6 @@ import { vitePlugin as remixVitePlugin } from "@remix-run/dev";
 
 dotenv.config();
 
-const reactCompilerConfig = {};
-
 // Get detailed git info with fallbacks
 const getGitInfo = () => {
   try {
@@ -102,7 +100,7 @@ export default defineConfig((config) => {
           'electron',
           'fs',
           'util',
-  
+
           // Add all Node.js built-in modules as external
           'node:fs',
           'node:path',
