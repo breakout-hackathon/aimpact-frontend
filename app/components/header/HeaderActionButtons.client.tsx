@@ -11,6 +11,7 @@ import { NetlifyDeploymentLink } from '~/components/chat/NetlifyDeploymentLink.c
 import { VercelDeploymentLink } from '~/components/chat/VercelDeploymentLink.client';
 import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
 import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
+import { toast } from 'react-toastify';
 
 interface HeaderActionButtonsProps {}
 
@@ -31,6 +32,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const isStreaming = useStore(streamingState);
   const { handleVercelDeploy } = useVercelDeploy();
   const { handleNetlifyDeploy } = useNetlifyDeploy();
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -67,8 +69,78 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     }
   };
 
+  const handleSavePreview = async () => {
+    if (!activePreview) {
+      toast.error('No preview available to save');
+      return;
+    }
+
+    setIsSaving(true);
+    
+    try {
+      // Find the iframe in the workbench preview
+      const iframe = document.querySelector('iframe[title="preview"]') as HTMLIFrameElement;
+      
+      if (!iframe) {
+        toast.error('Preview not found');
+        setIsSaving(false);
+        return;
+      }
+
+      // Try to capture the preview as an image
+      try {
+        // First attempt: Send a message to the iframe to save any canvas content
+        iframe.contentWindow?.postMessage({ action: 'save-canvas' }, '*');
+        
+        // Notify the user that we attempted to save content from the iframe
+        toast.info('Attempted to save canvas from preview. Check downloads folder.');
+        
+        // Set up a global event listener to catch any response from the iframe
+        const messageHandler = (event: MessageEvent) => {
+          if (event.data?.action === 'canvas-saved') {
+            toast.success('Canvas saved successfully');
+            window.removeEventListener('message', messageHandler);
+          }
+        };
+        
+        window.addEventListener('message', messageHandler);
+        
+        // Clean up the event listener after some time if no response
+        setTimeout(() => {
+          window.removeEventListener('message', messageHandler);
+        }, 5000);
+      } catch (error) {
+        console.error('Error saving preview:', error);
+        toast.error('Failed to save preview');
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex">
+      {activePreview && (
+        <Button
+          active
+          onClick={handleSavePreview}
+          disabled={isSaving || !activePreview || isStreaming}
+          className="px-4 mr-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2 bg-bolt-elements-item-backgroundAccent border border-bolt-elements-borderColor rounded-md"
+        >
+          {isSaving ? (
+            <>
+              <div className="i-ph-spinner animate-spin h-4 w-4" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <div className="i-ph-download-simple h-4 w-4" />
+              <span>Save</span>
+            </>
+          )}
+        </Button>
+      )}
+      
       <div className="relative" ref={dropdownRef}>
         <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-2 text-sm">
           <Button
