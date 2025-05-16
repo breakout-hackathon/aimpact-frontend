@@ -12,8 +12,6 @@ import babel from 'vite-plugin-babel';
 
 dotenv.config();
 
-const reactCompilerConfig = {};
-
 // Get detailed git info with fallbacks
 const getGitInfo = () => {
   try {
@@ -107,7 +105,7 @@ export default defineConfig((config) => {
           'electron',
           'fs',
           'util',
-  
+
           // Add all Node.js built-in modules as external
           'node:fs',
           'node:path',
@@ -159,13 +157,6 @@ export default defineConfig((config) => {
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
-      babel({
-        filter: /\.[jt]sx?$/,
-        babelConfig: {
-          presets: ['@babel/preset-typescript'], // if you use TypeScript
-          plugins: [['babel-plugin-react-compiler', reactCompilerConfig]],
-        },
-      }),
     ],
     envPrefix: [
       'VITE_',
