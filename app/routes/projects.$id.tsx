@@ -1,11 +1,14 @@
 'use client';
 
+import { Pencil } from '@phosphor-icons/react';
 import { useParams } from '@remix-run/react';
+import { useFetch } from '~/lib/hooks/useFetch';
 import { mockProjects } from '~/utils/mockProjects';
 
 export default function Project() {
   const params = useParams();
   const project = mockProjects.find((p) => p.id === params.id);
+  const { fetchDataAuthorized, data, error, loading, isAuthorized } = useFetch();
 
   if (!project) {
     return (
@@ -42,7 +45,14 @@ export default function Project() {
           {/* Description section */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold text-purple-300 mb-4">Project Overview</h2>
-            <p className="text-xl leading-relaxed text-gray-300">{project.description}</p>
+            <div className="flex justify-between">
+              <p className="text-xl leading-relaxed text-gray-300">{project.description}</p>
+              <a className="flex items-center justify-center gap-2 text-center bg-purple-600 hover:bg-purple-700
+                text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300" href={`/chat/${project.id}`}>
+                <Pencil size={20} />
+                Edit project
+              </a>
+            </div>
           </section>
 
           {/* Token information */}

@@ -19,7 +19,7 @@ export function useFetch<T = any>() {
     error: null,
     loading: false,
   });
-  const { disconnect } = useAuth();
+  const { disconnect, isAuthorized, jwtToken: authToken } = useAuth();
 
   const handleError = useCallback((error: unknown, showError: boolean) => {
     const errorMessage = error instanceof Error ? error.message : 'An error occurred';
@@ -39,7 +39,6 @@ export function useFetch<T = any>() {
       setState((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
-        const authToken = Cookies.get('authToken');
         const headers = new Headers(fetchOptions.headers);
 
         if (!authToken) {
@@ -112,5 +111,6 @@ export function useFetch<T = any>() {
     fetchDataAuthorized,
     fetchDataUnauthorized,
     reset,
+    isAuthorized,
   };
 }

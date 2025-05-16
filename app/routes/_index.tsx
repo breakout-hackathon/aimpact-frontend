@@ -10,6 +10,7 @@ import { useNavigate } from '@remix-run/react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { mockProjects } from '~/utils/mockProjects';
+import { useFetch } from '~/lib/hooks/useFetch';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -19,13 +20,19 @@ export default function Home() {
   const [promptInput, setPromptInput] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const { fetchDataUnauthorized, loading } = useFetch();
+
   const getFilteredProjects = () => {
     return projects.filter((project) => {
       return project.title.toLowerCase().includes(searchQuery.toLowerCase());
     });
   };
 
-  useEffect(() => {}, [searchQuery]);
+  useEffect(() => {
+    async () => {
+      const projectsReponse = await fetchDataUnauthorized("/projects/");
+    }
+  }, []);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -47,13 +54,8 @@ export default function Home() {
     }
 
     el.style.height = 'auto';
-
     const newHeight = `${el.scrollHeight}px`;
-
-    // requestAnimationFrame(() => {
     el.style.height = newHeight;
-
-    // });
 
     setPromptInput(e.currentTarget.value);
   };
