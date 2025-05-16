@@ -3,7 +3,7 @@ import { ResultAsync } from 'neverthrow';
 export const ky = libky.extend({
   throwHttpErrors: false,
   retry: 0,
-  prefixUrl: 'https://aimpact-backend.vercel.app',
+  prefixUrl: import.meta.env.PUBLIC_BACKEND_URL,
 });
 
 export const wrapKy = <T>(query: Promise<T>) => {
