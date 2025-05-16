@@ -7,55 +7,33 @@ import type { Project } from '@/types/project';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { useNavigate } from '@remix-run/react';
-import { Input } from '@/components/ui/Input';
+
 import { Button } from '@/components/ui/Button';
 import { mockProjects } from '~/utils/mockProjects';
 import { useFetch } from '~/lib/hooks/useFetch';
+import { useProjectsQuery } from 'query/use-project-query';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const projectsQuery = useProjectsQuery();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [promptInput, setPromptInput] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const { fetchDataUnauthorized, loading } = useFetch();
-
-  const getFilteredProjects = () => {
-    return projects.filter((project) => {
-      return project.title.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-  };
-
-  useEffect(() => {
-    async () => {
-      const projectsReponse = await fetchDataUnauthorized("/projects/");
-    }
-  }, []);
-
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  /*
-   * useLayoutEffect(() => {
-   *   const el = inputRef.current;
-   *   if (!el) return;
-   *   el.style.height = "auto";
-   *   el.style.height = `${el.scrollHeight}px`
-   * }, [promptInput]);
-   */
-
   const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    const el = inputRef.current;
+    const element = inputRef.current;
 
-    if (!el) {
+    if (!element) {
       return;
     }
 
-    el.style.height = 'auto';
-    const newHeight = `${el.scrollHeight}px`;
-    el.style.height = newHeight;
+    element.style.height = 'auto';
+    const newHeight = `${element.scrollHeight}px`;
+    element.style.height = newHeight;
 
     setPromptInput(e.currentTarget.value);
   };
@@ -72,24 +50,6 @@ export default function Home() {
     setPromptInput('');
   };
 
-  // Simulate API loading
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 750));
-
-        // Set the mock projects as if they came from an API
-        setProjects(mockProjects);
-        setIsLoading(false);
-      } catch {
-        setError('Failed to load projects. Please try again later.');
-        setIsLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black">
       <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
@@ -103,19 +63,18 @@ export default function Home() {
             className="mb-12 text-center flex flex-col items-center"
           >
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Trending Blockchain Projects</h2>
-            {/* <p className="mt-4 text-gray-300 max-w-2xl mx-auto">
-              Explore these AI-generated blockchain project ideas with potential
-              to reshape the digital economy. Each project represents a unique
-              vision of how blockchain technology could evolve.
-            </p> */}
 
-            <form className="flex items-center gap-2 mb-8 w-full max-w-md mt-6" ref={formRef} onSubmit={onSubmitBuildForm}>
+            <form
+              className="flex items-center gap-2 mb-8 w-full max-w-md mt-6"
+              ref={formRef}
+              onSubmit={onSubmitBuildForm}
+            >
               <div className="flex-1 h-10 relative flex items-center">
                 <textarea
                   ref={inputRef}
                   value={promptInput}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       formRef?.current?.submit();
                     }
@@ -136,7 +95,7 @@ export default function Home() {
             </form>
           </motion.div>
 
-          <ProjectGrid projects={getFilteredProjects()} isLoading={isLoading} error={error || undefined} />
+          {projectsQuery.isSuccess && <ProjectGrid />}
         </div>
       </section>
 

@@ -3,6 +3,7 @@
 import type { Project } from '@/types/project';
 import ProjectCard from '@/components/dashboard/project-card';
 import { motion } from 'framer-motion';
+import { useProjectsQuery } from 'query/use-project-query';
 
 interface ProjectGridProps {
   projects: Project[];
@@ -10,9 +11,10 @@ interface ProjectGridProps {
   error?: string;
 }
 
-const ProjectGrid = ({ projects, isLoading = false, error }: ProjectGridProps) => {
-  // Loading state
-  if (isLoading) {
+const ProjectGrid = () => {
+  const projectsQuery = useProjectsQuery();
+
+  if (projectsQuery.isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -45,8 +47,7 @@ const ProjectGrid = ({ projects, isLoading = false, error }: ProjectGridProps) =
     );
   }
 
-  // Error state
-  if (error) {
+  if (projectsQuery.isError) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -54,7 +55,7 @@ const ProjectGrid = ({ projects, isLoading = false, error }: ProjectGridProps) =
         className="bg-destructive/10 border border-destructive rounded-lg p-6 text-center"
       >
         <h3 className="text-lg font-medium text-destructive mb-2">Error Loading Projects</h3>
-        <p className="text-muted-foreground">{error}</p>
+        <p className="text-muted-foreground">{projectsQuery.error.message}</p>
         <button
           className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           onClick={() => window.location.reload()}
@@ -65,8 +66,7 @@ const ProjectGrid = ({ projects, isLoading = false, error }: ProjectGridProps) =
     );
   }
 
-  // No projects found
-  if (projects.length === 0) {
+  if (projectsQuery.data.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-muted rounded-lg p-10 text-center">
         <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
@@ -75,10 +75,9 @@ const ProjectGrid = ({ projects, isLoading = false, error }: ProjectGridProps) =
     );
   }
 
-  // Projects grid
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((project, index) => (
+      {projectsQuery.data.map((project, index) => (
         <ProjectCard key={project.id} project={project} index={index} />
       ))}
     </div>
