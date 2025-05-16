@@ -140,7 +140,7 @@ export class ActionRunner {
         return this.#executeAction(actionId, isStreaming);
       })
       .catch((error) => {
-        console.error('Action failed:', error);
+        console.error('ACTION_FAILED:', error);
       });
 
     await this.#currentExecutionPromise;
