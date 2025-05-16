@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import { useAuth } from './useAuth';
@@ -40,7 +40,9 @@ export function useFetch<T = any>() {
 
       try {
         const headers = new Headers(fetchOptions.headers);
-
+        
+        const authToken = Cookies.get("authToken");
+        console.log(`AUTH TOKEN: ${authToken}`)
         if (!authToken) {
           Cookies.remove('authToken');
           throw new Error('No authentication token found');
@@ -55,11 +57,15 @@ export function useFetch<T = any>() {
 
         if (response.status === 401) {
           await disconnect();
-          throw new Error('Session expired. Please reconnect your wallet.');
+          const msg = 'Session expired. Please reconnect your wallet.'
+          toast.error(msg);
+          throw new Error(msg);
         }
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const msg = `HTTP error! status: ${response.status}`;
+          toast.error(msg);
+          throw new Error(msg);
         }
 
         const data = (await response.json()) as T;
@@ -105,6 +111,16 @@ export function useFetch<T = any>() {
   const reset = useCallback(() => {
     setState({ data: null, error: null, loading: false });
   }, []);
+
+
+  useEffect(() => {
+    const req = async () => {
+      console.log(`GET ME JWT: ${Cookies.get("authToken")}`)
+      const response = await (fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/me`));
+      console.log(`GET ME: ${response}`);
+    };
+    req();
+  }, [])
 
   return {
     ...state,

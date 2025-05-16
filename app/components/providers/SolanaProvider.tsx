@@ -7,11 +7,11 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { ClientOnly } from 'remix-utils/client-only';
 
-interface SolanaProviderProps {
+export interface SolanaProviderProps {
   children: React.ReactNode;
 }
 
-export const SolanaProvider: React.FC<SolanaProviderProps> = ({ children }) => {
+export default function SolanaProvider({ children }: SolanaProviderProps) {
   const network = WalletAdapterNetwork.Mainnet;
 
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);

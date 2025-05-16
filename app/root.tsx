@@ -5,16 +5,22 @@ import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect, useState, type FC, type PropsWithChildren } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ClientOnly } from 'remix-utils/client-only';
+
+import { logStore } from './lib/stores/logs';
+import type { SolanaProviderProps } from './components/providers/SolanaProvider';
+import { AuthProvider } from './lib/hooks/useAuth';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
 import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 
 import 'virtual:uno.css';
+
+const SolanaProvider = React.lazy(() => import('./components/providers/SolanaProvider'));
 
 export const links: LinksFunction = () => [
   {
@@ -65,17 +71,28 @@ export const Head = createHead(() => (
   </>
 ));
 
+const NoopProvider: FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
+
 function Providers({ children }: { children: React.ReactNode }) {
-  console.log(process.env.DYNAMIC_ENVIROMENT_ID);
+  type SolanaProviderType = FC<SolanaProviderProps>;
+  // const [SolanaProvider, setSolanaProvider] = useState<SolanaProviderType>(() => NoopProvider);
+
+  // useEffect(() => {
+    // import("./components/providers/SolanaProvider").then(mod => {
+      // setSolanaProvider(() => mod.SolanaProvider);
+    // });
+  // }, [])
 
   return (
     <ClientOnly>
       {() => (
-        <SolanaProvider>
-          <AuthProvider>
-            <DndProvider backend={HTML5Backend}>{children}</DndProvider>
-          </AuthProvider>
-        </SolanaProvider>
+        <Suspense fallback="">
+          <SolanaProvider>
+            <AuthProvider>
+              <DndProvider backend={HTML5Backend}>{children}</DndProvider>
+            </AuthProvider>
+          </SolanaProvider>
+        </Suspense>
       )}
     </ClientOnly>
   );
@@ -96,10 +113,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </>
   );
 }
-
-import { logStore } from './lib/stores/logs';
-import { SolanaProvider } from './components/providers/SolanaProvider';
-import { AuthProvider } from './lib/hooks/useAuth';
 
 export default function App() {
   const theme = useStore(themeStore);

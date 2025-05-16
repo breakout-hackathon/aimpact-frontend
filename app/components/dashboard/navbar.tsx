@@ -1,8 +1,10 @@
 'use client';
 
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Search, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { ClientOnly } from 'remix-utils/client-only';
 
 interface NavBarProps {
   searchQuery: string;
@@ -57,8 +59,30 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
                 />
               </div>
             </nav>
+            <div className="flex ">
+              <ClientOnly>
+                {() => {
+                  return (
+                    <WalletMultiButton
+                      style={{
+                        fontSize: '16px',
+                        fontStyle: 'normal',
+                        height: '42px',
+                        borderRadius: '8px',
+                        padding: '0 16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        whiteSpace: 'nowrap',
+                        fontWeight: 500,
+                      }}
+                    />
+                  );
+                }}
+              </ClientOnly>
+            </div>
 
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2"> */}
               {/* Mobile menu button */}
               {/* <Button
                 variant="ghost"
@@ -69,7 +93,7 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
               >
                 {isMenuOpen ? <X /> : <Menu />}
               </Button> */}
-            </div>
+            {/* </div> */}
           </div>
         </div>
       </motion.header>

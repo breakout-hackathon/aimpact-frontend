@@ -1,4 +1,3 @@
-import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
 import UnoCSS from 'unocss/vite';
 import { defineConfig, type ViteDevServer } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -9,6 +8,7 @@ import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import babel from 'vite-plugin-babel';
+import { vitePlugin as remixVitePlugin } from "@remix-run/dev";
 
 dotenv.config();
 
@@ -94,11 +94,6 @@ export default defineConfig((config) => {
       __PKG_OPTIONAL_DEPENDENCIES: JSON.stringify(pkg.optionalDependencies),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     },
-    // resolve: {
-    //   alias: {
-    //     "util/types": "node:util"
-    //   },
-    // },
     build: {
       target: 'esnext',
       rollupOptions: {
@@ -116,7 +111,6 @@ export default defineConfig((config) => {
           'node:stream',
           'node:events',
           'electron-store',
-          '@remix-run/node',
         ],
       },
     },
@@ -142,11 +136,9 @@ export default defineConfig((config) => {
               map: null,
             };
           }
-
           return null;
         },
       },
-      config.mode !== 'test' && remixCloudflareDevProxy(),
       remixVitePlugin({
         future: {
           v3_fetcherPersist: true,
@@ -159,6 +151,21 @@ export default defineConfig((config) => {
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
+      {
+        name: 'replaceReactDomServerImport',
+        enforce: 'pre',
+        transform(code, id) {
+          if (id.endsWith('entry.server.tsx')) {
+            /*
+             * Hack: fix the issue with react-dom/server not being found in electron
+             * Replace the import from 'react-dom/server' with 'react-dom/server.browser', only for electron build
+             */
+            return code.replace(/from 'react-dom\/server';?/g, "from 'react-dom/server.browser';");
+          }
+
+          return undefined;
+        },
+      },
       babel({
         filter: /\.[jt]sx?$/,
         babelConfig: {

@@ -3,13 +3,13 @@ import Cookies from 'js-cookie';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { WalletSignMessageError } from '@solana/wallet-adapter-base';
 import bs58 from 'bs58';
+import { toast } from 'react-toastify';
 
 interface UserInfo {}
 
 type AuthContextType = {
   isAuthorized: boolean;
   jwtToken: string;
-  userInfo: UserInfo;
   disconnect: () => Promise<void>;
 };
 
@@ -24,52 +24,43 @@ type LoginWalletResponseType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const generateMessage = (customData?: string) => {
-  const message = `Login to app ${Date.now()}` + customData || '';
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { publicKey, connected, signIn, signMessage, disconnect } = useWallet();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [jwtToken, setJwtToken] = useState('');
-  const [userInfo, setUserInfo] = useState<UserInfo>({});
-  
-  const allowedLocations: string[] = [/*'/chat' */];
 
   useEffect(() => {
-    console.log(`Public Key: ${publicKey}`);
-    console.log(`Is Auth: ${isAuthorized}`);
-
     const checkCreds = async () => {
-      if (!allowedLocations.includes(window.location.pathname)) {
-        return;
-      }
-
       if (connected && isAuthorized) {
+        console.log('exit')
         return;
       }
 
       if (!connected || !signMessage || !publicKey) {
         console.log('Disconnecting');
-        Cookies.remove('authToken');
-        setIsAuthorized(false);
-
         return;
       }
 
       const authToken = Cookies.get('authToken');
+      console.log(`Auth token: ${authToken}`)
 
       if (!authToken || authToken === 'undefined') {
-        const requestMessage = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/requestMessage`, {
-          method: 'POST',
-
-          // body: JSON.stringify({ walletAddress: publicKey.toBase58() }),
-          headers: {
-            accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ walletAddress: publicKey.toBase58() }),
-        });
+        let requestMessage;
+        try {
+          requestMessage = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/requestMessage`, {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ walletAddress: publicKey.toBase58() }),
+          })
+        } catch (error) {
+          const msg = "Failed to request sign message";
+          toast.error(msg);
+          setIsAuthorized(false);
+          throw error;
+        }
 
         if (!requestMessage.ok) {
           throw new Error('Failed to request sign message');
@@ -108,12 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           Cookies.set('authToken', responseData.accessToken);
         } catch (error) {
           console.error(error);
+          toast.error((error as Error)?.message || "Failed to sign message and authorize");
 
-          if (error instanceof WalletSignMessageError) {
-            // alert("User rejected sign request");
+          if (error instanceof WalletSignMessageError) { 
             await handleDisconnect();
-          } else {
-            // alert("Unnexpectd error");
           }
         }
       } else {
@@ -122,17 +111,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    checkCreds();
+    checkCreds().then(() => {
+      // console.log(`Is Auth new: ${isAuthorized} ${jwtToken.slice(0, 15)}`);
+      // console.log(`Jwt new: ${jwtToken} ${typeof jwtToken}`);
+      // console.log(`Public Key: ${publicKey}`);
+    });
   }, [publicKey, connected, signMessage, disconnect]);
 
   const handleDisconnect = async () => {
-    Cookies.remove('authToken');
+    // Cookies.remove('authToken');
     setIsAuthorized(false);
     await disconnect();
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthorized, jwtToken, userInfo, disconnect: handleDisconnect }}>
+    <AuthContext.Provider value={{ isAuthorized, jwtToken, disconnect: handleDisconnect }}>
       {children}
     </AuthContext.Provider>
   );

@@ -36,11 +36,11 @@ export function useHttpDb() {
   const { fetchDataAuthorized } = useFetch();
 
   const getProject = async (projectId: string): Promise<ProjectResponse> => {
-    return fetchDataAuthorized(`${host}/project/${projectId}`);
+    return fetchDataAuthorized(`${host}/projects/${projectId}`);
   };
 
   const createProject = async (name: string): Promise<string> => {
-    const project = (await fetchDataAuthorized(`${host}/project`, {
+    const project = (await fetchDataAuthorized(`${host}/projects`, {
       method: 'POST',
       body: JSON.stringify({ name }),
       headers: {
@@ -51,7 +51,7 @@ export function useHttpDb() {
   };
 
   const getMessages = async (projectId: string): Promise<ChatHistoryItem | undefined> => {
-    const storedMessages = await fetchDataAuthorized(`${host}/project/${projectId}/chat`) as ChatResponse;
+    const storedMessages = await fetchDataAuthorized(`${host}/projects/${projectId}/chat`) as ChatResponse;
 
     if (!storedMessages) {
       return undefined;
@@ -72,7 +72,7 @@ export function useHttpDb() {
     description?: string,
     metadata?: IChatMetadata,
   ): Promise<void> => {
-    await fetchDataAuthorized(`${host}/project/${projectId}/chat`, {
+    await fetchDataAuthorized(`${host}/projects/${projectId}/chat`, {
       method: 'POST',
       body: JSON.stringify({ messages, description, metadata }),
       headers: {
@@ -82,7 +82,7 @@ export function useHttpDb() {
   };
 
   const getSnapshot = async (projectId: string): Promise<Snapshot | undefined> => {
-    const snapshot = await fetchDataAuthorized(`${host}/project/${projectId}/snapshot`) as SnapshotResponse;
+    const snapshot = await fetchDataAuthorized(`${host}/projects/${projectId}/snapshot`) as SnapshotResponse;
 
     if (!snapshot) {
       return undefined;
@@ -96,7 +96,7 @@ export function useHttpDb() {
   };
 
   const setSnapshot = async (projectId: string, snapshot: Snapshot): Promise<void> => {
-    await fetchDataAuthorized(`${host}/project/${projectId}/snapshot`, {
+    await fetchDataAuthorized(`${host}/projects/${projectId}/snapshot`, {
       method: 'POST',
       body: JSON.stringify(snapshot),
       headers: {

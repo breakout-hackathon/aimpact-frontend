@@ -8,10 +8,39 @@ import DepositButton from '../chat/DepositButton';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { ArrowLeft } from '@phosphor-icons/react';
+import React, { useEffect, type CSSProperties, type PropsWithChildren, type ReactElement, type MouseEvent } from 'react';
+
+export type ButtonProps = PropsWithChildren<{
+    className?: string;
+    disabled?: boolean;
+    endIcon?: ReactElement;
+    onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+    startIcon?: ReactElement;
+    style?: CSSProperties;
+    tabIndex?: number;
+}>;
+
+type depositButtonType = () => React.ReactElement;
+type walletButtonType = (props: ButtonProps) => React.ReactElement;
+const NoopDepositButton: depositButtonType= () => <></>;
+const NoopWalletMultiButton: walletButtonType = () => <></>;
 
 export function Header() {
   const chat = useStore(chatStore);
   const { connected } = useWallet();
+  console.log(`Connected: ${connected}`)
+
+  // const [DepositButton, setDepositButton] = useState<depositButtonType>(() => NoopDepositButton);
+  // const [WalletMultiButton, setWalletMultiButton] = useState<walletButtonType>(() => NoopWalletMultiButton);
+
+  useEffect(() => {
+    // import("../chat/DepositButton").then((mod) => {
+    //   setDepositButton(mod.default);
+    // });
+    // import("@solana/wallet-adapter-react-ui").then(mod => {
+    //   setWalletMultiButton(mod.WalletMultiButton);
+    // })
+  })
 
   return (
     <header
