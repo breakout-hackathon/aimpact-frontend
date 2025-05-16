@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [publicKey, connected, signMessage, disconnect]);
 
   const handleDisconnect = async () => {
-    // Cookies.remove('authToken');
+    Cookies.remove('authToken');
     setIsAuthorized(false);
     await disconnect();
   };

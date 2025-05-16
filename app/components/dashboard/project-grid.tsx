@@ -66,7 +66,7 @@ const ProjectGrid = () => {
     );
   }
 
-  if (projectsQuery.data.length === 0) {
+  if (!projectsQuery.data || projectsQuery.data.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-muted rounded-lg p-10 text-center">
         <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
