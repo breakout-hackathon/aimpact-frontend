@@ -20,27 +20,10 @@ export type ButtonProps = PropsWithChildren<{
     tabIndex?: number;
 }>;
 
-type depositButtonType = () => React.ReactElement;
-type walletButtonType = (props: ButtonProps) => React.ReactElement;
-const NoopDepositButton: depositButtonType= () => <></>;
-const NoopWalletMultiButton: walletButtonType = () => <></>;
-
 export function Header() {
   const chat = useStore(chatStore);
   const { connected } = useWallet();
   console.log(`Connected: ${connected}`)
-
-  // const [DepositButton, setDepositButton] = useState<depositButtonType>(() => NoopDepositButton);
-  // const [WalletMultiButton, setWalletMultiButton] = useState<walletButtonType>(() => NoopWalletMultiButton);
-
-  useEffect(() => {
-    // import("../chat/DepositButton").then((mod) => {
-    //   setDepositButton(mod.default);
-    // });
-    // import("@solana/wallet-adapter-react-ui").then(mod => {
-    //   setWalletMultiButton(mod.WalletMultiButton);
-    // })
-  })
 
   return (
     <header
@@ -72,12 +55,6 @@ export function Header() {
           </ClientOnly>
         </>
       )}
-      {/* <div className=''>
-        <ClientOnly>{() => 
-          <WalletConnectButton />
-        }
-        </ClientOnly>
-      </div> */}
       <div className="flex justify-center items-center gap-2">
       <ClientOnly>
         {() => {
@@ -106,7 +83,6 @@ export function Header() {
           }}
         </ClientOnly>
       </div>
-      {/* <WalletMultiButton style={{fontSize: "12px", height: "42px", borderRadius: "8px", padding: "0 16px"}}  /> */}
     </header>
   );
 }

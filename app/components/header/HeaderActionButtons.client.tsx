@@ -11,14 +11,17 @@ import { NetlifyDeploymentLink } from '~/components/chat/NetlifyDeploymentLink.c
 import { VercelDeploymentLink } from '~/components/chat/VercelDeploymentLink.client';
 import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
 import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
+import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react'
+import { useFetch } from '~/lib/hooks/useFetch';
+import { chatId } from '~/lib/persistence';
+import { toast } from 'react-toastify';
+import type { DeployResponse } from '~/types/deploy';
 
 interface HeaderActionButtonsProps {}
 
 export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const showWorkbench = useStore(workbenchStore.showWorkbench);
   const { showChat } = useStore(chatStore);
-  const netlifyConn = useStore(netlifyConnection);
-  const vercelConn = useStore(vercelConnection);
   const [activePreviewIndex] = useState(0);
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
@@ -31,6 +34,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const isStreaming = useStore(streamingState);
   const { handleVercelDeploy } = useVercelDeploy();
   const { handleNetlifyDeploy } = useNetlifyDeploy();
+  const { data, error, loading, fetchDataAuthorized } = useFetch();
+  const [deployStatusInterval, setDeployStatusInterval] = useState<NodeJS.Timeout | null>(null);
+  const [finalDeployLink, setFinalDeployLink] = useState<string>('');
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -43,41 +49,71 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const onVercelDeploy = async () => {
-    setIsDeploying(true);
-    setDeployingTo('vercel');
 
-    try {
-      await handleVercelDeploy();
-    } finally {
-      setIsDeploying(false);
-      setDeployingTo(null);
+  const fetchDeployStatus = async ({ enableMessages=true }: { enableMessages: boolean }) => {
+    const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app?projectId=${chatId.get()}`, {
+      method: "GET",
+    });
+    if (response.status == "ERROR") {
+      if (!enableMessages) {
+        toast.error(`Failed to deploy. Error during deploy: ${response.message}`)
+      }
+    } else {
+      setFinalDeployLink(response.finalUrl);
+      if (!enableMessages) {
+        toast.success(`Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
+          URL: ${response.finalUrl}`)
+      }
     }
-  };
+  }
 
-  const onNetlifyDeploy = async () => {
+  useEffect(() => {
+    fetchDeployStatus({ enableMessages: false });
+  }, [])
+
+  const onDeploy = async () => {
     setIsDeploying(true);
-    setDeployingTo('netlify');
-
     try {
-      await handleNetlifyDeploy();
+      const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app`, {
+        body: JSON.stringify({ projectId: chatId.get() }),
+        method: "POST",
+      });
+      if (!error && data) {
+        setDeployStatusInterval(setInterval(async () => fetchDeployStatus, 5000));
+      }
     } finally {
       setIsDeploying(false);
-      setDeployingTo(null);
+    }
+  }
+
+  const handleClickFinalLink = () => {
+    if (finalDeployLink) {
+      window.open(finalDeployLink, "_blank");
     }
   };
 
   return (
     <div className="flex">
       <div className="relative" ref={dropdownRef}>
-        <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-2 text-sm">
+        <div className="flex gap-2 overflow-hidden mr-2 text-sm">
+          <Button
+            active
+            disabled={!finalDeployLink}
+            onClick={handleClickFinalLink}
+            className="px-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
+              border border-bolt-elements-borderColor rounded-md"
+          >
+            <ArrowSquareOutIcon size={24} />
+          </Button>
+
           <Button
             active
             disabled={isDeploying || !activePreview || isStreaming}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2"
+            className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
+              border border-bolt-elements-borderColor rounded-md"
           >
-            {isDeploying ? `Deploying to ${deployingTo}...` : 'Deploy'}
+            {isDeploying ? `Deploying...` : 'Deploy'}
             <div
               className={classNames('i-ph:caret-down w-4 h-4 transition-transform', isDropdownOpen ? 'rotate-180' : '')}
             />
@@ -87,61 +123,13 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         {isDropdownOpen && (
           <div className="absolute right-2 flex flex-col gap-1 z-50 p-1 mt-1 min-w-[13.5rem] bg-bolt-elements-background-depth-2 rounded-md shadow-lg bg-bolt-elements-backgroundDefault border border-bolt-elements-borderColor">
             <Button
-              active
-              onClick={() => {
-                onNetlifyDeploy();
-                setIsDropdownOpen(false);
-              }}
-              disabled={isDeploying || !activePreview || !netlifyConn.user}
-              className="flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative"
-            >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/netlify"
-              />
-              <span className="mx-auto">
-                {!netlifyConn.user ? 'No Netlify Account Connected' : 'Deploy to Netlify'}
-              </span>
-              {netlifyConn.user && <NetlifyDeploymentLink />}
-            </Button>
-            <Button
-              active
-              onClick={() => {
-                onVercelDeploy();
-                setIsDropdownOpen(false);
-              }}
-              disabled={isDeploying || !activePreview || !vercelConn.user}
-              className="flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative"
-            >
-              <img
-                className="w-5 h-5 bg-black p-1 rounded"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/vercel/white"
-                alt="vercel"
-              />
-              <span className="mx-auto">{!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel'}</span>
-              {vercelConn.user && <VercelDeploymentLink />}
-            </Button>
-            <Button
               active={false}
-              disabled
+              disabled={isDeploying}
+              onClick={onDeploy}
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2"
             >
-              <span className="sr-only">Coming Soon</span>
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/cloudflare"
-                alt="cloudflare"
-              />
-              <span className="mx-auto">Deploy to Cloudflare (Coming Soon)</span>
+              <RocketIcon alt='deploy icon' size={28} />
+              <span className="mx-auto">Deploy project</span>
             </Button>
           </div>
         )}
