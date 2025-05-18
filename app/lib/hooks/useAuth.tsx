@@ -38,6 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!connected || !signMessage || !publicKey) {
         console.log('Disconnecting');
+        Cookies.remove('authToken');
+        setIsAuthorized(false);
         return;
       }
 
