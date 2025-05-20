@@ -1,14 +1,10 @@
 import { useStore } from '@nanostores/react';
 import useViewport from '~/lib/hooks';
 import { chatStore } from '~/lib/stores/chat';
-import { netlifyConnection } from '~/lib/stores/netlify';
-import { vercelConnection } from '~/lib/stores/vercel';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { useEffect, useRef, useState } from 'react';
 import { streamingState } from '~/lib/stores/streaming';
-import { NetlifyDeploymentLink } from '~/components/chat/NetlifyDeploymentLink.client';
-import { VercelDeploymentLink } from '~/components/chat/VercelDeploymentLink.client';
 import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
 import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
 import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react'
@@ -51,37 +47,46 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   }, []);
 
 
-  const fetchDeployStatus = async ({ enableMessages=true }: { enableMessages: boolean }) => {
-    const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app?projectId=${chatId.get()}`, {
-      method: "GET",
-    });
-    if (response.status == "ERROR") {
-      if (!enableMessages) {
-        toast.error(`Failed to deploy. Error during deploy: ${response.message}`)
-      }
-    } else {
+  const fetchDeployStatus = async ({ projectId, enableMessages=true }: { projectId: string, enableMessages: boolean }) => {
+    try {
+      const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app?projectId=${projectId}`, {
+        method: "GET",
+      });
       setFinalDeployLink(response.finalUrl);
       if (!enableMessages) {
         toast.success(`Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
-          URL: ${response.finalUrl}`)
+          URL: ${response.finalUrl}`, { autoClose: false })
       }
+    } catch {
+      toast.error(`Failed to deploy app. Try again later.`);
+      console.error(error);
     }
   }
 
   useEffect(() => {
-    fetchDeployStatus({ enableMessages: false });
-  }, [])
+    const currentChatId = chatId.get();
+    console.log(`Current chat id: ${currentChatId}`)
+    if (!currentChatId) return;
+
+    fetchDeployStatus({ projectId: currentChatId, enableMessages: false });
+  }, [chatId])
 
   const onDeploy = async () => {
     setIsDeploying(true);
     try {
       const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app`, {
         body: JSON.stringify({ projectId: chatId.get() }),
+        headers: {
+          "Content-Type": "application/json",
+        },
         method: "POST",
       });
       if (!error && data) {
         setDeployStatusInterval(setInterval(async () => fetchDeployStatus, 5000));
       }
+    } catch (error) {
+      toast.error(`Failed to deploy app. Try again later.`);
+      console.error(error);
     } finally {
       setIsDeploying(false);
     }
@@ -98,6 +103,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     try {
       const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app`, {
         body: JSON.stringify({ projectId: chatId.get() }),
+        headers: {
+          "Content-Type": "application/json",
+        },
         method: "POST",
       });
       if (!error && data) {
@@ -158,7 +166,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   };
 
   return (
-    <div className="flex">
+    <div className="flex mr-1">
       {activePreview && (
         <Button
           active
