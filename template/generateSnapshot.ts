@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 const folderPath = path.join(__dirname, "vite-template");
-const ignorePaths = ["node_modules", ".git"];
+const ignorePaths = ["node_modules", ".git", "package-lock.json"];
 
 interface File {
   type: 'file';
@@ -63,16 +63,51 @@ export async function generateSnapshot(): Promise<Snapshot> {
 async function main() {
   try {
     const snapshot = await generateSnapshot();
-    const outputPath = path.join(__dirname, 'snapshot.json');
+    const snapshotOutputPath = path.join(__dirname, 'snapshot.json');
+    const promptOutputPath = path.join(__dirname, 'prompt.json');
     const snapshotData = JSON.stringify(snapshot, null, 2);
 
-    fs.writeFile(outputPath, snapshotData, 'utf-8', error => {
+    fs.writeFile(snapshotOutputPath, snapshotData, 'utf-8', error => {
       if (error) {
-        console.error('Error writing file', error);
+        console.error('Error writing snapshot file', error);
         return;
       }
-      console.log('File written successfully.');
+      console.log('Snapshot file written successfully.');
     });
+
+    const filteredFiles = Object.entries(snapshot.files).filter(([file, value]) => value.type == "file");
+    const assistantMessage = `
+Bolt is initializing your project with the required files using the Vite.js Default template.
+<boltArtifact id="imported-files" title="${'Create initial files'}" type="bundled">
+${filteredFiles.map(
+    ([file, value]) =>
+`<boltAction type="file" filePath="${file}">
+  ${(value as File).content}
+</boltAction>`,
+  )
+  .join('\n')}
+</boltArtifact>
+`;
+
+  const userMessage = `
+---
+template import is done, and you can now use the imported files,
+edit only the files that need to be changed, and you can create new files as needed.
+NO NOT EDIT/WRITE ANY FILES THAT ALREADY EXIST IN THE PROJECT AND DOES NOT NEED TO BE MODIFIED
+---
+Now that the Template is imported please continue with my original request
+
+IMPORTANT: Dont Forget to install the dependencies before running the app by using \`npm install && npm run dev\`
+`;
+    const promptData = JSON.stringify({ assistantMessage, userMessage }, null, 2);
+
+    fs.writeFile(promptOutputPath, promptData, 'utf-8', error => {
+      if (error) {
+        console.error('Error writing promptFile', error)
+        return;
+      }
+      console.log("Prompt file written successfully.")
+    })
   } catch (err) {
     console.error('Error generating snapshot:', err);
   }
