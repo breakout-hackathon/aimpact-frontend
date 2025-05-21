@@ -1,5 +1,15 @@
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { Template } from '~/types/template';
+import rawSnapshotsData from "~/template/snapshot.json";
+import type { FileMap, SaveFileMap } from '~/lib/stores/files';
+
+interface Snapshot {
+  files: SaveFileMap;
+  chatIndex?: string;
+  summary?: string;
+}
+
+const snapshotsData = rawSnapshotsData as Record<string, Snapshot>;
 
 export const WORK_DIR_NAME = 'project';
 export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
@@ -25,6 +35,13 @@ PROVIDER_LIST.forEach((provider) => {
 
 // starter Templates
 
-export const STARTER_TEMPLATES: Template[] = [];
-
-export const BACKEND_HOST = 'https://aimpact-backend-git-main-vladfo-s-projects.vercel.app';
+export const STARTER_TEMPLATES: Template[] = [
+  {
+    name: 'vite-react-app',
+    label: 'Vite + React + Typescript',
+    description: 'React starter template powered by Vite for fast development experience',
+    tags: ['typescript', 'vite', 'vitejs', 'react', 'website', 'app'],
+    icon: 'i-bolt:react',
+    files: snapshotsData['vite-react-app'].files,
+  },
+];

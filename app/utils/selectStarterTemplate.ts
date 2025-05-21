@@ -2,7 +2,20 @@ import ignore from 'ignore';
 import type { ProviderInfo } from '~/types/model';
 import type { Template } from '~/types/template';
 import { STARTER_TEMPLATES } from './constants';
-import Cookies from 'js-cookie';
+import path from 'path-browserify';
+
+interface FilteredFiles {
+  name: string;
+  path: string; 
+  content: string;
+}
+
+export interface File {
+  type: 'file';
+  content: string;
+  isBinary: boolean;
+}
+
 
 const starterTemplateSelectionPrompt = (templates: Template[]) => `
 You are an experienced developer who helps people choose the best starter template for their projects.
@@ -62,7 +75,7 @@ Important: Provide only the selection tags in your response, no additional text.
 MOST IMPORTANT: YOU DONT HAVE TIME TO THINK JUST START RESPONDING BASED ON HUNCH 
 `;
 
-const templates: Template[] = STARTER_TEMPLATES.filter((t) => !t.name.includes('shadcn'));
+const templates: Template[] = STARTER_TEMPLATES;
 
 const parseSelectedTemplate = (llmOutput: string): { template: string; title: string } | null => {
   try {
@@ -82,125 +95,32 @@ const parseSelectedTemplate = (llmOutput: string): { template: string; title: st
 };
 
 export const selectStarterTemplate = async (options: { message: string; model: string; provider: ProviderInfo }) => {
-  return {
-    template: 'blank',
-    title: '',
-  };
+   const { message, model, provider } = options;
+   const requestBody = {
+     message,
+     model,
+     provider,
+    system: starterTemplateSelectionPrompt(templates),
+   };
+   const response = await fetch('/api/llmcall', {
+     method: 'POST',
+     body: JSON.stringify(requestBody),
+   });
+   const respJson: { text: string } = await response.json();
+   console.log(respJson);
+  
+   const { text } = respJson;
+   const selectedTemplate = parseSelectedTemplate(text);
 
-  /*
-   * const { message, model, provider } = options;
-   * const requestBody = {
-   *   message,
-   *   model,
-   *   provider,
-   *   system: starterTemplateSelectionPrompt(templates),
-   * };
-   * const response = await fetch('/api/llmcall', {
-   *   method: 'POST',
-   *   body: JSON.stringify(requestBody),
-   * });
-   * const respJson: { text: string } = await response.json();
-   * console.log(respJson);
-   */
-
-  /*
-   * const { text } = respJson;
-   * const selectedTemplate = parseSelectedTemplate(text);
-   */
-
-  /*
-   * if (selectedTemplate) {
-   *   return selectedTemplate;
-   * } else {
-   *   console.log('No template selected, using blank template');
-   */
-
-  /*
-   *   return {
-   *     template: 'blank',
-   *     title: '',
-   *   };
-   * }
-   */
-};
-
-const getGitHubRepoContent = async (
-  repoName: string,
-  path: string = '',
-): Promise<{ name: string; path: string; content: string }[]> => {
-  const baseUrl = 'https://api.github.com';
-
-  try {
-    const token = Cookies.get('githubToken') || import.meta.env.VITE_GITHUB_ACCESS_TOKEN;
-
-    const headers: HeadersInit = {
-      Accept: 'application/vnd.github.v3+json',
-    };
-
-    // Add your GitHub token if needed
-    if (token) {
-      headers.Authorization = 'Bearer ' + token;
-    }
-
-    // Fetch contents of the path
-    const response = await fetch(`${baseUrl}/repos/${repoName}/contents/${path}`, {
-      headers,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data: any = await response.json();
-
-    // If it's a single file, return its content
-    if (!Array.isArray(data)) {
-      if (data.type === 'file') {
-        // If it's a file, get its content
-        const content = atob(data.content); // Decode base64 content
-        return [
-          {
-            name: data.name,
-            path: data.path,
-            content,
-          },
-        ];
-      }
-    }
-
-    // Process directory contents recursively
-    const contents = await Promise.all(
-      data.map(async (item: any) => {
-        if (item.type === 'dir') {
-          // Recursively get contents of subdirectories
-          return await getGitHubRepoContent(repoName, item.path);
-        } else if (item.type === 'file') {
-          // Fetch file content
-          const fileResponse = await fetch(item.url, {
-            headers,
-          });
-          const fileData: any = await fileResponse.json();
-          const content = atob(fileData.content); // Decode base64 content
-
-          return [
-            {
-              name: item.name,
-              path: item.path,
-              content,
-            },
-          ];
-        }
-
-        return [];
-      }),
-    );
-
-    // Flatten the array of contents
-    return contents.flat();
-  } catch (error) {
-    console.error('Error fetching repo contents:', error);
-    throw error;
-  }
+    if (selectedTemplate) {
+      return selectedTemplate;
+    } else {
+      console.log('No template selected, using blank template');
+      return {
+        template: 'blank',
+        title: '',
+      };
+   }
 };
 
 export async function getTemplates(templateName: string, title?: string) {
@@ -210,8 +130,22 @@ export async function getTemplates(templateName: string, title?: string) {
     return null;
   }
 
-  const githubRepo = template.githubRepo;
-  const files = await getGitHubRepoContent(githubRepo);
+  let templateFiles: Record<string, File> = {};
+  for (const path in template.files) {
+    const value = template.files[path];
+    if (value?.type === "folder" || !value.content) continue;
+    templateFiles[path] = value;
+  }
+  
+  const files: FilteredFiles[] = Object.entries(templateFiles).map(([path, value]) => {
+    return {
+      path,
+      content: value.content,
+      name: path.split('/').pop() || '',
+    }
+  });
+  console.log("Template files")
+  console.log(files);
 
   let filteredFiles = files;
 

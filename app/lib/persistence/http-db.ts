@@ -1,4 +1,3 @@
-import { BACKEND_HOST } from '~/utils/constants';
 import type { Snapshot } from './types';
 import type { ChatHistoryItem } from './useChatHistory';
 import type { IChatMetadata } from './db';

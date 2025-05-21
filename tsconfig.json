@@ -22,7 +22,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "@/*": ["./app/*"]
+      "@/*": ["./app/*"],
+      "~/template/*": ["./template/*"],
     },
 
     // vite takes care of building everything, not tsc

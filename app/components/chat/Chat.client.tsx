@@ -224,11 +224,12 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
 
     if (prompt) {
       setSearchParams({});
-      runAnimation();
-      append({
-        role: 'user',
-        content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${prompt}`,
-      });
+      setInput(prompt);
+      // runAnimation();
+      // append({
+      //   role: 'user',
+      //   content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${prompt}`,
+      // });
     }
   }, [model, provider, searchParams]);
 
@@ -315,17 +316,21 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
     // If no locked items, proceed normally with the original message
     const finalMessageContent = messageContent;
 
+    logger.info(`IS CHAT STARTED (TEMPLATE): ${chatStarted}`)
     runAnimation();
 
     if (!chatStarted) {
       setFakeLoading(true);
 
+      logger.info(`AUTO SELECT TEMPLATE: ${autoSelectTemplate}`)
       if (autoSelectTemplate) {
         const { template, title } = await selectStarterTemplate({
           message: finalMessageContent,
           model,
           provider,
         });
+        console.log(`SELECTED TEMPLATE:`)
+        console.log(template)
 
         if (template !== 'blank') {
           const temResp = await getTemplates(template, title).catch((e) => {

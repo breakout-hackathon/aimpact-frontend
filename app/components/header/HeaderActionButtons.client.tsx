@@ -11,7 +11,7 @@ import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react'
 import { useFetch } from '~/lib/hooks/useFetch';
 import { chatId } from '~/lib/persistence';
 import { toast } from 'react-toastify';
-import type { DeployResponse } from '~/types/deploy';
+import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
 
 interface HeaderActionButtonsProps {}
 
@@ -30,7 +30,8 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const isStreaming = useStore(streamingState);
   const { handleVercelDeploy } = useVercelDeploy();
   const { handleNetlifyDeploy } = useNetlifyDeploy();
-  const { data, error, loading, fetchDataAuthorized } = useFetch();
+  const { data, error, fetchDataAuthorized } = useFetch();
+  const [deployStatus, setDeployStatus] = useState<DeployStatusEnum | null>(null);
   const [deployStatusInterval, setDeployStatusInterval] = useState<NodeJS.Timeout | null>(null);
   const [finalDeployLink, setFinalDeployLink] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
@@ -53,6 +54,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         method: "GET",
       });
       setFinalDeployLink(response.finalUrl);
+      setDeployStatus(response.status);
       if (!enableMessages) {
         toast.success(`Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
           URL: ${response.finalUrl}`, { autoClose: false })
@@ -60,6 +62,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     } catch {
       toast.error(`Failed to deploy app. Try again later.`);
       console.error(error);
+      setDeployStatus(DeployStatusEnum.unknown);
     }
   }
 
@@ -73,6 +76,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
   const onDeploy = async () => {
     setIsDeploying(true);
+    const deployToastId = toast.info("Deploying...", { autoClose: false })
     try {
       const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app`, {
         body: JSON.stringify({ projectId: chatId.get() }),
@@ -84,11 +88,13 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       if (!error && data) {
         setDeployStatusInterval(setInterval(async () => fetchDeployStatus, 5000));
       }
+      setDeployStatus(response.status);
     } catch (error) {
       toast.error(`Failed to deploy app. Try again later.`);
       console.error(error);
     } finally {
       setIsDeploying(false);
+      toast.dismiss(deployToastId);
     }
   }
 
@@ -202,7 +208,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
           <Button
             active
-            disabled={isDeploying || !activePreview || isStreaming}
+            disabled={isDeploying || !activePreview || isStreaming || deployStatus == null}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
               border border-bolt-elements-borderColor rounded-md"

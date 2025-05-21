@@ -659,7 +659,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
                     handleSendMessage?.(event, messageInput);
                   })}
-                {!chatStarted && <StarterTemplates />}
+                {/* {!chatStarted && <StarterTemplates />} */}
               </div>
             </div>
           </div>

@@ -8,3 +8,14 @@ export interface DeployResponse {
   "createdAt": string;
   "updatedAt": string;
 }
+
+export enum DeployStatusEnum {
+  error = "ERROR",
+  success = "SUCCESS",
+  canceled = "CANCELED",
+  queued = "QUEUED",
+  building = "BUILDING", 
+  initializing = "INITIALIZING",
+  ready = "READY",
+  unknown = "UNKNOWN",
+}

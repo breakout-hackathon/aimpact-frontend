@@ -1,8 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const folderPath = path.join(__dirname, "vite-template");
-const ignorePaths = ["node_modules", ".git", "package-lock.json"];
+const template = "vite-react-app"
+const folderPath = path.join(__dirname, template);
+const ignorePaths = ["node_modules", ".git", "package-lock.json", "pnpm-lock.yaml", "yarn.lock"];
 
 interface File {
   type: 'file';
@@ -19,8 +20,8 @@ interface Folder {
 }
 
 interface Snapshot {
-  chatIndex: string;
   files: Record<string, File | Folder>;
+  chatIndex?: string;
   summary?: string;
 }
 
@@ -50,13 +51,14 @@ async function walk(dirPath: string, result: Record<string, File | Folder>) {
   }
 }
 
-export async function generateSnapshot(): Promise<Snapshot> {
+export async function generateSnapshot(): Promise<Record<string, Snapshot>> {
   const files: Record<string, File | Folder> = {};
   await walk(folderPath, files);
 
   return {
-    chatIndex: 'null',
-    files,
+    [template]: {
+      files,
+    }
   };
 }
 
@@ -74,8 +76,8 @@ async function main() {
       }
       console.log('Snapshot file written successfully.');
     });
-
-    const filteredFiles = Object.entries(snapshot.files).filter(([file, value]) => value.type == "file");
+    
+    const filteredFiles = Object.entries(snapshot[template].files).filter(([file, value]) => value.type == "file");
     const assistantMessage = `
 Bolt is initializing your project with the required files using the Vite.js Default template.
 <boltArtifact id="imported-files" title="${'Create initial files'}" type="bundled">
@@ -99,7 +101,7 @@ Now that the Template is imported please continue with my original request
 
 IMPORTANT: Dont Forget to install the dependencies before running the app by using \`npm install && npm run dev\`
 `;
-    const promptData = JSON.stringify({ assistantMessage, userMessage }, null, 2);
+    const promptData = JSON.stringify({ [template]: { assistantMessage, userMessage } }, null, 2);
 
     fs.writeFile(promptOutputPath, promptData, 'utf-8', error => {
       if (error) {

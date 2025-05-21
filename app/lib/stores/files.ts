@@ -43,6 +43,7 @@ export interface Folder {
 type Dirent = File | Folder;
 
 export type FileMap = Record<string, Dirent | undefined>;
+export type SaveFileMap = Record<string, Dirent>;
 
 export class FilesStore {
   #webcontainer: Promise<WebContainer>;
