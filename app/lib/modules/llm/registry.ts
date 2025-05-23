@@ -1,4 +1,4 @@
-// import AnthropicProvider from './providers/anthropic';
+import AnthropicProvider from './providers/anthropic';
 // import CohereProvider from './providers/cohere';
 // import DeepseekProvider from './providers/deepseek';
 // import GoogleProvider from './providers/google';
@@ -18,7 +18,7 @@
 import OpenAIProvider from './providers/openai';
 
 export {
-  // AnthropicProvider,
+  AnthropicProvider,
   // CohereProvider,
   // DeepseekProvider,
   // GoogleProvider,

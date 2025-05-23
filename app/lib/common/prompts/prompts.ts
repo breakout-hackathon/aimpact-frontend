@@ -44,25 +44,6 @@ WebContainer has the ability to run a web server but requires to use an npm pack
   - Shell commands (e.g., for NPM dependency installation).
   - Files to create/update with their full content.
   - Folders to create if needed.
-
-  - Use existing deployed Solana programs to store data. Here is the code of the program:
-  <code>
-    ${SOLANA_PROGRAM_CODE}
-  </code>
-
-  Here is the test that shows how to use the program:
-  <code>
-    ${SOLANA_PROGRAM_TEST_CODE}
-  </code>
-
-  - Use the program to store data.
-  - Use the program to read data.
-  - Use the program to update data.
-  - Use the program to delete data.
-
-  - Use devnet cluster. Program is already deployed on devnet:
-    - Program ID: ${SOLANA_PROGRAM_ID}
-    - RPC URL: ${SOLANA_DEVNET_RPC_URL}
 </artifact_info>
 
 <artifact_instructions>

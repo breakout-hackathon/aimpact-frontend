@@ -82,8 +82,13 @@ export async function streamText(props: {
   });
 
   const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_PROVIDER;
+  console.log(PROVIDER_LIST)
+  console.log(currentProvider)
+  console.log(DEFAULT_PROVIDER)
   const staticModels = LLMManager.getInstance().getStaticModelListFromProvider(provider);
   let modelDetails = staticModels.find((m) => m.name === currentModel);
+  console.log(currentModel);
+  console.log(`Current model2: ${(modelDetails)}, ${(provider)}`)
 
   if (!modelDetails) {
     const modelsList = [

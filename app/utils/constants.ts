@@ -18,14 +18,17 @@ export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
 export const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
 export const DEFAULT_MINI_MODEL = 'gpt-4.1-mini';
-export const DEFAULT_PROVIDER_NAME = 'anthropic';
-export const DEFAULT_MINI_PROVIDER_NAME = 'openai';
+export const DEFAULT_PROVIDER_NAME = 'Anthropic';
+export const DEFAULT_MINI_PROVIDER_NAME = 'OpenAI';
 export const PROMPT_COOKIE_KEY = 'cachedPrompt';
 
 const llmManager = LLMManager.getInstance(import.meta.env);
 
 export const PROVIDER_LIST = llmManager.getAllProviders();
 export const DEFAULT_PROVIDER = PROVIDER_LIST.find((p) => p.name === DEFAULT_PROVIDER_NAME) || llmManager.getDefaultProvider();
+export const DEFAULT_MINI_PROVIDER = PROVIDER_LIST.find((p) => p.name === DEFAULT_MINI_PROVIDER_NAME) || llmManager.getDefaultProvider();
+console.log(PROVIDER_LIST);
+console.log(llmManager.getDefaultProvider());
 
 export const providerBaseUrlEnvKeys: Record<string, { baseUrlKey?: string; apiTokenKey?: string }> = {};
 PROVIDER_LIST.forEach((provider) => {
