@@ -75,6 +75,25 @@ Analyze user prompt and decide is he needs "Connect Wallet" button. If yes, crea
   - Shell commands (e.g., for NPM dependency installation).
   - Files to create/update with their full content.
   - Folders to create if needed.
+
+  - Use existing deployed Solana programs to store data. Here is the code of the program:
+  <code>
+    ${SOLANA_PROGRAM_CODE}
+  </code>
+
+  Here is the test that shows how to use the program:
+  <code>
+    ${SOLANA_PROGRAM_TEST_CODE}
+  </code>
+
+  - Use the program to store data.
+  - Use the program to read data.
+  - Use the program to update data.
+  - Use the program to delete data.
+
+  - Use devnet cluster. Program is already deployed on devnet:
+    - Program ID: ${SOLANA_PROGRAM_ID}
+    - RPC URL: ${SOLANA_DEVNET_RPC_URL}
 </artifact_info>
 
 <artifact_instructions>
@@ -200,3 +219,111 @@ export const CONTINUE_PROMPT = stripIndents`
   Continue your prior response. IMPORTANT: Immediately begin from where you left off without any interruptions.
   Do not repeat any content, including artifact and action tags.
 `;
+
+
+export const SOLANA_PROGRAM_CODE = `
+  use anchor_lang::prelude::*;
+use std::mem::size_of;
+declare_id!("6ytMmvJR2YYsuPR7FSQUQnb7UGi1rf36BrXzZUNvKsnj");
+
+#[program]
+pub mod mappings {
+    use super::*;
+
+    pub fn initialize(ctx: Context<Initialize>, domain: u64, key: u64) -> Result<()> {
+        Ok(())
+    }
+
+    pub fn set(ctx: Context<Set>, domain: u64, key: u64, value: u64) -> Result<()> {
+        ctx.accounts.val.value = value;
+        Ok(())
+    }
+
+    pub fn get(ctx: Context<Get>, domain: u64, key: u64) -> Result<u64> {
+        Ok(ctx.accounts.val.value)
+    }
+}
+
+#[derive(Accounts)]
+#[instruction(domain: u64, key: u64)]
+pub struct Initialize<'info> {
+
+    #[account(init,
+              payer = signer,
+              space = size_of::<Val>() + 8,
+              seeds=[&domain.to_le_bytes().as_ref(), &key.to_le_bytes().as_ref()],
+              bump)]
+    val: Account<'info, Val>,
+    
+    #[account(mut)]
+    signer: Signer<'info>,
+    
+    system_program: Program<'info, System>,
+}
+
+#[account]
+pub struct Val {
+    value: u64,
+}
+
+#[derive(Accounts)]
+#[instruction(domain: u64, key: u64)]
+pub struct Set<'info> {
+    #[account(mut)]
+    val: Account<'info, Val>,
+}
+
+#[derive(Accounts)]
+#[instruction(domain: u64, key: u64)]
+pub struct Get<'info> {
+    val: Account<'info, Val>,
+}
+`;
+
+
+export const SOLANA_PROGRAM_TEST_CODE = `
+  import * as anchor from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
+import { Mappings } from "../target/types/mappings";
+import { assert } from "chai";
+
+describe("mappings", () => {
+  // Configure the client to use the local cluster.
+  anchor.setProvider(anchor.AnchorProvider.env());
+
+  const program = anchor.workspace.mappings as Program<Mappings>;
+  const key = new anchor.BN(42);
+  const domain = new anchor.BN(777);
+  const value = new anchor.BN(100);
+
+  const seeds = [domain.toArrayLike(Buffer, "le", 8), key.toArrayLike(Buffer, "le", 8)];
+
+  const valueAccount = anchor.web3.PublicKey.findProgramAddressSync(
+    seeds,
+    program.programId
+  )[0];
+
+  it("Initialize mapping storage", async () => {
+    await program.methods.initialize(domain, key).accounts(valueAccount).rpc();
+  });
+
+  it("Should set value", async () => {
+    await program.methods.set(domain, key, value).accounts({val: valueAccount}).rpc();
+  });
+
+  it("Should get value (direct memory access)", async () => {
+    const retrievedValue = (await program.account.val.fetch(valueAccount)).value;
+    assert.equal(retrievedValue.toString(), value.toString());
+
+  });
+
+   it("Should get value (via program method)", async () => {
+    const retrievedValue = await program.methods.get(domain, key).accounts({val: valueAccount}).view();
+    assert.equal(retrievedValue.toString(), value.toString());
+  });
+});
+`;
+
+
+export const SOLANA_PROGRAM_ID = "6ytMmvJR2YYsuPR7FSQUQnb7UGi1rf36BrXzZUNvKsnj";
+export const SOLANA_DEVNET_RPC_URL = "https://api.devnet.solana.com";
