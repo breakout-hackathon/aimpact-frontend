@@ -51,6 +51,7 @@ export async function streamText(props: {
   } = props;
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
+  console.log(`Current provider: ${currentProvider}`)
   let processedMessages = messages.map((message) => {
     if (message.role === 'user') {
       const { model, provider, content } = extractPropertiesFromMessage(message);
@@ -191,6 +192,9 @@ ${lockedFilesListString}
 
   logger.info(JSON.stringify(processedMessages, null, 4));
   logger.info(JSON.stringify(convertToCoreMessages(processedMessages as any), null, 4));
+
+  logger.info(modelDetails);
+  logger.info(providerSettings);
 
   return await _streamText({
     model: provider.getModelInstance({
