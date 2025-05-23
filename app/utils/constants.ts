@@ -16,8 +16,10 @@ export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
 export const MODIFICATIONS_TAG_NAME = 'bolt_file_modifications';
 export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
-export const DEFAULT_MODEL = 'o4-mini';
-export const DEFAULT_PROVIDER_NAME = 'openai';
+export const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
+export const DEFAULT_MINI_MODEL = 'gpt-4.1-mini';
+export const DEFAULT_PROVIDER_NAME = 'anthropic';
+export const DEFAULT_MINI_PROVIDER_NAME = 'openai';
 export const PROMPT_COOKIE_KEY = 'cachedPrompt';
 
 const llmManager = LLMManager.getInstance(import.meta.env);

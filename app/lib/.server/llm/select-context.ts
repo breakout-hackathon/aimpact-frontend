@@ -2,7 +2,7 @@ import { generateText, type CoreTool, type GenerateTextResult, type Message } fr
 import ignore from 'ignore';
 import type { IProviderSetting } from '~/types/model';
 import { IGNORE_PATTERNS, type FileMap } from './constants';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
+import { DEFAULT_MINI_MODEL, DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { createFilesContext, extractCurrentContext, extractPropertiesFromMessage, simplifyBoltActions } from './utils';
 import { createScopedLogger } from '~/utils/logger';
 import { LLMManager } from '~/lib/modules/llm/manager';
@@ -24,7 +24,7 @@ export async function selectContext(props: {
   onFinish?: (resp: GenerateTextResult<Record<string, CoreTool<any, any>>, never>) => void;
 }) {
   const { messages, env: serverEnv, apiKeys, files, providerSettings, summary, onFinish } = props;
-  let currentModel = DEFAULT_MODEL;
+  let currentModel = DEFAULT_MINI_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {

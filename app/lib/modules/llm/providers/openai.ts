@@ -93,7 +93,11 @@ export default class OpenAIProvider extends BaseProvider {
 
       // compatibility: 'strict'
     });
-
-    return openai(model, { reasoningEffort: 'high' });
+    
+    // const providerParams: LanguageModelV1 = {};
+    // if (model.startsWith("o")) [
+    //   providerParams["reaso"]
+    // ]
+    return openai(model);
   }
 }

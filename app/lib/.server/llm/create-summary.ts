@@ -1,6 +1,6 @@
 import { generateText, type CoreTool, type GenerateTextResult, type Message } from 'ai';
 import type { IProviderSetting } from '~/types/model';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
+import { DEFAULT_MINI_MODEL, DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { extractCurrentContext, extractPropertiesFromMessage, simplifyBoltActions } from './utils';
 import { createScopedLogger } from '~/utils/logger';
 import { LLMManager } from '~/lib/modules/llm/manager';
@@ -9,7 +9,7 @@ const logger = createScopedLogger('create-summary');
 
 export async function createSummary(props: {
   messages: Message[];
-  env?: Env;
+  env?: any;
   apiKeys?: Record<string, string>;
   providerSettings?: Record<string, IProviderSetting>;
   promptId?: string;
@@ -17,7 +17,7 @@ export async function createSummary(props: {
   onFinish?: (resp: GenerateTextResult<Record<string, CoreTool<any, any>>, never>) => void;
 }) {
   const { messages, env: serverEnv, apiKeys, providerSettings, onFinish } = props;
-  let currentModel = DEFAULT_MODEL;
+  let currentModel = DEFAULT_MINI_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
