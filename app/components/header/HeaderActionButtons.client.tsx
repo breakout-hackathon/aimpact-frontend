@@ -12,6 +12,7 @@ import { useFetch } from '~/lib/hooks/useFetch';
 import { chatId } from '~/lib/persistence';
 import { toast } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
+import { useGetDeploy, usePostDeploy } from '~/lib/hooks/useDeploy';
 
 interface HeaderActionButtonsProps {}
 
@@ -22,19 +23,26 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
   const [isDeploying, setIsDeploying] = useState(false);
-  const [deployingTo, setDeployingTo] = useState<'netlify' | 'vercel' | null>(null);
   const isSmallViewport = useViewport(1024);
   const canHideChat = showWorkbench || !showChat;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isStreaming = useStore(streamingState);
-  const { handleVercelDeploy } = useVercelDeploy();
-  const { handleNetlifyDeploy } = useNetlifyDeploy();
-  const { data, error, fetchDataAuthorized } = useFetch();
+  
+  const { mutateAsync: getDeployRequest, error: getDeployError } = useGetDeploy();
+  const { data: postDeployData, error: postDeployError, mutateAsync: createDeployRequest } = usePostDeploy();
   const [deployStatus, setDeployStatus] = useState<DeployStatusEnum | null>(null);
+  const [isRequestFirst, setIsRequestFirst] = useState(true);
   const [deployStatusInterval, setDeployStatusInterval] = useState<NodeJS.Timeout | null>(null);
   const [finalDeployLink, setFinalDeployLink] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const successDeployStatuses = [DeployStatusEnum.ready, DeployStatusEnum.success];
+
+  const clearDeployStatusInterval = () => {
+    deployStatusInterval ? clearTimeout(deployStatusInterval) : undefined;
+    setDeployStatusInterval(null);
+  }
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -47,22 +55,27 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-
-  const fetchDeployStatus = async ({ projectId, enableMessages=true }: { projectId: string, enableMessages: boolean }) => {
+  const fetchDeployStatus = async ({ projectId, enableMessages=true }: { projectId: string, enableMessages?: boolean }) => {
     try {
-      const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app?projectId=${projectId}`, {
-        method: "GET",
-      });
-      setFinalDeployLink(response.finalUrl);
-      setDeployStatus(response.status);
-      if (!enableMessages) {
+      console.log("Started to fetch deploy");
+      const data = await getDeployRequest(projectId);
+      console.log(data);
+      setFinalDeployLink(data.finalUrl);
+      setDeployStatus(data.status);
+      console.log(data.status, deployStatus);
+      if (!enableMessages && deployStatus && successDeployStatuses.includes(deployStatus)) {
         toast.success(`Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
-          URL: ${response.finalUrl}`, { autoClose: false })
+          URL: <a>${data.finalUrl}</a>`, { autoClose: false })
       }
-    } catch {
-      toast.error(`Failed to deploy app. Try again later.`);
+    } catch (error) {
+      if (!isRequestFirst) {
+        toast.error(`Failed to deploy app. Try again later.`);
+      }
       console.error(error);
       setDeployStatus(DeployStatusEnum.unknown);
+      clearDeployStatusInterval();
+    } finally {
+      setIsRequestFirst(false);
     }
   }
 
@@ -72,23 +85,28 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     if (!currentChatId) return;
 
     fetchDeployStatus({ projectId: currentChatId, enableMessages: false });
+    return clearDeployStatusInterval;
   }, [chatId])
 
   const onDeploy = async () => {
     setIsDeploying(true);
-    const deployToastId = toast.info("Deploying...", { autoClose: false })
+    const deployToastId = toast.info("Deploying...", { autoClose: false });
     try {
-      const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app`, {
-        body: JSON.stringify({ projectId: chatId.get() }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      });
-      if (!error && data) {
-        setDeployStatusInterval(setInterval(async () => fetchDeployStatus, 5000));
+      const currentChatId = chatId.get();
+      if (!currentChatId) {
+        toast.error("Failed to get chatId.")
+        return;
       }
-      setDeployStatus(response.status);
+
+      const data = await createDeployRequest({
+        projectId: currentChatId,
+      });
+      console.log(postDeployError, data);
+      if (!postDeployError && data) {
+        setDeployStatusInterval(setInterval(async () => 
+          await fetchDeployStatus({ projectId: currentChatId }), 5000));
+      }
+      setDeployStatus(data.status);
     } catch (error) {
       toast.error(`Failed to deploy app. Try again later.`);
       console.error(error);
@@ -101,24 +119,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const handleClickFinalLink = () => {
     if (finalDeployLink) {
       window.open(finalDeployLink, "_blank");
-    }
-  };
-
-  const onNetlifyDeploy = async () => {
-    setIsDeploying(true);
-    try {
-      const response = await fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/deploy-app`, {
-        body: JSON.stringify({ projectId: chatId.get() }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      });
-      if (!error && data) {
-        setDeployStatusInterval(setInterval(async () => fetchDeployStatus, 5000));
-      }
-    } finally {
-      setIsSaving(false);
     }
   };
 

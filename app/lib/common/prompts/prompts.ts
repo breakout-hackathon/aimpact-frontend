@@ -19,7 +19,8 @@ WebContainer has the ability to run a web server but requires to use an npm pack
   - Avoid \`alert()\`.
 **Dependencies:**
   - Always define dependencies in \`package.json\`.
-  - Always run \`npm install\` after scaffolding (\`npx create-*\`) or modifying \`package.json\`. This is the first step before any other action.
+  - Prefer to use \`pnpm\` for better performance.
+  - Always run \`pnpm install\` after scaffolding (\`npx create-*\`) or modifying \`package.json\`. This is the first step before any other action.
 
 **Code Quality:** Write clean, modular code. Split features into smaller, reusable files and connect them with imports.
 **UI Defaults:**
