@@ -338,12 +338,19 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
             {!chatStarted && (
-              <div id="intro" className="mt-[16vh] max-w-chat mx-auto text-center px-4 lg:px-0">
+              <div id="intro" className="mt-[8vh] max-w-chat mx-auto text-center px-4 lg:px-0">
+                <div className="flex justify-center mb-6">
+                  <img 
+                    src="/aimpact-logo.png" 
+                    alt="AImpact Logo" 
+                    className="h-16 w-auto"
+                  />
+                </div>
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
-                  Where ideas begin
+                  Your AI co-founder
                 </h1>
                 <p className="text-md lg:text-xl mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
-                  Bring ideas to life in seconds
+                  Where your Web3 dreams come true
                 </p>
               </div>
             )}
