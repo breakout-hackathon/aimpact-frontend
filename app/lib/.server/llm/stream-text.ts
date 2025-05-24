@@ -26,7 +26,7 @@ const logger = createScopedLogger('stream-text');
 
 export async function streamText(props: {
   messages: Omit<Message, 'id'>[];
-  env?: Env;
+  env?: Record<string, string>;
   options?: StreamingOptions;
   apiKeys?: Record<string, string>;
   files?: FileMap;
