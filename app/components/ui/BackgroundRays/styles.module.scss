@@ -244,3 +244,500 @@
     opacity: 1;
   }
 }
+
+/* ============================================ */
+/* WATER FLOW ANIMATION SYSTEM */
+/* ============================================ */
+
+.waterFlowContainer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.waterStream {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(64, 150, 255, 0.08),
+    rgba(100, 200, 255, 0.12),
+    rgba(150, 220, 255, 0.08),
+    transparent
+  );
+  filter: blur(25px);
+  opacity: 0.6;
+
+  :global(html[data-theme='dark']) & {
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(64, 150, 255, 0.12),
+      rgba(100, 200, 255, 0.18),
+      rgba(150, 220, 255, 0.12),
+      transparent
+    );
+    mix-blend-mode: screen;
+  }
+
+  :global(html[data-theme='light']) & {
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(64, 150, 255, 0.06),
+      rgba(100, 200, 255, 0.08),
+      rgba(150, 220, 255, 0.06),
+      transparent
+    );
+    mix-blend-mode: multiply;
+    opacity: 0.4;
+  }
+}
+
+/* Water stream elements */
+.stream1 {
+  width: 800px;
+  height: 120px;
+  top: 20%;
+  left: -200px;
+  transform: rotate(-15deg);
+  animation: waterFlow1 25s infinite linear;
+}
+
+.stream2 {
+  width: 600px;
+  height: 80px;
+  top: 45%;
+  left: -150px;
+  transform: rotate(-8deg);
+  animation: waterFlow2 30s infinite linear;
+  animation-delay: -8s;
+}
+
+.stream3 {
+  width: 700px;
+  height: 100px;
+  top: 70%;
+  left: -180px;
+  transform: rotate(-12deg);
+  animation: waterFlow3 35s infinite linear;
+  animation-delay: -15s;
+}
+
+.stream4 {
+  width: 500px;
+  height: 60px;
+  top: 30%;
+  left: -120px;
+  transform: rotate(-5deg);
+  animation: waterFlow4 28s infinite linear;
+  animation-delay: -20s;
+}
+
+.stream5 {
+  width: 900px;
+  height: 140px;
+  top: 55%;
+  left: -250px;
+  transform: rotate(-18deg);
+  animation: waterFlow5 40s infinite linear;
+  animation-delay: -12s;
+}
+
+/* Water ripple effects */
+.waterRipple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(120, 180, 255, 0.15) 0%,
+    rgba(120, 180, 255, 0.08) 30%,
+    transparent 70%
+  );
+  filter: blur(15px);
+  
+  :global(html[data-theme='dark']) & {
+    background: radial-gradient(
+      circle,
+      rgba(120, 180, 255, 0.2) 0%,
+      rgba(120, 180, 255, 0.1) 30%,
+      transparent 70%
+    );
+    mix-blend-mode: screen;
+  }
+
+  :global(html[data-theme='light']) & {
+    background: radial-gradient(
+      circle,
+      rgba(120, 180, 255, 0.08) 0%,
+      rgba(120, 180, 255, 0.04) 30%,
+      transparent 70%
+    );
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+  }
+}
+
+.ripple1 {
+  width: 300px;
+  height: 300px;
+  top: 25%;
+  left: 30%;
+  animation: rippleExpand1 20s infinite ease-in-out;
+}
+
+.ripple2 {
+  width: 250px;
+  height: 250px;
+  top: 60%;
+  left: 60%;
+  animation: rippleExpand2 15s infinite ease-in-out;
+  animation-delay: -5s;
+}
+
+.ripple3 {
+  width: 400px;
+  height: 400px;
+  top: 40%;
+  left: 70%;
+  animation: rippleExpand3 25s infinite ease-in-out;
+  animation-delay: -10s;
+}
+
+.ripple4 {
+  width: 200px;
+  height: 200px;
+  top: 75%;
+  left: 20%;
+  animation: rippleExpand4 18s infinite ease-in-out;
+  animation-delay: -3s;
+}
+
+/* Subtle water particles */
+.waterParticle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(150, 200, 255, 0.3);
+  filter: blur(3px);
+  
+  :global(html[data-theme='dark']) & {
+    background: rgba(150, 200, 255, 0.4);
+    box-shadow: 0 0 10px rgba(150, 200, 255, 0.2);
+  }
+
+  :global(html[data-theme='light']) & {
+    background: rgba(100, 150, 255, 0.2);
+    box-shadow: 0 0 8px rgba(100, 150, 255, 0.1);
+  }
+}
+
+.particle1 {
+  width: 4px;
+  height: 4px;
+  top: 30%;
+  left: 20%;
+  animation: particleFloat1 12s infinite ease-in-out;
+}
+
+.particle2 {
+  width: 6px;
+  height: 6px;
+  top: 50%;
+  left: 80%;
+  animation: particleFloat2 15s infinite ease-in-out;
+  animation-delay: -4s;
+}
+
+.particle3 {
+  width: 3px;
+  height: 3px;
+  top: 70%;
+  left: 40%;
+  animation: particleFloat3 10s infinite ease-in-out;
+  animation-delay: -7s;
+}
+
+.particle4 {
+  width: 5px;
+  height: 5px;
+  top: 20%;
+  left: 70%;
+  animation: particleFloat4 18s infinite ease-in-out;
+  animation-delay: -2s;
+}
+
+.particle5 {
+  width: 4px;
+  height: 4px;
+  top: 80%;
+  left: 60%;
+  animation: particleFloat5 14s infinite ease-in-out;
+  animation-delay: -9s;
+}
+
+.particle6 {
+  width: 3px;
+  height: 3px;
+  top: 40%;
+  left: 90%;
+  animation: particleFloat6 16s infinite ease-in-out;
+  animation-delay: -6s;
+}
+
+/* ============================================ */
+/* WATER FLOW KEYFRAME ANIMATIONS */
+/* ============================================ */
+
+@keyframes waterFlow1 {
+  0% {
+    transform: translateX(-100%) translateY(0) rotate(-15deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(calc(100vw + 200px)) translateY(-50px) rotate(-15deg);
+    opacity: 0;
+  }
+}
+
+@keyframes waterFlow2 {
+  0% {
+    transform: translateX(-100%) translateY(0) rotate(-8deg) scaleX(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(50vw) translateY(-20px) rotate(-8deg) scaleX(1.1);
+  }
+  85% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(calc(100vw + 150px)) translateY(-30px) rotate(-8deg) scaleX(1);
+    opacity: 0;
+  }
+}
+
+@keyframes waterFlow3 {
+  0% {
+    transform: translateX(-100%) translateY(0) rotate(-12deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.6;
+  }
+  88% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(calc(100vw + 180px)) translateY(-40px) rotate(-12deg);
+    opacity: 0;
+  }
+}
+
+@keyframes waterFlow4 {
+  0% {
+    transform: translateX(-100%) translateY(0) rotate(-5deg) scaleY(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  60% {
+    transform: translateX(60vw) translateY(-15px) rotate(-5deg) scaleY(1.2);
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(calc(100vw + 120px)) translateY(-25px) rotate(-5deg) scaleY(1);
+    opacity: 0;
+  }
+}
+
+@keyframes waterFlow5 {
+  0% {
+    transform: translateX(-100%) translateY(0) rotate(-18deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.6;
+  }
+  92% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(calc(100vw + 250px)) translateY(-60px) rotate(-18deg);
+    opacity: 0;
+  }
+}
+
+/* Ripple expansion animations */
+@keyframes rippleExpand1 {
+  0%, 100% {
+    transform: scale(0.8) translate(0, 0);
+    opacity: 0.15;
+  }
+  25% {
+    transform: scale(1.1) translate(20px, -10px);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.3) translate(-15px, 15px);
+    opacity: 0.2;
+  }
+  75% {
+    transform: scale(1.0) translate(10px, -20px);
+    opacity: 0.18;
+  }
+}
+
+@keyframes rippleExpand2 {
+  0%, 100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.2;
+  }
+  33% {
+    transform: scale(1.2) translate(-25px, 10px);
+    opacity: 0.15;
+  }
+  66% {
+    transform: scale(0.9) translate(15px, -15px);
+    opacity: 0.25;
+  }
+}
+
+@keyframes rippleExpand3 {
+  0%, 100% {
+    transform: scale(0.7) translate(0, 0);
+    opacity: 0.1;
+  }
+  40% {
+    transform: scale(1.0) translate(30px, -20px);
+    opacity: 0.2;
+  }
+  80% {
+    transform: scale(1.1) translate(-20px, 25px);
+    opacity: 0.15;
+  }
+}
+
+@keyframes rippleExpand4 {
+  0%, 100% {
+    transform: scale(1.0) translate(0, 0);
+    opacity: 0.18;
+  }
+  50% {
+    transform: scale(1.4) translate(-10px, 20px);
+    opacity: 0.12;
+  }
+}
+
+/* Particle floating animations */
+@keyframes particleFloat1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translate(50px, -30px) scale(1.2);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-20px, 40px) scale(0.8);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translate(30px, -10px) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes particleFloat2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  33% {
+    transform: translate(-40px, 20px) scale(1.3);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translate(25px, -35px) scale(0.9);
+    opacity: 0.3;
+  }
+}
+
+@keyframes particleFloat3 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(60px, 15px) scale(1.4);
+    opacity: 0.2;
+  }
+}
+
+@keyframes particleFloat4 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.3;
+  }
+  20% {
+    transform: translate(15px, -40px) scale(1.1);
+    opacity: 0.6;
+  }
+  40% {
+    transform: translate(-30px, 10px) scale(0.7);
+    opacity: 0.4;
+  }
+  60% {
+    transform: translate(45px, -20px) scale(1.2);
+    opacity: 0.5;
+  }
+  80% {
+    transform: translate(-10px, 35px) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+@keyframes particleFloat5 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translate(-35px, -25px) scale(1.3);
+    opacity: 0.6;
+  }
+  80% {
+    transform: translate(20px, 30px) scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+@keyframes particleFloat6 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.35;
+  }
+  25% {
+    transform: translate(-20px, 25px) scale(1.1);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translate(40px, -15px) scale(0.9);
+    opacity: 0.4;
+  }
+}
