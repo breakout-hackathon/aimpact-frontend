@@ -22,7 +22,7 @@ export const SpeechRecognitionButton = ({
       })}
       onClick={isListening ? onStop : onStart}
     >
-      {isListening ? <div className="i-ph:microphone-slash text-xl" /> : <div className="i-ph:microphone text-xl" />}
+      {isListening ? <div className="i-ph:microphone text-xl" /> : <div className="i-ph:microphone-slash text-xl" />}
     </IconButton>
   );
 };
