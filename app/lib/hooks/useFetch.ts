@@ -19,7 +19,7 @@ export function useFetch<T = any>() {
     error: null,
     loading: false,
   });
-  const { disconnect, isAuthorized, jwtToken: authToken } = useAuth();
+  const { disconnect, isAuthorized } = useAuth();
 
   const handleError = useCallback((error: unknown, showError: boolean) => {
     const errorMessage = error instanceof Error ? error.message : 'An error occurred';
@@ -111,16 +111,6 @@ export function useFetch<T = any>() {
   const reset = useCallback(() => {
     setState({ data: null, error: null, loading: false });
   }, []);
-
-
-  useEffect(() => {
-    const req = async () => {
-      console.log(`GET ME JWT: ${Cookies.get("authToken")}`)
-      const response = await (fetchDataAuthorized(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/me`));
-      console.log(`GET ME: ${response}`);
-    };
-    req();
-  }, [])
 
   return {
     ...state,
