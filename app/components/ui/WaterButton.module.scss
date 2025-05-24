@@ -1,0 +1,460 @@
+.waterButton {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(73, 222, 128, 0.1),
+      rgba(73, 222, 128, 0.2),
+      rgba(73, 222, 128, 0.1),
+      transparent
+    );
+    transition: all 0.6s ease;
+    z-index: 1;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(73, 222, 128, 0.3),
+      rgba(73, 222, 128, 0.6),
+      rgba(73, 222, 128, 0.3),
+      transparent
+    );
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.4s ease;
+    z-index: 1;
+  }
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+      0 4px 15px rgba(73, 222, 128, 0.2),
+      0 0 20px rgba(73, 222, 128, 0.1),
+      inset 0 1px 0 rgba(73, 222, 128, 0.1);
+    
+    &::before {
+      left: 100%;
+      animation: waterFlow 1.5s ease-in-out infinite;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(73, 222, 128, 0.15),
+        rgba(73, 222, 128, 0.25),
+        rgba(73, 222, 128, 0.15),
+        transparent
+      );
+    }
+    
+    &::after {
+      transform: scaleX(1);
+      animation: waterRipple 2s ease-in-out infinite;
+    }
+    
+    .waterDroplets {
+      opacity: 1;
+    }
+    
+    .buttonContent {
+      animation: gentleWave 2s ease-in-out infinite;
+    }
+    
+    .waterSurface {
+      opacity: 1;
+      animation: waterSurfaceShimmer 2.5s ease-in-out infinite;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+    
+    .waterSurface {
+      animation: waterSplash 0.3s ease-out;
+    }
+  }
+  
+  // Water droplet effect
+  .waterDroplets {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(73, 222, 128, 0.6);
+      border-radius: 50%;
+      box-shadow: 0 0 3px rgba(73, 222, 128, 0.3);
+      opacity: 0;
+    }
+    
+    &::before {
+      top: 25%;
+      left: 30%;
+      animation: droplet1 3s ease-in-out infinite;
+    }
+    
+    &::after {
+      top: 55%;
+      right: 28%;
+      animation: droplet2 3s ease-in-out infinite 1.5s;
+    }
+  }
+  
+  // Water wave effect on the button content
+  .buttonContent {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  // Additional water surface effect
+  .waterSurface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(73, 222, 128, 0.08) 50%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // Special styling for wallet button wrapper
+  &.walletButtonWrapper {
+    display: inline-block;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: rgba(73, 222, 128, 0.3);
+    }
+    
+    &.green:hover {
+      border-color: rgba(73, 222, 128, 0.3);
+    }
+    
+    // Ensure the wallet button fills the wrapper
+    .buttonContent {
+      width: 100%;
+      height: 100%;
+      
+      button {
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: inherit !important;
+      }
+    }
+  }
+}
+
+// Purple variant for Projects button
+.waterButton.purple {
+  &::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(105, 78, 195, 0.1),
+      rgba(105, 78, 195, 0.2),
+      rgba(105, 78, 195, 0.1),
+      transparent
+    );
+  }
+  
+  &::after {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(105, 78, 195, 0.3),
+      rgba(105, 78, 195, 0.6),
+      rgba(105, 78, 195, 0.3),
+      transparent
+    );
+  }
+  
+  &:hover {
+    box-shadow: 
+      0 4px 15px rgba(105, 78, 195, 0.2),
+      0 0 20px rgba(105, 78, 195, 0.1),
+      inset 0 1px 0 rgba(105, 78, 195, 0.1);
+    
+    &::before {
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(105, 78, 195, 0.15),
+        rgba(105, 78, 195, 0.25),
+        rgba(105, 78, 195, 0.15),
+        transparent
+      );
+    }
+  }
+  
+  .waterDroplets {
+    &::before,
+    &::after {
+      background: rgba(105, 78, 195, 0.6);
+      box-shadow: 0 0 3px rgba(105, 78, 195, 0.3);
+    }
+  }
+  
+  .waterSurface {
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(105, 78, 195, 0.08) 50%,
+      transparent 70%
+    );
+  }
+}
+
+// Green variant for Wallet button (default)
+.waterButton.green {
+  &::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(73, 222, 128, 0.1),
+      rgba(73, 222, 128, 0.2),
+      rgba(73, 222, 128, 0.1),
+      transparent
+    );
+  }
+  
+  &::after {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(73, 222, 128, 0.3),
+      rgba(73, 222, 128, 0.6),
+      rgba(73, 222, 128, 0.3),
+      transparent
+    );
+  }
+  
+  &:hover {
+    box-shadow: 
+      0 4px 15px rgba(73, 222, 128, 0.2),
+      0 0 20px rgba(73, 222, 128, 0.1),
+      inset 0 1px 0 rgba(73, 222, 128, 0.1);
+    
+    &::before {
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(73, 222, 128, 0.15),
+        rgba(73, 222, 128, 0.25),
+        rgba(73, 222, 128, 0.15),
+        transparent
+      );
+    }
+  }
+  
+  .waterDroplets {
+    &::before,
+    &::after {
+      background: rgba(73, 222, 128, 0.6);
+      box-shadow: 0 0 3px rgba(73, 222, 128, 0.3);
+    }
+  }
+  
+  .waterSurface {
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(73, 222, 128, 0.08) 50%,
+      transparent 70%
+    );
+  }
+}
+
+// Water flow animation
+@keyframes waterFlow {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+// Water ripple animation
+@keyframes waterRipple {
+  0%, 100% {
+    transform: scaleX(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: scaleX(1.05);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scaleX(1.1);
+    opacity: 0.9;
+  }
+  75% {
+    transform: scaleX(1.05);
+    opacity: 0.8;
+  }
+}
+
+// Water droplet animations
+@keyframes droplet1 {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  25% {
+    opacity: 0.8;
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(8px, 3px) scale(1.1);
+  }
+  75% {
+    opacity: 0.4;
+    transform: translate(12px, 6px) scale(0.8);
+  }
+}
+
+@keyframes droplet2 {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.3);
+  }
+  20% {
+    opacity: 0.7;
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    opacity: 0.5;
+    transform: translate(-6px, 2px) scale(1.2);
+  }
+  80% {
+    opacity: 0.3;
+    transform: translate(-10px, 4px) scale(0.6);
+  }
+}
+
+// Gentle wave animation for the button content
+@keyframes gentleWave {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-0.5px) scale(1.01);
+  }
+  50% {
+    transform: translateY(0.5px) scale(1);
+  }
+  75% {
+    transform: translateY(0.5px) scale(1.01);
+  }
+}
+
+@keyframes waterSurfaceShimmer {
+  0%, 100% {
+    transform: translateX(-10px) rotate(0deg) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translateX(5px) rotate(0.5deg) scale(1.02);
+    opacity: 0.6;
+  }
+  66% {
+    transform: translateX(10px) rotate(-0.5deg) scale(1.01);
+    opacity: 0.7;
+  }
+}
+
+@keyframes waterSplash {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .waterButton {
+    &:hover {
+      transform: translateY(0); // Reduce movement on mobile
+    }
+    
+    &.purple:hover {
+      box-shadow: 
+        0 2px 8px rgba(105, 78, 195, 0.15),
+        0 0 15px rgba(105, 78, 195, 0.08);
+    }
+    
+    &.green:hover {
+      box-shadow: 
+        0 2px 8px rgba(73, 222, 128, 0.15),
+        0 0 15px rgba(73, 222, 128, 0.08);
+    }
+    
+    .waterDroplets {
+      &::before,
+      &::after {
+        width: 2px;
+        height: 2px;
+      }
+    }
+  }
+} 
