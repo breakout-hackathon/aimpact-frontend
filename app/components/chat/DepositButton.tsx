@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigation } from '@remix-run/react';
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { toast } from 'react-toastify';
 
 export default function DepositButton() {
@@ -9,7 +9,6 @@ export default function DepositButton() {
   const [error, setError] = useState('');
   const navigation = useNavigation();
   const { publicKey, sendTransaction } = useWallet();
-  const { connection } = useConnection();
   const isSubmitting = navigation.state === 'submitting';
 
   const handleToggle = () => {
@@ -22,6 +21,7 @@ export default function DepositButton() {
       return;
     }
 
+    const connection = new Connection(import.meta.env.VITE_RPC_URL);
     const toPublicKey = new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS);
 
     try {
@@ -33,9 +33,9 @@ export default function DepositButton() {
         })
       );
 
-      const signature = await sendTransaction(transaction, connection);
-      console.log('Transaction sent:', signature);
+      await sendTransaction(transaction, connection);
       
+      setIsOpen(false);
       toast.success('Purchase completed!');
     } catch (err) {
       console.error('Transaction failed:', err);
