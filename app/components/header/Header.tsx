@@ -5,10 +5,11 @@ import { classNames } from '~/utils/classNames';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 import DepositButton from '../chat/DepositButton';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
+import CustomWalletButton from '../common/CustomWalletButton';
 import { ArrowLeft } from '@phosphor-icons/react';
 import React, { useEffect, type CSSProperties, type PropsWithChildren, type ReactElement, type MouseEvent } from 'react';
+import { Button } from '~/components/ui/Button';
 import waterStyles from '../ui/WaterButton.module.scss';
 
 export type ButtonProps = PropsWithChildren<{
@@ -34,20 +35,13 @@ export function Header() {
       })}
     >
       <a className="flex items-center gap-2 z-logo cursor-pointer" href="/">
-        <button
-          className={classNames(
-            'text-bolt-elements-textPrimary rounded-md px-4 py-2 border border-bolt-elements-borderColorActive bg-transparent flex items-center gap-2',
-            waterStyles.waterButton,
-            waterStyles.purple
-          )}
+        <Button
+          variant="secondary"
+          className="flex items-center gap-2 px-4 py-2"
         >
-          <div className={waterStyles.waterSurface}></div>
-          <div className={waterStyles.waterDroplets}></div>
-          <div className={waterStyles.buttonContent}>
-            <ArrowLeft size={16} />
-            <span>Projects</span>
-          </div>
-        </button>
+          <ArrowLeft size={16} />
+          <span>Projects</span>
+        </Button>
       </a>
       
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
@@ -77,25 +71,9 @@ export function Header() {
               <div className={classNames(waterStyles.waterButton, waterStyles.green, waterStyles.walletButtonWrapper)}>
                 <div className={waterStyles.waterSurface}></div>
                 <div className={waterStyles.waterDroplets}></div>
-                <WalletMultiButton
-                  className={waterStyles.buttonContent}
-                  style={{
-                    fontSize: '16px',
-                    fontStyle: 'normal',
-                    height: '42px',
-                    borderRadius: '8px',
-                    padding: '0 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    whiteSpace: 'nowrap',
-                    fontWeight: 500,
-                    background: 'transparent',
-                    border: 'none',
-                    zIndex: 3,
-                    position: 'relative',
-                  }}
-                />
+                <div className={waterStyles.buttonContent}>
+                  <CustomWalletButton />
+                </div>
               </div>
             );
           }}

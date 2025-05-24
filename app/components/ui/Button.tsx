@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { classNames } from '~/utils/classNames';
+import waterStyles from './WaterButton.module.scss';
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-bolt-elements-borderColor disabled:pointer-events-none disabled:opacity-50',
@@ -12,7 +13,7 @@ const buttonVariants = cva(
         outline:
           'border border-bolt-elements-borderColor bg-transparent hover:bg-bolt-elements-background-depth-2 hover:text-bolt-elements-textPrimary text-bolt-elements-textPrimary dark:border-bolt-elements-borderColorActive',
         secondary:
-          'bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-2',
+          'bg-transparent text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
         ghost: 'hover:bg-bolt-elements-background-depth-1 hover:text-bolt-elements-textPrimary',
         link: 'text-bolt-elements-textPrimary underline-offset-4 hover:underline',
       },
@@ -37,8 +38,48 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, _asChild = false, ...props }, ref) => {
-    return <button className={classNames(buttonVariants({ variant, size }), className)} ref={ref} {...props} />;
+  ({ className, variant = 'default', size, _asChild = false, children, ...props }, ref) => {
+    const isWaterEffect = variant === 'default' || variant === 'secondary' || variant === 'destructive';
+    
+    if (!isWaterEffect) {
+      return (
+        <button className={classNames(buttonVariants({ variant, size }), className)} ref={ref} {...props}>
+          {children}
+        </button>
+      );
+    }
+
+    const waterVariant = variant === 'destructive' ? 'red' : 'default';
+    
+    return (
+      <button
+        ref={ref}
+        className={classNames(
+          'relative overflow-hidden',
+          'text-white font-medium',
+          'rounded-md',
+          'transition-all duration-300',
+          'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black/50',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
+          {
+            'bg-bolt-elements-background': variant === 'default',
+            'bg-red-500': variant === 'destructive',
+            'bg-bolt-elements-background-depth-1': variant === 'secondary',
+          },
+          size === 'sm' ? 'text-xs py-1 px-3' : size === 'lg' ? 'text-base py-3 px-6' : 'text-sm py-2 px-4',
+          waterStyles.waterButton,
+          waterStyles[waterVariant],
+          className
+        )}
+        {...props}
+      >
+        <div className={waterStyles.waterSurface}></div>
+        <div className={waterStyles.waterDroplets}></div>
+        <div className={waterStyles.buttonContent}>
+          {children}
+        </div>
+      </button>
+    );
   },
 );
 Button.displayName = 'Button';

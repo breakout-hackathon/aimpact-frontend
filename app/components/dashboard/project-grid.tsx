@@ -6,12 +6,13 @@ import { motion } from 'framer-motion';
 import { useProjectsQuery } from 'query/use-project-query';
 
 interface ProjectGridProps {
-  projects: Project[];
+  projects?: Project[];
   isLoading?: boolean;
   error?: string;
+  filter?: 'all' | 'my';
 }
 
-const ProjectGrid = () => {
+const ProjectGrid = ({ filter = 'all' }: ProjectGridProps) => {
   const projectsQuery = useProjectsQuery();
 
   if (projectsQuery.isLoading) {
@@ -70,14 +71,42 @@ const ProjectGrid = () => {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-muted rounded-lg p-10 text-center">
         <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
-        <p className="text-muted-foreground">There are currently no blockchain projects to display.</p>
+        <p className="text-muted-foreground">
+          {filter === 'my' 
+            ? "You haven't created any projects yet." 
+            : 'There are currently no blockchain projects to display.'}
+        </p>
+      </motion.div>
+    );
+  }
+
+  // Filter projects based on the selected filter
+  const filteredProjects = filter === 'my'
+    ? projectsQuery.data.filter(project => {
+        // TODO: Replace with actual user address check once authentication is implemented
+        // For now, we'll return all projects
+        return true;
+      })
+    : projectsQuery.data;
+
+  if (filter === 'my' && filteredProjects.length === 0) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-muted rounded-lg p-10 text-center">
+        <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
+        <p className="text-muted-foreground">You haven't created any projects yet.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+        >
+          Refresh
+        </button>
       </motion.div>
     );
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projectsQuery.data.map((project, index) => (
+      {filteredProjects.map((project, index) => (
         <ProjectCard key={project.id} project={project} index={index} />
       ))}
     </div>

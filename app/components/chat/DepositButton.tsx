@@ -3,6 +3,7 @@ import { Form, useNavigation } from '@remix-run/react';
 import { Info } from '@phosphor-icons/react';
 import WithTooltip from './Tooltip';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Button } from '~/components/ui/Button';
 
 export default function DepositButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,13 +64,13 @@ export default function DepositButton() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <button
-        type="button"
+      <Button
         onClick={handleToggle}
-        className="px-4 py-2 font-medium text-white bg-transparent border rounded-md focus:outline-none focus:ring-1 focus:ring-gray-800 focus:ring-offset-1"
+        variant="secondary"
+        className="flex items-center gap-2"
       >
         Deposit
-      </button>
+      </Button>
 
       {isOpen && (
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -110,14 +111,15 @@ export default function DepositButton() {
                     <div className={`mt-2 text-sm ${error ? 'text-red-600' : 'text-green-600'}`}>{error}</div>
 
                     <div className="mt-5 sm:mt-6">
-                      <button
+                      <Button
                         type="submit"
+                        variant="default"
                         disabled={isSubmitting}
                         onClick={handleSubmit}
-                        className="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm disabled:opacity-50"
+                        className="w-full justify-center"
                       >
                         {isSubmitting ? 'Submitting...' : 'Submit'}
-                      </button>
+                      </Button>
                     </div>
                   </Form>
                 </div>
