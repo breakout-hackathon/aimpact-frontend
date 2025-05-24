@@ -20,6 +20,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [promptInput, setPromptInput] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filter, setFilter] = useState<'all' | 'my'>('all');
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -60,19 +61,43 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.25 }}
-            className="mb-12 text-center flex flex-col items-center"
+            className="mb-12"
           >
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-8">Trending Blockchain Projects</h2>
-            <Button
-              variant="secondary"
-              className="flex items-center gap-1 hover:scale-105 mx-auto"
-              onClick={() => navigate('/chat')}
-            >
-              <Plus className="w-4 h-4" /> Build a new app
-            </Button>
+            <div className="w-full">
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-8 text-center">Trending Blockchain Projects</h2>
+              <div className="flex flex-col sm:flex-row items-center justify-center w-full max-w-4xl mx-auto gap-6 relative">
+                <Button
+                  variant="secondary"
+                  className="flex items-center gap-1 hover:scale-105 whitespace-nowrap"
+                  onClick={() => navigate('/chat')}
+                >
+                  <Plus className="w-4 h-4" /> Build a new app
+                </Button>
+                <div className="absolute right-0 flex items-center">
+                  <span className={`mr-3 text-sm font-medium ${filter === 'all' ? 'text-white' : 'text-gray-400'}`}>
+                    All Projects
+                  </span>
+                  <button
+                    type="button"
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-0 focus:ring-offset-0 ${
+                      filter === 'my' ? 'bg-[#9987EE]' : 'bg-gray-600'
+                    }`}
+                    onClick={() => setFilter(filter === 'all' ? 'my' : 'all')}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        filter === 'my' ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <span className={`ml-3 text-sm font-medium ${filter === 'my' ? 'text-white' : 'text-gray-400'}`}>
+                    My Projects
+                  </span>
+                </div>
+              </div>
+            </div>
           </motion.div>
-
-          {projectsQuery.isSuccess && <ProjectGrid />}
+          {projectsQuery.isSuccess && <ProjectGrid filter={filter} />}
         </div>
       </section>
 
