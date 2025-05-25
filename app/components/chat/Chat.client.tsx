@@ -191,6 +191,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
           anonKey: supabaseConn?.credentials?.anonKey,
         },
       },
+      authToken: Cookies.get('authToken'),
     },
     sendExtraMessageFields: true,
     onError: (e) => {

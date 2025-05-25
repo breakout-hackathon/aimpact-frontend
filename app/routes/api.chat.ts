@@ -29,7 +29,7 @@ const logger = createScopedLogger('api.chat');
 async function chatAction({ context, request }: ActionFunctionArgs) {
   logger.debug('Test');
 
-  const { messages, files, promptId, contextOptimization, supabase } = await request.json<{
+  const { messages, files, promptId, contextOptimization, supabase, authToken } = await request.json<{
     messages: Messages;
     files: any;
     promptId?: string;
@@ -42,6 +42,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         supabaseUrl?: string;
       };
     };
+    authToken: string;
   }>();
 
   // const cookieHeader = request.headers.get('Cookie');
@@ -57,6 +58,25 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   };
   const encoder: TextEncoder = new TextEncoder();
   let progressCounter: number = 1;
+
+  // authenticate request
+  if (!authToken) {
+    throw new Response('Unauthorized', { status: 401 });
+  }
+
+  const userResponse = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+  if (!userResponse.ok) {
+    throw new Response('Unauthorized', { status: 401 });
+  }
+
+  const user = (await userResponse.json()) as { id: string; messagesLeft: number };
+  if (user.messagesLeft <= 0) {
+    throw new Response('No messages left', { status: 402 });
+  }
 
   try {
     const totalMessageContent = messages.reduce((acc, message) => acc + message.content, '');
@@ -208,6 +228,19 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
                 message: 'Response Generated',
               } satisfies ProgressAnnotation);
               await new Promise((resolve) => setTimeout(resolve, 0));
+
+              // Decrement messages left
+              try {
+                await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/billing/decrement-messages-left`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                  },
+                });
+              } catch (err) {
+                logger.error('Failed to decrement messages left:', err);
+              }
 
               // stream.close();
               return;
