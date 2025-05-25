@@ -256,3 +256,113 @@
     }
   }
 }
+
+// Blue variant for blue buttons
+.waterButton.blue {
+  &:hover {
+    box-shadow:
+      0 4px 15px rgba(59, 130, 246, 0.2),
+      0 0 20px rgba(59, 130, 246, 0.1),
+      inset 0 1px 0 rgba(59, 130, 246, 0.1);
+
+    .effectLayer::before {
+      background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(59, 130, 246, 0.15),
+          rgba(59, 130, 246, 0.25),
+          rgba(59, 130, 246, 0.15),
+          transparent);
+    }
+  }
+
+  .effectLayer {
+    &::before {
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(59, 130, 246, 0.1),
+          rgba(59, 130, 246, 0.2),
+          rgba(59, 130, 246, 0.1),
+          transparent);
+    }
+
+    &::after {
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(59, 130, 246, 0.3),
+          rgba(59, 130, 246, 0.6),
+          rgba(59, 130, 246, 0.3),
+          transparent);
+    }
+  }
+
+  .waterDroplets {
+    &::before,
+    &::after {
+      background: rgba(59, 130, 246, 0.6);
+      box-shadow: 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  .waterSurface {
+    background: linear-gradient(45deg,
+        transparent 30%,
+        rgba(59, 130, 246, 0.08) 50%,
+        transparent 70%);
+  }
+}
+
+// Green variant for green buttons  
+.waterButton.green {
+  &:hover {
+    box-shadow:
+      0 4px 15px rgba(73, 222, 128, 0.2),
+      0 0 20px rgba(73, 222, 128, 0.1),
+      inset 0 1px 0 rgba(73, 222, 128, 0.1);
+
+    .effectLayer::before {
+      background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(73, 222, 128, 0.15),
+          rgba(73, 222, 128, 0.25),
+          rgba(73, 222, 128, 0.15),
+          transparent);
+    }
+  }
+
+  .effectLayer {
+    &::before {
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(73, 222, 128, 0.1),
+          rgba(73, 222, 128, 0.2),
+          rgba(73, 222, 128, 0.1),
+          transparent);
+    }
+
+    &::after {
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(73, 222, 128, 0.3),
+          rgba(73, 222, 128, 0.6),
+          rgba(73, 222, 128, 0.3),
+          transparent);
+    }
+  }
+
+  .waterDroplets {
+    &::before,
+    &::after {
+      background: rgba(73, 222, 128, 0.6);
+      box-shadow: 0 0 3px rgba(73, 222, 128, 0.3);
+    }
+  }
+
+  .waterSurface {
+    background: linear-gradient(45deg,
+        transparent 30%,
+        rgba(73, 222, 128, 0.08) 50%,
+        transparent 70%);
+  }
+}
