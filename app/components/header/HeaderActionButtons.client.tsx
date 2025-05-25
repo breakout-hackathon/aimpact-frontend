@@ -70,13 +70,14 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   useEffect(() => {
     console.log(!deployStatus, finalDeployStatueses.includes(deployStatus!));
 
-    if (!deployStatus || failedDeployStatueses.includes(deployStatus)) {
+    if (!deployStatus || failedDeployStatueses.includes(deployStatus) && !isStreaming) {
       toast.error(`Failed to deploy app. Try again later.`);
       console.log(deployStatusInterval);
       clearDeployStatusInterval();
       deployToastId && toast.dismiss(deployToastId);
     } else if (deployStatus && finalDeployStatueses.includes(deployStatus)) {
       deployToastId && toast.dismiss(deployToastId);
+      setIsDeploying(false);
     }
   }, [deployStatus]);
 
@@ -171,10 +172,10 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       toast.error('Failed to get chatIdx.');
       return;
     }
-    if (!chatSummary) {
-      toast.error('Failed to get chatSummary.');
-      return;
-    }
+    // if (!chatSummary) {
+    //   toast.error('Failed to get chatSummary.');
+    //   return;
+    // }
 
     setIsSaving(true);
 
@@ -226,7 +227,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
           <Button
             active
-            disabled={isDeploying || !activePreview || isStreaming || loadingDeployStatuses.includes(deployStatus) || !!deployStatusInterval}
+            disabled={isDeploying || !activePreview || isStreaming || (deployStatus && loadingDeployStatuses.includes(deployStatus)) || !!deployStatusInterval}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
               border border-bolt-elements-borderColor rounded-md"
@@ -242,7 +243,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
           <div className="absolute right-2 flex flex-col gap-1 z-50 p-1 mt-1 min-w-[13.5rem] bg-bolt-elements-background-depth-2 rounded-md shadow-lg bg-bolt-elements-backgroundDefault border border-bolt-elements-borderColor">
             <Button
               active={false}
-              disabled={isDeploying || !!deployStatusInterval}
+              disabled={isDeploying || !activePreview || isStreaming || (deployStatus && loadingDeployStatuses.includes(deployStatus)) || !!deployStatusInterval}
               onClick={onDeploy}
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2"
             >

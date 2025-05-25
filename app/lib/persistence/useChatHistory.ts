@@ -86,9 +86,9 @@ export function useChatHistory() {
               console.log(snapshotIndex)  // Index of message when snapshot was saved
               console.log(endingIdx)  // Last index
               console.log(rewindId) // Not used yet
-              // if (snapshotIndex >= 0 && snapshotIndex < endingIdx) {
-              //   startingIdx = snapshotIndex;
-              // }
+              if (snapshotIndex >= 0 && snapshotIndex < endingIdx) {
+                startingIdx = snapshotIndex;
+              }
 
               if (snapshotIndex > 0 && storedMessages.messages[snapshotIndex].id == rewindId) {
                 startingIdx = -1;
