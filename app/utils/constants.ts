@@ -27,8 +27,6 @@ const llmManager = LLMManager.getInstance(import.meta.env);
 export const PROVIDER_LIST = llmManager.getAllProviders();
 export const DEFAULT_PROVIDER = PROVIDER_LIST.find((p) => p.name === DEFAULT_PROVIDER_NAME) || llmManager.getDefaultProvider();
 export const DEFAULT_MINI_PROVIDER = PROVIDER_LIST.find((p) => p.name === DEFAULT_MINI_PROVIDER_NAME) || llmManager.getDefaultProvider();
-console.log(PROVIDER_LIST);
-console.log(llmManager.getDefaultProvider());
 
 export const providerBaseUrlEnvKeys: Record<string, { baseUrlKey?: string; apiTokenKey?: string }> = {};
 PROVIDER_LIST.forEach((provider) => {
