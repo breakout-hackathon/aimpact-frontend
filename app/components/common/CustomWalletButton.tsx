@@ -30,10 +30,9 @@ export default function CustomWalletButton() {
     <div
       ref={buttonRef}
       className={classNames(
-        'custom-wallet-button-wrapper',
         waterStyles.waterButton,
         waterStyles.green,
-        'relative overflow-hidden',
+        'relative',
         'text-white font-medium',
         'rounded-md',
         'transition-all duration-300',
@@ -44,29 +43,30 @@ export default function CustomWalletButton() {
         'text-sm',
         'bg-gray-500 bg-opacity-10',
         'border border-bolt-elements-borderColor',
+        'overflow-visible',
       )}
     >
-      <div className={waterStyles.waterSurface}></div>
-      <div className={waterStyles.waterDroplets}></div>
-      <div className={classNames('z-10')}>
-        <WalletMultiButton
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'inherit',
-            font: 'inherit',
-            margin: 0,
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '8px 8px',
-          }}
-        >
-          {!connected && 'Connect Wallet'}
-        </WalletMultiButton>
+      <div className={waterStyles.effectLayer}>
+        <div className={waterStyles.waterDroplets}></div>
+        <div className={waterStyles.waterSurface}></div>
       </div>
-    </div>
+      <WalletMultiButton
+        style={{
+          background: 'transparent',
+          // border: '1px solid #5c5c5c40',
+          color: 'inherit',
+          font: 'inherit',
+          margin: 0,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '8px 8px',
+        }}
+      >
+        {!connected && 'Connect Wallet'}
+      </WalletMultiButton>
+  </div>
   );
 }

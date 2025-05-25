@@ -73,8 +73,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
-        <div className={waterStyles.waterSurface}></div>
-        <div className={waterStyles.waterDroplets}></div>
+        <div className={waterStyles.effectLayer}>
+          {/* ::before and ::after for flow/ripple are on .effectLayer */}
+          <div className={waterStyles.waterDroplets}></div>
+          <div className={waterStyles.waterSurface}></div>
+        </div>
         <div className={waterStyles.buttonContent}>{children}</div>
       </button>
     );
