@@ -7,11 +7,12 @@ import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 import DepositButton from '../chat/DepositButton';
 import { useWallet } from '@solana/wallet-adapter-react';
 import CustomWalletButton from '../common/CustomWalletButton';
-import { ArrowLeft } from '@phosphor-icons/react';
+import { ArrowLeft, ArrowLeftIcon } from '@phosphor-icons/react';
 import React, { useEffect, type CSSProperties, type PropsWithChildren, type ReactElement, type MouseEvent } from 'react';
 import { Button } from '~/components/ui/Button';
 import waterStyles from '../ui/WaterButton.module.scss';
 import { userInfo } from '~/lib/hooks/useAuth';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export type ButtonProps = PropsWithChildren<{
     className?: string;
@@ -38,10 +39,10 @@ export function Header() {
     >
       <a className="flex items-center gap-2 z-logo cursor-pointer" href="/">
         <Button
-          variant="secondary"
-          className="flex items-center gap-2 px-4 py-2"
-        >
-          <ArrowLeft size={16} />
+            variant="secondary"
+            className="flex items-center gap-2 px-4 py-2 border border-[#5c5c5c40] bg-transparent"
+          >
+          <ArrowLeftIcon size={16} />
           <span>Projects</span>
         </Button>
       </a>
@@ -76,25 +77,7 @@ export function Header() {
           {() => {
             return (
 
-              <WalletMultiButton
-                className={waterStyles.buttonContent}
-                style={{
-                  fontSize: '16px',
-                  fontStyle: 'normal',
-                  height: '42px',
-                  borderRadius: '8px',
-                  padding: '0 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  whiteSpace: 'nowrap',
-                  fontWeight: 500,
-                  background: 'transparent',
-                  border: 'none',
-                  zIndex: 3,
-                  position: 'relative',
-                }}
-              />
+              <CustomWalletButton />
             );
           }}
         </ClientOnly>

@@ -38,11 +38,12 @@ export default function CustomWalletButton() {
       'disabled:opacity-50 disabled:cursor-not-allowed',
       'inline-flex items-center justify-center',
       'h-10 px-4 py-2',
-      'text-sm'
+      'text-sm',
+      'border border-[#5c5c5c40]'
     )}>
       <div className={waterStyles.waterSurface}></div>
       <div className={waterStyles.waterDroplets}></div>
-      <div className={classNames(waterStyles.buttonContent, 'z-10')}>
+      <div className={classNames('z-10')}>
         <WalletMultiButton
           style={{
             background: 'transparent',

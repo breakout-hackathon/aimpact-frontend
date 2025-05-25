@@ -3,6 +3,7 @@ import { useNavigation } from '@remix-run/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { toast } from 'react-toastify';
+import { Button } from '../ui';
 
 export default function DepositButton() {
   const [isOpen, setIsOpen] = useState(false);

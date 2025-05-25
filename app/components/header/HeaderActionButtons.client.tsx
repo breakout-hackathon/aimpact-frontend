@@ -38,11 +38,18 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   const successDeployStatuses = [DeployStatusEnum.ready, DeployStatusEnum.success];
+  const finalDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error, DeployStatusEnum.success];
+  const failedDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error];
 
   const clearDeployStatusInterval = () => {
     deployStatusInterval ? clearTimeout(deployStatusInterval) : undefined;
     setDeployStatusInterval(null);
   }
+
+  function getEnumKeyByValue<T extends {[key: string]: string}>(myEnum: T, enumValue: string): keyof T | undefined {
+    const keys = Object.keys(myEnum).filter(key => myEnum[key] === enumValue);
+    return keys.length > 0 ? keys[0] : undefined;
+}
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -55,21 +62,33 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    console.log(!deployStatus, finalDeployStatueses.includes(deployStatus!));
+    if (!deployStatus || failedDeployStatueses.includes(deployStatus)) {
+      toast.error(`Failed to deploy app. Try again later.`);
+      console.log(deployStatusInterval);
+      clearDeployStatusInterval();
+    }
+  }, [deployStatus])
+
   const fetchDeployStatus = async ({ projectId, enableMessages=true }: { projectId: string, enableMessages?: boolean }) => {
+    const failMessage = `Failed to deploy app. Try again later.`;
     try {
       console.log("Started to fetch deploy");
       const data = await getDeployRequest(projectId);
       console.log(data);
       setFinalDeployLink(data.finalUrl);
-      setDeployStatus(data.status);
+      setDeployStatus(() => data.status);
       console.log(data.status, deployStatus);
-      if (!enableMessages && deployStatus && successDeployStatuses.includes(deployStatus)) {
+      if (!enableMessages && data.status && successDeployStatuses.includes(data.status)) {
         toast.success(`Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
           URL: <a>${data.finalUrl}</a>`, { autoClose: false })
+      } else {
+        
       }
     } catch (error) {
       if (!isRequestFirst) {
-        toast.error(`Failed to deploy app. Try again later.`);
+        toast.error(failMessage);
       }
       console.error(error);
       setDeployStatus(DeployStatusEnum.unknown);
@@ -106,6 +125,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         setDeployStatusInterval(setInterval(async () => 
           await fetchDeployStatus({ projectId: currentChatId }), 5000));
       }
+      console.log("ON DEPLOY STATUS: ", data.status);
       setDeployStatus(data.status);
     } catch (error) {
       toast.error(`Failed to deploy app. Try again later.`);
@@ -208,7 +228,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
           <Button
             active
-            disabled={isDeploying || !activePreview || isStreaming || deployStatus == null}
+            disabled={isDeploying || !activePreview || isStreaming || deployStatus == null || !!deployStatusInterval}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
               border border-bolt-elements-borderColor rounded-md"
@@ -224,7 +244,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
           <div className="absolute right-2 flex flex-col gap-1 z-50 p-1 mt-1 min-w-[13.5rem] bg-bolt-elements-background-depth-2 rounded-md shadow-lg bg-bolt-elements-backgroundDefault border border-bolt-elements-borderColor">
             <Button
               active={false}
-              disabled={isDeploying}
+              disabled={isDeploying || !!deployStatusInterval}
               onClick={onDeploy}
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2"
             >
