@@ -75,7 +75,7 @@ export default function DepositButton() {
 
   return (
     <div className="max-w-md mx-auto">
-      <Button onClick={handleToggle} variant="secondary" className="flex py-2.5 items-center gap-2 bg-transparent border border-bolt-elements-borderColor font-medium">
+      <Button onClick={handleToggle} variant="default" className="flex py-2.5 items-center gap-2 border border-bolt-elements-borderColor font-medium">
         Purchase Messages
       </Button>
 

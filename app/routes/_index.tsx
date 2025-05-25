@@ -36,10 +36,11 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row items-center justify-center w-full max-w-4xl mx-auto gap-6 relative">
                 <Button
                   variant="secondary"
-                  className="flex items-center gap-1 hover:scale-105 whitespace-nowrap"
+                  size={"lg"}
+                  className="flex items-center gap-1 hover:scale-105 whitespace-nowrap text-lg"
                   onClick={() => navigate('/chat')}
                 >
-                  <Plus className="w-4 h-4" /> Build a new app
+                  <Plus className="w-6 h-6" /> Build a new app
                 </Button>
                 <div className="absolute right-0 flex items-center">
                   <span className={`mr-3 text-sm font-medium ${filter === 'all' ? 'text-white' : 'text-gray-400'}`}>

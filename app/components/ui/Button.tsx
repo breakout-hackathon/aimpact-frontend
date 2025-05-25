@@ -62,9 +62,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black/50',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           {
-            'bg-bolt-elements-background': variant === 'default',
+            'bg-gray-500 bg-opacity-10': variant === 'default',
             'bg-red-500': variant === 'destructive',
-            'bg-bolt-elements-background-depth-1': variant === 'secondary',
+            'bg-bolt-elements-background-depth-1 bg-opacity-10  ': variant === 'secondary',
           },
           size === 'sm' ? 'text-xs py-1 px-3' : size === 'lg' ? 'text-base py-3 px-6' : 'text-sm py-2 px-4',
           waterStyles.waterButton,

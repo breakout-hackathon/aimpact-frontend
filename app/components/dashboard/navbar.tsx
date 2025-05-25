@@ -4,6 +4,7 @@ import CustomWalletButton from '../common/CustomWalletButton';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ClientOnly } from 'remix-utils/client-only';
 import waterStyles from '../ui/WaterButton.module.scss';
+import { classNames } from '~/utils/classNames';
 
 interface NavBarProps {
   searchQuery: string;
@@ -31,7 +32,8 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
             <nav className="flex items-center space-x-8">
               <a
                 href="#how-it-works"
-                className={`${waterStyles.waterButton} relative overflow-hidden inline-flex items-center justify-center px-4 py-2 rounded-md text-white font-medium hover:shadow-lg transition-all duration-300`}
+                className={`${waterStyles.waterButton} relative overflow-hidden inline-flex items-center justify-center px-4 py-2 rounded-md
+                 text-white font-medium hover:shadow-lg transition-all duration-300 border border-bolt-elements-borderColor`}
               >
                 <div className={waterStyles.waterSurface}></div>
                 <div className={waterStyles.waterDroplets}></div>

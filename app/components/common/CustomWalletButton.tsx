@@ -42,6 +42,7 @@ export default function CustomWalletButton() {
         'inline-flex items-center justify-center',
         'h-10 px-4',
         'text-sm',
+        'bg-gray-500 bg-opacity-10',
         'border border-bolt-elements-borderColor',
       )}
     >
