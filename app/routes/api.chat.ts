@@ -27,9 +27,7 @@ export async function action(args: ActionFunctionArgs) {
 const logger = createScopedLogger('api.chat');
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
-  logger.debug('Test');
-
-  const { messages, files, promptId, contextOptimization, supabase, authToken } = await request.json<{
+  const body = await request.json<{
     messages: Messages;
     files: any;
     promptId?: string;
@@ -44,6 +42,11 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     };
     authToken: string;
   }>();
+  let { messages } = body;
+  const { files, promptId, contextOptimization, supabase, authToken } = body;
+
+  // TODO: Make it more clean. Rn it not really good
+  messages = messages.slice(-2);
 
   // const cookieHeader = request.headers.get('Cookie');
   const apiKeys: Record<string, string> = defaultAPiKeys; // JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');

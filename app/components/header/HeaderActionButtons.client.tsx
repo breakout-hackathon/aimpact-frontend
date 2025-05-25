@@ -51,24 +51,21 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     setDeployStatusInterval(null);
   };
 
+  const formatVercelLink = (url: string) => {
+    const splitted = url.split("-");
+    return splitted.slice(0, 5).join("-") + splitted[5].slice(9);  // FIXME: It's too hardcoded
+  }
+
   const formattedLinkToast = (url: string) => {
     toast.success(
       <div>
         Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.
-        <br />
-        <br />
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className='underline'
-        >
+        <br /> <br />
+        <a href={url} target="_blank" rel="noopener noreferrer" className='underline'>
           Link
         </a>
       </div>,
-      {
-        autoClose: false,
-      }
+      { autoClose: false },
     );
   };
 
