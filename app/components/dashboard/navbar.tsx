@@ -2,8 +2,6 @@
 
 import CustomWalletButton from '../common/CustomWalletButton';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Search, Menu, X } from 'lucide-react';
-import { useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import waterStyles from '../ui/WaterButton.module.scss';
 
@@ -16,12 +14,6 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
   const { scrollY } = useScroll();
   const backgroundColor = useTransform(scrollY, [0, 100], ['rgba(20, 20, 20, 0)', 'rgba(20, 20, 20, 0.8)']);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   return (
     <>
       <motion.header
@@ -32,33 +24,21 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <a href="/" className="flex items-center space-x-2" aria-label="Home">
-                <img 
-                  src="/aimpact-logo.png" 
-                  alt="AImpact Logo" 
-                  className="h-8 w-auto"
-                />
+                <img src="/aimpact-logo.png" alt="AImpact Logo" className="h-8 w-auto" />
               </a>
             </div>
 
             <nav className="flex items-center space-x-8">
-              <a 
-                href="#how-it-works" 
+              <a
+                href="#how-it-works"
                 className={`${waterStyles.waterButton} relative overflow-hidden inline-flex items-center justify-center px-4 py-2 rounded-md text-white font-medium hover:shadow-lg transition-all duration-300`}
               >
                 <div className={waterStyles.waterSurface}></div>
                 <div className={waterStyles.waterDroplets}></div>
-                <div className={waterStyles.buttonContent}>
-                  How it works
-                </div>
+                <div className={waterStyles.buttonContent}>How it works</div>
               </a>
             </nav>
-            <ClientOnly>
-              {() => (
-                <CustomWalletButton />
-              )}
-            </ClientOnly>
-
-
+            <ClientOnly>{() => <CustomWalletButton />}</ClientOnly>
           </div>
         </div>
       </motion.header>

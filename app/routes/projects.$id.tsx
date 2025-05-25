@@ -39,11 +39,7 @@ export default function Project() {
       <header className="bg-gradient-to-r from-gray-900 to-black p-8 border-b border-gray-800">
         <div className="max-w-7xl mx-auto flex items-center gap-6">
           <a href="/" className="mr-4">
-            <img 
-              src="/aimpact-logo.png" 
-              alt="AImpact Logo" 
-              className="h-12 w-auto"
-            />
+            <img src="/aimpact-logo.png" alt="AImpact Logo" className="h-12 w-auto" />
           </a>
           {project.image && (
             <img

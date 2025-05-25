@@ -1,55 +1,21 @@
 'use client';
 
-import { useState, useEffect, type FormEvent, useRef, useLayoutEffect } from 'react';
+import { useState, type FormEvent, useRef } from 'react';
 import ProjectGrid from '@/components/dashboard/project-grid';
 import Navbar from '@/components/dashboard/navbar';
-import type { Project } from '@/types/project';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { useNavigate } from '@remix-run/react';
 
 import { Button } from '@/components/ui/Button';
-import { mockProjects } from '~/utils/mockProjects';
-import { useFetch } from '~/lib/hooks/useFetch';
 import { useProjectsQuery } from 'query/use-project-query';
 
 export default function Home() {
   const navigate = useNavigate();
   const projectsQuery = useProjectsQuery();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [promptInput, setPromptInput] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filter, setFilter] = useState<'all' | 'my'>('all');
-
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    const element = inputRef.current;
-
-    if (!element) {
-      return;
-    }
-
-    element.style.height = 'auto';
-    const newHeight = `${element.scrollHeight}px`;
-    element.style.height = newHeight;
-
-    setPromptInput(e.currentTarget.value);
-  };
-
-  const onSubmitBuildForm = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!promptInput) {
-      navigate('/chat');
-      return;
-    }
-
-    navigate(`/chat/?prompt=${promptInput}`);
-    setPromptInput('');
-  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black">
@@ -64,7 +30,9 @@ export default function Home() {
             className="mb-12"
           >
             <div className="w-full">
-              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-8 text-center">Trending Blockchain Projects</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-8 text-center">
+                Trending Blockchain Projects
+              </h2>
               <div className="flex flex-col sm:flex-row items-center justify-center w-full max-w-4xl mx-auto gap-6 relative">
                 <Button
                   variant="secondary"
@@ -106,6 +74,6 @@ export default function Home() {
           <p className="text-sm text-gray-400">© 2025 Aimpact. All rights reserved.</p>
         </div>
       </footer>
-    </main>
+  </main>
   );
 }

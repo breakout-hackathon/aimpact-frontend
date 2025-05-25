@@ -75,13 +75,16 @@ const NoopProvider: FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</
 
 function Providers({ children }: { children: React.ReactNode }) {
   type SolanaProviderType = FC<SolanaProviderProps>;
+
   // const [SolanaProvider, setSolanaProvider] = useState<SolanaProviderType>(() => NoopProvider);
 
-  // useEffect(() => {
-    // import("./components/providers/SolanaProvider").then(mod => {
-      // setSolanaProvider(() => mod.SolanaProvider);
-    // });
-  // }, [])
+  /*
+   * useEffect(() => {
+   * import("./components/providers/SolanaProvider").then(mod => {
+   * setSolanaProvider(() => mod.SolanaProvider);
+   * });
+   * }, [])
+   */
 
   return (
     <ClientOnly>

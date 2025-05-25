@@ -6,7 +6,7 @@ import path from 'path-browserify';
 
 interface FilteredFiles {
   name: string;
-  path: string; 
+  path: string;
   content: string;
 }
 
@@ -15,7 +15,6 @@ export interface File {
   content: string;
   isBinary: boolean;
 }
-
 
 const starterTemplateSelectionPrompt = (templates: Template[]) => `
 You are an experienced developer who helps people choose the best starter template for their projects.
@@ -95,32 +94,32 @@ const parseSelectedTemplate = (llmOutput: string): { template: string; title: st
 };
 
 export const selectStarterTemplate = async (options: { message: string; model: string; provider: ProviderInfo }) => {
-   const { message, model, provider } = options;
-   const requestBody = {
-     message,
-     model,
-     provider,
+  const { message, model, provider } = options;
+  const requestBody = {
+    message,
+    model,
+    provider,
     system: starterTemplateSelectionPrompt(templates),
-   };
-   const response = await fetch('/api/llmcall', {
-     method: 'POST',
-     body: JSON.stringify(requestBody),
-   });
-   const respJson: { text: string } = await response.json();
-   console.log(respJson);
-  
-   const { text } = respJson;
-   const selectedTemplate = parseSelectedTemplate(text);
+  };
+  const response = await fetch('/api/llmcall', {
+    method: 'POST',
+    body: JSON.stringify(requestBody),
+  });
+  const respJson: { text: string } = await response.json();
+  console.log(respJson);
 
-    if (selectedTemplate) {
-      return selectedTemplate;
-    } else {
-      console.log('No template selected, using blank template');
-      return {
-        template: 'blank',
-        title: '',
-      };
-   }
+  const { text } = respJson;
+  const selectedTemplate = parseSelectedTemplate(text);
+
+  if (selectedTemplate) {
+    return selectedTemplate;
+  } else {
+    console.log('No template selected, using blank template');
+    return {
+      template: 'blank',
+      title: '',
+    };
+  }
 };
 
 export async function getTemplates(templateName: string, title?: string) {
@@ -130,21 +129,26 @@ export async function getTemplates(templateName: string, title?: string) {
     return null;
   }
 
-  let templateFiles: Record<string, File> = {};
+  const templateFiles: Record<string, File> = {};
+
   for (const path in template.files) {
     const value = template.files[path];
-    if (value?.type === "folder" || !value.content) continue;
+
+    if (value?.type === 'folder' || !value.content) {
+      continue;
+    }
+
     templateFiles[path] = value;
   }
-  
+
   const files: FilteredFiles[] = Object.entries(templateFiles).map(([path, value]) => {
     return {
       path,
       content: value.content,
       name: path.split('/').pop() || '',
-    }
+    };
   });
-  console.log("Template files")
+  console.log('Template files');
   console.log(files);
 
   let filteredFiles = files;

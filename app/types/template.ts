@@ -1,4 +1,4 @@
-import type { SaveFileMap } from "~/lib/stores/files";
+import type { SaveFileMap } from '~/lib/stores/files';
 
 export interface Template {
   name: string;

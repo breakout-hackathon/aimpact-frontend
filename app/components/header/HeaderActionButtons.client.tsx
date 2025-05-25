@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { streamingState } from '~/lib/stores/streaming';
 import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
 import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
-import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react'
+import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react';
 import { useFetch } from '~/lib/hooks/useFetch';
 import { chatId } from '~/lib/persistence';
 import { toast } from 'react-toastify';
@@ -28,7 +28,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isStreaming = useStore(streamingState);
-  
+
   const { mutateAsync: getDeployRequest, error: getDeployError } = useGetDeploy();
   const { data: postDeployData, error: postDeployError, mutateAsync: createDeployRequest } = usePostDeploy();
   const [deployStatus, setDeployStatus] = useState<DeployStatusEnum | null>(null);
@@ -44,12 +44,12 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const clearDeployStatusInterval = () => {
     deployStatusInterval ? clearTimeout(deployStatusInterval) : undefined;
     setDeployStatusInterval(null);
-  }
+  };
 
-  function getEnumKeyByValue<T extends {[key: string]: string}>(myEnum: T, enumValue: string): keyof T | undefined {
-    const keys = Object.keys(myEnum).filter(key => myEnum[key] === enumValue);
+  function getEnumKeyByValue<T extends { [key: string]: string }>(myEnum: T, enumValue: string): keyof T | undefined {
+    const keys = Object.keys(myEnum).filter((key) => myEnum[key] === enumValue);
     return keys.length > 0 ? keys[0] : undefined;
-}
+  }
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -64,56 +64,76 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
   useEffect(() => {
     console.log(!deployStatus, finalDeployStatueses.includes(deployStatus!));
+
     if (!deployStatus || failedDeployStatueses.includes(deployStatus)) {
       toast.error(`Failed to deploy app. Try again later.`);
       console.log(deployStatusInterval);
       clearDeployStatusInterval();
     }
-  }, [deployStatus])
+  }, [deployStatus]);
 
-  const fetchDeployStatus = async ({ projectId, enableMessages=true }: { projectId: string, enableMessages?: boolean }) => {
+  const fetchDeployStatus = async ({
+    projectId,
+    enableMessages = true,
+  }: {
+    projectId: string;
+    enableMessages?: boolean;
+  }) => {
     const failMessage = `Failed to deploy app. Try again later.`;
+
     try {
-      console.log("Started to fetch deploy");
+      console.log('Started to fetch deploy');
+
       const data = await getDeployRequest(projectId);
       console.log(data);
       setFinalDeployLink(data.finalUrl);
       setDeployStatus(() => data.status);
       console.log(data.status, deployStatus);
+
       if (!enableMessages && data.status && successDeployStatuses.includes(data.status)) {
-        toast.success(`Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
-          URL: <a>${data.finalUrl}</a>`, { autoClose: false })
+        toast.success(
+          `Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
+          URL: <a>${data.finalUrl}</a>`,
+          { autoClose: false },
+        );
       } else {
-        
       }
     } catch (error) {
       if (!isRequestFirst) {
         toast.error(failMessage);
       }
+
       console.error(error);
       setDeployStatus(DeployStatusEnum.unknown);
       clearDeployStatusInterval();
     } finally {
       setIsRequestFirst(false);
     }
-  }
+  };
 
   useEffect(() => {
     const currentChatId = chatId.get();
-    console.log(`Current chat id: ${currentChatId}`)
-    if (!currentChatId) return;
+    console.log(`Current chat id: ${currentChatId}`);
+
+    if (!currentChatId) {
+      return;
+    }
 
     fetchDeployStatus({ projectId: currentChatId, enableMessages: false });
+
     return clearDeployStatusInterval;
-  }, [chatId])
+  }, [chatId]);
 
   const onDeploy = async () => {
     setIsDeploying(true);
-    const deployToastId = toast.info("Deploying...", { autoClose: false });
+
+    const deployToastId = toast.info('Deploying...', { autoClose: false });
+
     try {
       const currentChatId = chatId.get();
+
       if (!currentChatId) {
-        toast.error("Failed to get chatId.")
+        toast.error('Failed to get chatId.');
         return;
       }
 
@@ -121,11 +141,12 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         projectId: currentChatId,
       });
       console.log(postDeployError, data);
+
       if (!postDeployError && data) {
-        setDeployStatusInterval(setInterval(async () => 
-          await fetchDeployStatus({ projectId: currentChatId }), 5000));
+        setDeployStatusInterval(setInterval(async () => await fetchDeployStatus({ projectId: currentChatId }), 5000));
       }
-      console.log("ON DEPLOY STATUS: ", data.status);
+
+      console.log('ON DEPLOY STATUS: ', data.status);
       setDeployStatus(data.status);
     } catch (error) {
       toast.error(`Failed to deploy app. Try again later.`);
@@ -134,11 +155,11 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       setIsDeploying(false);
       toast.dismiss(deployToastId);
     }
-  }
+  };
 
   const handleClickFinalLink = () => {
     if (finalDeployLink) {
-      window.open(finalDeployLink, "_blank");
+      window.open(finalDeployLink, '_blank');
     }
   };
 
@@ -149,14 +170,15 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     }
 
     setIsSaving(true);
-    
+
     try {
       // Find the iframe in the workbench preview
       const iframe = document.querySelector('iframe[title="preview"]') as HTMLIFrameElement;
-      
+
       if (!iframe) {
         toast.error('Preview not found');
         setIsSaving(false);
+
         return;
       }
 
@@ -164,10 +186,10 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       try {
         // First attempt: Send a message to the iframe to save any canvas content
         iframe.contentWindow?.postMessage({ action: 'save-canvas' }, '*');
-        
+
         // Notify the user that we attempted to save content from the iframe
         toast.info('Attempted to save canvas from preview. Check downloads folder.');
-        
+
         // Set up a global event listener to catch any response from the iframe
         const messageHandler = (event: MessageEvent) => {
           if (event.data?.action === 'canvas-saved') {
@@ -175,9 +197,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             window.removeEventListener('message', messageHandler);
           }
         };
-        
+
         window.addEventListener('message', messageHandler);
-        
+
         // Clean up the event listener after some time if no response
         setTimeout(() => {
           window.removeEventListener('message', messageHandler);
@@ -213,7 +235,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
           )}
         </Button>
       )}
-      
+
       <div className="relative" ref={dropdownRef}>
         <div className="flex gap-2 overflow-hidden mr-2 text-sm">
           <Button
@@ -248,7 +270,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
               onClick={onDeploy}
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2"
             >
-              <RocketIcon alt='deploy icon' size={28} />
+              <RocketIcon alt="deploy icon" size={28} />
               <span className="mx-auto">Deploy project</span>
             </Button>
           </div>

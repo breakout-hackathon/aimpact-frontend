@@ -72,8 +72,8 @@ const ProjectGrid = ({ filter = 'all' }: ProjectGridProps) => {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-muted rounded-lg p-10 text-center">
         <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
         <p className="text-muted-foreground">
-          {filter === 'my' 
-            ? "You haven't created any projects yet." 
+          {filter === 'my'
+            ? "You haven't created any projects yet."
             : 'There are currently no blockchain projects to display.'}
         </p>
       </motion.div>
@@ -81,13 +81,16 @@ const ProjectGrid = ({ filter = 'all' }: ProjectGridProps) => {
   }
 
   // Filter projects based on the selected filter
-  const filteredProjects = filter === 'my'
-    ? projectsQuery.data.filter(project => {
-        // TODO: Replace with actual user address check once authentication is implemented
-        // For now, we'll return all projects
-        return true;
-      })
-    : projectsQuery.data;
+  const filteredProjects =
+    filter === 'my'
+      ? projectsQuery.data.filter((project) => {
+          /*
+           * TODO: Replace with actual user address check once authentication is implemented
+           * For now, we'll return all projects
+           */
+          return true;
+        })
+      : projectsQuery.data;
 
   if (filter === 'my' && filteredProjects.length === 0) {
     return (

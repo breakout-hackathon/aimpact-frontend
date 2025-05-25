@@ -28,6 +28,7 @@ type LoginWalletResponseType = {
 };
 
 export const userInfo = atom<UserInfo | undefined>(undefined);
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkCreds = async () => {
       if (connected && isAuthorized) {
-        console.log('exit')
+        console.log('exit');
         return;
       }
 
@@ -51,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!authToken || authToken === 'undefined') {
         let requestMessage;
+
         try {
           requestMessage = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/requestMessage`, {
             method: 'POST',
@@ -59,9 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ walletAddress: publicKey.toBase58() }),
-          })
+          });
         } catch (error) {
-          const msg = "Failed to request sign message";
+          const msg = 'Failed to request sign message';
           toast.error(msg);
           setIsAuthorized(false);
           throw error;
@@ -104,9 +106,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           Cookies.set('authToken', responseData.accessToken);
         } catch (error) {
           console.error(error);
-          toast.error((error as Error)?.message || "Failed to sign message and authorize");
+          toast.error((error as Error)?.message || 'Failed to sign message and authorize');
 
-          if (error instanceof WalletSignMessageError) { 
+          if (error instanceof WalletSignMessageError) {
             await handleDisconnect();
           }
         }
@@ -117,15 +119,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkCreds().then(() => {
-      // console.log(`Is Auth new: ${isAuthorized} ${jwtToken.slice(0, 15)}`);
-      // console.log(`Jwt new: ${jwtToken} ${typeof jwtToken}`);
-      // console.log(`Public Key: ${publicKey}`);
+      /*
+       * console.log(`Is Auth new: ${isAuthorized} ${jwtToken.slice(0, 15)}`);
+       * console.log(`Jwt new: ${jwtToken} ${typeof jwtToken}`);
+       * console.log(`Public Key: ${publicKey}`);
+       */
     });
   }, [publicKey, connected, signMessage, disconnect]);
 
   useEffect(() => {
     const req = async () => {
-      const authToken = Cookies.get("authToken");
+      const authToken = Cookies.get('authToken');
+
       if (!connected || !isAuthorized || !authToken) {
         return;
       }
@@ -133,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/me`, {
         headers: {
           accept: 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
@@ -142,14 +147,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const userInfoData = await response.json() as UserInfo;
+      const userInfoData = (await response.json()) as UserInfo;
       userInfo.set(userInfoData);
     };
-    
+
     req();
+
     const interval = setInterval(req, 10000);
+
     return () => clearInterval(interval);
-  }, [connected, isAuthorized])
+  }, [connected, isAuthorized]);
 
   const handleDisconnect = async () => {
     Cookies.remove('authToken');

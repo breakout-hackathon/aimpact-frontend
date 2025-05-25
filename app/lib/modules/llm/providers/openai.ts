@@ -93,11 +93,13 @@ export default class OpenAIProvider extends BaseProvider {
 
       // compatibility: 'strict'
     });
-    
-    // const providerParams: LanguageModelV1 = {};
-    // if (model.startsWith("o")) [
-    //   providerParams["reaso"]
-    // ]
+
+    /*
+     * const providerParams: LanguageModelV1 = {};
+     * if (model.startsWith("o")) [
+     *   providerParams["reaso"]
+     * ]
+     */
     return openai(model);
   }
 }

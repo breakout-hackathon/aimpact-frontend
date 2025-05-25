@@ -20,12 +20,14 @@ export default function SolanaProvider({ children }: SolanaProviderProps) {
   return (
     <ClientOnly>
       {() => {
-        return <ConnectionProvider endpoint={endpoint}>
-          <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider>{children}</WalletModalProvider>
-          </WalletProvider>
-        </ConnectionProvider>
+        return (
+          <ConnectionProvider endpoint={endpoint}>
+            <WalletProvider wallets={wallets} autoConnect>
+              <WalletModalProvider>{children}</WalletModalProvider>
+            </WalletProvider>
+          </ConnectionProvider>
+        );
       }}
     </ClientOnly>
   );
-};
+}

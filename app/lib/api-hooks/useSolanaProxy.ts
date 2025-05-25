@@ -1,4 +1,4 @@
-import { useFetch } from "../hooks/useFetch";
+import { useFetch } from '../hooks/useFetch';
 
 const host = import.meta.env.PUBLIC_BACKEND_URL;
 
@@ -24,7 +24,7 @@ export const useSolanaProxy = () => {
       body: JSON.stringify({ serializedTx }),
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     }) as Promise<SendTransactionResponse>;
   };
 

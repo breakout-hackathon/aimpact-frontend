@@ -39,15 +39,13 @@ export function WaterButton({
         sizeClasses[size],
         waterStyles.waterButton,
         waterStyles[variant],
-        className
+        className,
       )}
       {...props}
     >
       <div className={waterStyles.waterSurface}></div>
       <div className={waterStyles.waterDroplets}></div>
-      <div className={waterStyles.buttonContent}>
-        {children}
-      </div>
+      <div className={waterStyles.buttonContent}>{children}</div>
     </button>
   );
 }

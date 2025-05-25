@@ -101,7 +101,6 @@ export const CONTINUE_PROMPT = stripIndents`
   Do not repeat any content, including artifact and action tags.
 `;
 
-
 export const SOLANA_PROGRAM_CODE = `
   use anchor_lang::prelude::*;
 use std::mem::size_of;
@@ -161,7 +160,6 @@ pub struct Get<'info> {
 }
 `;
 
-
 export const SOLANA_PROGRAM_TEST_CODE = `
   import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
@@ -205,6 +203,5 @@ describe("mappings", () => {
 });
 `;
 
-
-export const SOLANA_PROGRAM_ID = "6ytMmvJR2YYsuPR7FSQUQnb7UGi1rf36BrXzZUNvKsnj";
-export const SOLANA_DEVNET_RPC_URL = "https://api.devnet.solana.com";
+export const SOLANA_PROGRAM_ID = '6ytMmvJR2YYsuPR7FSQUQnb7UGi1rf36BrXzZUNvKsnj';
+export const SOLANA_DEVNET_RPC_URL = 'https://api.devnet.solana.com';

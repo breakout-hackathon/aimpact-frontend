@@ -40,7 +40,7 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size, _asChild = false, children, ...props }, ref) => {
     const isWaterEffect = variant === 'default' || variant === 'secondary' || variant === 'destructive';
-    
+
     if (!isWaterEffect) {
       return (
         <button className={classNames(buttonVariants({ variant, size }), className)} ref={ref} {...props}>
@@ -50,7 +50,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const waterVariant = variant === 'destructive' ? 'red' : 'default';
-    
+
     return (
       <button
         ref={ref}
@@ -69,15 +69,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           size === 'sm' ? 'text-xs py-1 px-3' : size === 'lg' ? 'text-base py-3 px-6' : 'text-sm py-2 px-4',
           waterStyles.waterButton,
           waterStyles[waterVariant],
-          className
+          className,
         )}
         {...props}
       >
         <div className={waterStyles.waterSurface}></div>
         <div className={waterStyles.waterDroplets}></div>
-        <div className={waterStyles.buttonContent}>
-          {children}
-        </div>
+        <div className={waterStyles.buttonContent}>{children}</div>
       </button>
     );
   },

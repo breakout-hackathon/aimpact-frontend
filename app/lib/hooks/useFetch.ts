@@ -40,9 +40,10 @@ export function useFetch<T = any>() {
 
       try {
         const headers = new Headers(fetchOptions.headers);
-        
-        const authToken = Cookies.get("authToken");
-        console.log(`AUTH TOKEN: ${authToken}`)
+
+        const authToken = Cookies.get('authToken');
+        console.log(`AUTH TOKEN: ${authToken}`);
+
         if (!authToken) {
           Cookies.remove('authToken');
           throw new Error('No authentication token found');
@@ -57,7 +58,8 @@ export function useFetch<T = any>() {
 
         if (response.status === 401) {
           await disconnect();
-          const msg = 'Session expired. Please reconnect your wallet.'
+
+          const msg = 'Session expired. Please reconnect your wallet.';
           toast.error(msg);
           throw new Error(msg);
         }

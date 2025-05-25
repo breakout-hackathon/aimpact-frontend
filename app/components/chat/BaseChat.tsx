@@ -5,22 +5,18 @@
 import type { JSONValue, Message, UIMessage } from 'ai';
 import React, { type RefCallback, useEffect, useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
-import { Menu } from '~/components/sidebar/Menu.client';
 import { IconButton } from '~/components/ui/IconButton';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { PROVIDER_LIST } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { SendButton } from './SendButton.client';
-import { APIKeyManager, getApiKeysFromCookies } from './APIKeyManager';
+import { getApiKeysFromCookies } from './APIKeyManager';
 import Cookies from 'js-cookie';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 import styles from './BaseChat.module.scss';
 import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportChatButton';
-import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
-import GitCloneButton from './GitCloneButton';
 
 import FilePreview from './FilePreview';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
@@ -35,7 +31,6 @@ import ProgressCompilation from './ProgressCompilation';
 import type { ProgressAnnotation } from '~/types/context';
 import type { ActionRunner } from '~/lib/runtime/action-runner';
 import { SupabaseChatAlert } from '~/components/chat/SupabaseAlert';
-import { SupabaseConnection } from './SupabaseConnection';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { useStore } from '@nanostores/react';
@@ -90,9 +85,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       isStreaming = false,
       onStreamingChange,
       model,
-      setModel,
       provider,
-      setProvider,
       providerList,
       input = '',
       enhancingPrompt,
@@ -102,7 +95,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       enhancePrompt,
       sendMessage,
       handleStop,
-      importChat,
       exportChat,
       uploadedFiles = [],
       setUploadedFiles,
@@ -338,11 +330,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             {!chatStarted && (
               <div id="intro" className="mt-[8vh] max-w-chat mx-auto text-center px-4 lg:px-0">
                 <div className="flex justify-center mb-6">
-                  <img 
-                    src="/aimpact-logo.png" 
-                    alt="AImpact Logo" 
-                    className="h-16 w-auto"
-                  />
+                  <img src="/aimpact-logo.png" alt="AImpact Logo" className="h-16 w-auto" />
                 </div>
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
                   Your AI co-founder
@@ -630,7 +618,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           disabled={!providerList || providerList.length === 0}
                         >
                           <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
-                          {isModelSettingsCollapsed ? <span className="text-xs">{modelList.find(val => val.name === model)?.label || model}</span> : <span />}
+                          {isModelSettingsCollapsed ? (
+                            <span className="text-xs">
+                              {modelList.find((val) => val.name === model)?.label || model}
+                            </span>
+                          ) : (
+                            <span />
+                          )}
                         </IconButton>
                       </div>
                       {input.length > 3 ? (

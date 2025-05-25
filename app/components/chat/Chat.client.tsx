@@ -12,7 +12,13 @@ import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { DEFAULT_MINI_MODEL, DEFAULT_MINI_PROVIDER, DEFAULT_MINI_PROVIDER_NAME, DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
+import {
+  DEFAULT_MINI_MODEL,
+  DEFAULT_MINI_PROVIDER,
+  DEFAULT_MODEL,
+  DEFAULT_PROVIDER,
+  PROMPT_COOKIE_KEY,
+} from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
@@ -20,7 +26,7 @@ import Cookies from 'js-cookie';
 import { debounce } from '~/utils/debounce';
 import { useSettings } from '~/lib/hooks/useSettings';
 import type { ProviderInfo } from '~/types/model';
-import { data, useSearchParams } from '@remix-run/react';
+import { useSearchParams } from '@remix-run/react';
 import { createSampler } from '~/utils/sampler';
 import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
 import { logStore } from '~/lib/stores/logs';
@@ -113,7 +119,7 @@ interface ChatProps {
   description?: string;
 }
 
-export const ChatImpl = memo(({ description, initialMessages, storeMessageHistory }: ChatProps) => {
+export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProps) => {
   useShortcuts();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -146,10 +152,10 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
     return DEFAULT_MINI_MODEL || savedModel;
   });
   const [provider, setProvider] = useState(() => {
-    return (DEFAULT_PROVIDER) as ProviderInfo;
+    return DEFAULT_PROVIDER as ProviderInfo;
   });
   const [miniProvider, setMiniProvider] = useState(() => {
-    return (DEFAULT_MINI_PROVIDER) as ProviderInfo;
+    return DEFAULT_MINI_PROVIDER as ProviderInfo;
   });
 
   const { showChat } = useStore(chatStore);
@@ -231,11 +237,14 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
     if (prompt) {
       setSearchParams({});
       setInput(prompt);
-      // runAnimation();
-      // append({
-      //   role: 'user',
-      //   content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${prompt}`,
-      // });
+
+      /*
+       * runAnimation();
+       * append({
+       *   role: 'user',
+       *   content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${prompt}`,
+       * });
+       */
     }
   }, [model, provider, searchParams]);
 
@@ -322,21 +331,22 @@ export const ChatImpl = memo(({ description, initialMessages, storeMessageHistor
     // If no locked items, proceed normally with the original message
     const finalMessageContent = messageContent;
 
-    logger.info(`IS CHAT STARTED (TEMPLATE): ${chatStarted}`)
+    logger.info(`IS CHAT STARTED (TEMPLATE): ${chatStarted}`);
     runAnimation();
 
     if (!chatStarted) {
       setFakeLoading(true);
 
-      logger.info(`AUTO SELECT TEMPLATE: ${autoSelectTemplate}`)
+      logger.info(`AUTO SELECT TEMPLATE: ${autoSelectTemplate}`);
+
       if (autoSelectTemplate) {
         const { template, title } = await selectStarterTemplate({
           message: finalMessageContent,
           model: miniModel,
           provider: miniProvider,
         });
-        console.log(`SELECTED TEMPLATE:`)
-        console.log(template)
+        console.log(`SELECTED TEMPLATE:`);
+        console.log(template);
 
         if (template !== 'blank') {
           const temResp = await getTemplates(template, title).catch((e) => {

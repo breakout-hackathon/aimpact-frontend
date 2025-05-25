@@ -8,27 +8,33 @@ import DepositButton from '../chat/DepositButton';
 import { useWallet } from '@solana/wallet-adapter-react';
 import CustomWalletButton from '../common/CustomWalletButton';
 import { ArrowLeft, ArrowLeftIcon } from '@phosphor-icons/react';
-import React, { useEffect, type CSSProperties, type PropsWithChildren, type ReactElement, type MouseEvent } from 'react';
+import React, {
+  useEffect,
+  type CSSProperties,
+  type PropsWithChildren,
+  type ReactElement,
+  type MouseEvent,
+} from 'react';
 import { Button } from '~/components/ui/Button';
 import waterStyles from '../ui/WaterButton.module.scss';
 import { userInfo } from '~/lib/hooks/useAuth';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export type ButtonProps = PropsWithChildren<{
-    className?: string;
-    disabled?: boolean;
-    endIcon?: ReactElement;
-    onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
-    startIcon?: ReactElement;
-    style?: CSSProperties;
-    tabIndex?: number;
+  className?: string;
+  disabled?: boolean;
+  endIcon?: ReactElement;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
+  startIcon?: ReactElement;
+  style?: CSSProperties;
+  tabIndex?: number;
 }>;
 
 export function Header() {
   const chat = useStore(chatStore);
   const { connected } = useWallet();
   const user = useStore(userInfo);
-  console.log(`Connected: ${connected}`)
+  console.log(`Connected: ${connected}`);
 
   return (
     <header
@@ -39,14 +45,14 @@ export function Header() {
     >
       <a className="flex items-center gap-2 z-logo cursor-pointer" href="/">
         <Button
-            variant="secondary"
-            className="flex items-center gap-2 px-4 py-2 border border-[#5c5c5c40] bg-transparent"
-          >
+          variant="secondary"
+          className="flex items-center gap-2 px-4 py-2 border border-[#5c5c5c40] bg-transparent"
+        >
           <ArrowLeftIcon size={16} />
           <span>Projects</span>
         </Button>
       </a>
-      
+
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
         <>
           <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
@@ -69,16 +75,13 @@ export function Header() {
         )}
         <ClientOnly>
           {() => {
-            return connected && <DepositButton />
+            return connected && <DepositButton />;
           }}
         </ClientOnly>
 
         <ClientOnly>
           {() => {
-            return (
-
-              <CustomWalletButton />
-            );
+            return <CustomWalletButton />;
           }}
         </ClientOnly>
       </div>

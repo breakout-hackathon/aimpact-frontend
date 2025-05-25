@@ -27,6 +27,7 @@ export default function DepositButton() {
 
     // 1. Fetch recent blockhash and lastValidBlockHeight from backend
     let blockhash, lastValidBlockHeight;
+
     try {
       const data = await getRecentBlockhash();
       blockhash = data.blockhash;
@@ -46,7 +47,7 @@ export default function DepositButton() {
         fromPubkey: publicKey,
         toPubkey: new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS),
         lamports: 0.0002 * LAMPORTS_PER_SOL,
-      })
+      }),
     );
 
     // 3. Sign transaction with wallet
@@ -73,12 +74,8 @@ export default function DepositButton() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <Button
-        onClick={handleToggle}
-        variant="secondary"
-        className="flex items-center gap-2"
-      >
+    <div className="max-w-md mx-auto">
+      <Button onClick={handleToggle} variant="secondary" className="flex py-2.5 items-center gap-2 bg-transparent border border-bolt-elements-borderColor font-medium">
         Purchase Messages
       </Button>
 
@@ -95,7 +92,6 @@ export default function DepositButton() {
               </button>
 
               <div className="px-4 py-5 sm:p-6 bg-bolt-elements-background bg-bolt-elements-background-depth-3">
-
                 <div className="text-center">
                   <h3 className="text-2xl font-bold mb-4">Purchase Messages</h3>
                   <p className="text-xl mb-6">
@@ -103,11 +99,7 @@ export default function DepositButton() {
                     <span className="font-semibold">0.001 SOL</span>
                   </p>
 
-                  {error && (
-                    <div className="mb-4 text-sm text-red-600">
-                      {error}
-                    </div>
-                  )}
+                  {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
                   <button
                     onClick={handlePurchase}
