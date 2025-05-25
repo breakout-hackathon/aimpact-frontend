@@ -3,7 +3,7 @@ import * as path from "path";
 
 const template = "vite-react-app"
 const folderPath = path.join(__dirname, template);
-const ignorePaths = ["node_modules", ".git", "package-lock.json", "pnpm-lock.yaml", "yarn.lock"];
+const ignorePaths = ["node_modules", ".git", "package-lock.json", "pnpm-lock.yaml", "yarn.lock", "dist", "build"];
 
 interface File {
   type: 'file';
