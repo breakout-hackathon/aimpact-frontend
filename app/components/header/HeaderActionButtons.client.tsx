@@ -51,10 +51,26 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     setDeployStatusInterval(null);
   };
 
-  function getEnumKeyByValue<T extends { [key: string]: string }>(myEnum: T, enumValue: string): keyof T | undefined {
-    const keys = Object.keys(myEnum).filter((key) => myEnum[key] === enumValue);
-    return keys.length > 0 ? keys[0] : undefined;
-  }
+  const formattedLinkToast = (url: string) => {
+    toast.success(
+      <div>
+        Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.
+        <br />
+        <br />
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className='underline'
+        >
+          Link
+        </a>
+      </div>,
+      {
+        autoClose: false,
+      }
+    );
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -71,13 +87,17 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     console.log(!deployStatus, finalDeployStatueses.includes(deployStatus!));
 
     if (!deployStatus || failedDeployStatueses.includes(deployStatus) && !isStreaming) {
-      toast.error(`Failed to deploy app. Try again later.`);
-      console.log(deployStatusInterval);
+      if (deployStatusInterval) {
+        toast.error(`Failed to deploy app. Try again later.`);
+      }
       clearDeployStatusInterval();
       deployToastId && toast.dismiss(deployToastId);
-    } else if (deployStatus && finalDeployStatueses.includes(deployStatus)) {
+      setIsDeploying(false);
+    }
+    if (deployStatus && finalDeployStatueses.includes(deployStatus)) {
       deployToastId && toast.dismiss(deployToastId);
       setIsDeploying(false);
+      clearDeployStatusInterval();
     }
   }, [deployStatus]);
 
@@ -97,11 +117,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       console.log(data.status, deployStatus);
 
       if (!enableMessages && data.status && successDeployStatuses.includes(data.status)) {
-        toast.success(
-          `Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.\n
-          URL: <a>${data.finalUrl}</a>`,
-          { autoClose: false },
-        );
+        formattedLinkToast("https://" + data.finalUrl);
       } else {
       }
     } catch (error) {
@@ -147,9 +163,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       const data = await createDeployRequest({
         projectId: currentChatId,
       });
-      console.log(postDeployError, data);
 
       if (!postDeployError && data) {
+        clearDeployStatusInterval();
         setDeployStatusInterval(setInterval(async () => await fetchDeployStatus({ projectId: currentChatId }), 5000));
       }
 
@@ -181,9 +197,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
     try {
       await takeSnapshot(chatIdx, workbenchStore.files.get(), undefined, chatSummary);
-      toast.success('Snapshot saved.');
+      toast.success('Project saved.');
     } catch (error) {
-      toast.error('Failed to save snapshot.');
+      toast.error('Failed to save project.');
       console.error(error);
     } finally {
       setIsSaving(false);
@@ -197,7 +213,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
           active
           onClick={handleSaveSnapshot}
           disabled={isSaving || !activePreview || isStreaming}
-          className="px-4 mr-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2 bg-bolt-elements-item-backgroundAccent border border-bolt-elements-borderColor rounded-md"
+          className="px-4 mr-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2 bg-bolt-elements-item-backgroundAccent border border-bolt-elements-borderColor rounded-md"
         >
           {isSaving ? (
             <>
@@ -214,8 +230,8 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       )}
 
       <div className="relative" ref={dropdownRef}>
-        <div className="flex gap-2 overflow-hidden mr-2 text-sm">
-          <Button
+        <div className="flex gap-2 overflow-hidden mr-4 text-sm">
+        <Button
             active
             disabled={!finalDeployLink}
             onClick={handleClickFinalLink}
@@ -253,7 +269,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
           </div>
         )}
       </div>
-      <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden">
+      <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-3">
         <Button
           active={showChat}
           disabled={!canHideChat || isSmallViewport} // expand button is disabled on mobile as it's not needed
@@ -305,6 +321,7 @@ function Button({ active = false, disabled = false, children, onClick, className
         },
         className,
       )}
+      disabled={disabled}
       onClick={onClick}
     >
       {children}

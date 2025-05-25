@@ -53,6 +53,9 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
       setShowActions(true);
     }
 
+    console.log("ACTIONS")
+    console.log(actions)
+    console.log(artifact)
     if (actions.length !== 0 && artifact.type === 'bundled') {
       const finished = !actions.find(
         (action) => action.status !== 'complete' && !(action.type === 'start' && action.status === 'running'),
