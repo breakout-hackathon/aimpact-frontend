@@ -46,7 +46,7 @@ export default function DepositButton() {
       SystemProgram.transfer({
         fromPubkey: publicKey,
         toPubkey: new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS),
-        lamports: 0.0002 * LAMPORTS_PER_SOL,
+        lamports: 0.001 * LAMPORTS_PER_SOL,
       }),
     );
 
