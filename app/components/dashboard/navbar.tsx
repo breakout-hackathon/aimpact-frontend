@@ -1,10 +1,11 @@
 'use client';
 
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import CustomWalletButton from '../common/CustomWalletButton';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Search, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
+import waterStyles from '../ui/WaterButton.module.scss';
 
 interface NavBarProps {
   searchQuery: string;
@@ -31,69 +32,33 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <a href="/" className="flex items-center space-x-2" aria-label="Home">
-                <span className="text-white font-bold text-xl">aimpact</span>
-              </a>
-            </div>
-
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#projects" className="text-white hover:text-gray-300 transition duration-150">
-                How it works
-              </a>
-              <a href="#projects" className="text-white hover:text-gray-300 transition duration-150">
-                Projects
-              </a>
-              <a href="#" className="text-white hover:text-gray-300 transition duration-150">
-                Categories
-              </a>
-              <a href="#" className="text-white hover:text-gray-300 transition duration-150">
-                About
-              </a>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.currentTarget.value || '')}
-                  placeholder="Search projects..."
-                  className="pl-10 pr-4 py-2 w-40 lg:w-60 rounded-full bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all duration-200"
+                <img 
+                  src="/aimpact-logo.png" 
+                  alt="AImpact Logo" 
+                  className="h-8 w-auto"
                 />
-              </div>
-            </nav>
-            <div className="flex ">
-              <ClientOnly>
-                {() => {
-                  return (
-                    <WalletMultiButton
-                      style={{
-                        fontSize: '16px',
-                        fontStyle: 'normal',
-                        height: '42px',
-                        borderRadius: '8px',
-                        padding: '0 16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        whiteSpace: 'nowrap',
-                        fontWeight: 500,
-                      }}
-                    />
-                  );
-                }}
-              </ClientOnly>
+              </a>
             </div>
 
-            {/* <div className="flex items-center space-x-2"> */}
-              {/* Mobile menu button */}
-              {/* <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden text-white"
-                onClick={toggleMenu}
-                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            <nav className="flex items-center space-x-8">
+              <a 
+                href="#how-it-works" 
+                className={`${waterStyles.waterButton} relative overflow-hidden inline-flex items-center justify-center px-4 py-2 rounded-md text-white font-medium hover:shadow-lg transition-all duration-300`}
               >
-                {isMenuOpen ? <X /> : <Menu />}
-              </Button> */}
-            {/* </div> */}
+                <div className={waterStyles.waterSurface}></div>
+                <div className={waterStyles.waterDroplets}></div>
+                <div className={waterStyles.buttonContent}>
+                  How it works
+                </div>
+              </a>
+            </nav>
+            <ClientOnly>
+              {() => (
+                <CustomWalletButton />
+              )}
+            </ClientOnly>
+
+
           </div>
         </div>
       </motion.header>
