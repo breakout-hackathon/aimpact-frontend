@@ -366,3 +366,101 @@
         transparent 70%);
   }
 }
+
+// Purple variant with always-on water effects
+.waterButton.purple {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #6D28D9 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  
+  // Always show water effects, not just on hover
+  box-shadow:
+    0 4px 15px rgba(139, 92, 246, 0.3),
+    0 0 20px rgba(139, 92, 246, 0.15),
+    inset 0 1px 0 rgba(139, 92, 246, 0.1);
+
+  .effectLayer {
+    &::before {
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(139, 92, 246, 0.15),
+          rgba(139, 92, 246, 0.25),
+          rgba(139, 92, 246, 0.15),
+          transparent);
+      // Always animate the water flow
+      left: 100%;
+      animation: waterFlow 3s ease-in-out infinite;
+    }
+
+    &::after {
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(139, 92, 246, 0.4),
+          rgba(139, 92, 246, 0.7),
+          rgba(139, 92, 246, 0.4),
+          transparent);
+      // Always show the ripple effect
+      transform: scaleX(1);
+      animation: waterRipple 4s ease-in-out infinite;
+    }
+  }
+
+  .waterDroplets {
+    // Always show droplets
+    opacity: 1;
+    
+    &::before,
+    &::after {
+      background: rgba(139, 92, 246, 0.8);
+      box-shadow: 
+        0 0 6px rgba(139, 92, 246, 0.5),
+        0 0 12px rgba(139, 92, 246, 0.3);
+    }
+  }
+
+  .waterSurface {
+    background: linear-gradient(45deg,
+        transparent 30%,
+        rgba(139, 92, 246, 0.12) 50%,
+        transparent 70%);
+    // Always show surface shimmer
+    opacity: 1;
+    animation: waterSurfaceShimmer 5s ease-in-out infinite;
+  }
+
+  .buttonContent {
+    // Always show gentle wave
+    animation: gentleWave 3s ease-in-out infinite;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 6px 20px rgba(139, 92, 246, 0.4),
+      0 0 25px rgba(139, 92, 246, 0.2),
+      inset 0 1px 0 rgba(139, 92, 246, 0.15);
+
+    .effectLayer::before {
+      animation-duration: 2s; // Speed up on hover
+    }
+
+    .effectLayer::after {
+      animation-duration: 2.5s; // Speed up on hover
+    }
+
+    .waterSurface {
+      animation-duration: 3s; // Speed up on hover
+    }
+
+    .buttonContent {
+      animation-duration: 2s; // Speed up on hover
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    
+    .effectLayer .waterSurface {
+      animation: waterSplash 0.3s ease-out;
+    }
+  }
+}
