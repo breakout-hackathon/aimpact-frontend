@@ -8,7 +8,7 @@ const ignorePaths = ["node_modules", ".git", "package-lock.json", "pnpm-lock.yam
 interface File {
   type: 'file';
   content: string;
-  isBinary: boolean;
+  isBinary?: boolean;
   isLocked?: boolean;
   lockedByFolder?: string; // Path of the folder that locked this file
 }
@@ -44,8 +44,6 @@ async function walk(dirPath: string, result: Record<string, File | Folder>) {
       result[`/home/project/${relativePath}`] = {
         type: 'file',
         content,
-        isBinary: false,
-        isLocked: false,
       };
     }
   }
@@ -99,7 +97,7 @@ NO NOT EDIT/WRITE ANY FILES THAT ALREADY EXIST IN THE PROJECT AND DOES NOT NEED 
 ---
 Now that the Template is imported please continue with my original request
 
-IMPORTANT: Dont Forget to install the dependencies before running the app by using \`npm install && npm run dev\`
+IMPORTANT: Dont Forget to install the dependencies before running the app by using \`npm install && npm run dev\` or \`pnpm install && pnpm run dev\`
 `;
     const promptData = JSON.stringify({ [template]: { assistantMessage, userMessage } }, null, 2);
 

@@ -10,7 +10,7 @@ import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
 import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react';
 import { useFetch } from '~/lib/hooks/useFetch';
 import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/persistence';
-import { toast } from 'react-toastify';
+import { toast, type Id as ToastId } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
 import { useGetDeploy, usePostDeploy } from '~/lib/hooks/useDeploy';
 
@@ -36,12 +36,14 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const [deployStatusInterval, setDeployStatusInterval] = useState<NodeJS.Timeout | null>(null);
   const [finalDeployLink, setFinalDeployLink] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+  const [deployToastId, setDeployToastId] = useState<ToastId | null>(null)
   const { takeSnapshot } = useChatHistory();
   const chatIdx = useStore(lastChatIdx);
   const chatSummary = useStore(lastChatSummary);
 
   const successDeployStatuses = [DeployStatusEnum.ready, DeployStatusEnum.success];
-  const finalDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error, DeployStatusEnum.success];
+  const loadingDeployStatuses = [DeployStatusEnum.building, DeployStatusEnum.initializing, DeployStatusEnum.queued];
+  const finalDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error, DeployStatusEnum.success, DeployStatusEnum.ready];
   const failedDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error];
 
   const clearDeployStatusInterval = () => {
@@ -72,6 +74,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       toast.error(`Failed to deploy app. Try again later.`);
       console.log(deployStatusInterval);
       clearDeployStatusInterval();
+      deployToastId && toast.dismiss(deployToastId);
+    } else if (deployStatus && finalDeployStatueses.includes(deployStatus)) {
+      deployToastId && toast.dismiss(deployToastId);
     }
   }, [deployStatus]);
 
@@ -85,10 +90,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     const failMessage = `Failed to deploy app. Try again later.`;
 
     try {
-      console.log('Started to fetch deploy');
-
       const data = await getDeployRequest(projectId);
-      console.log(data);
       setFinalDeployLink(data.finalUrl);
       setDeployStatus(() => data.status);
       console.log(data.status, deployStatus);
@@ -130,7 +132,8 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const onDeploy = async () => {
     setIsDeploying(true);
 
-    const deployToastId = toast.info('Deploying...', { autoClose: false });
+    const toastId = toast.info('Deploying...', { autoClose: false });
+    setDeployToastId(toastId);
 
     try {
       const currentChatId = chatId.get();
@@ -154,9 +157,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     } catch (error) {
       toast.error(`Failed to deploy app. Try again later.`);
       console.error(error);
-    } finally {
-      setIsDeploying(false);
-      toast.dismiss(deployToastId);
     }
   };
 
@@ -226,7 +226,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
           <Button
             active
-            disabled={isDeploying || !activePreview || isStreaming || deployStatus == null || !!deployStatusInterval}
+            disabled={isDeploying || !activePreview || isStreaming || loadingDeployStatuses.includes(deployStatus) || !!deployStatusInterval}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
               border border-bolt-elements-borderColor rounded-md"

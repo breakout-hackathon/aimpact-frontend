@@ -42,7 +42,6 @@ export function useFetch<T = any>() {
         const headers = new Headers(fetchOptions.headers);
 
         const authToken = Cookies.get('authToken');
-        console.log(`AUTH TOKEN: ${authToken}`);
 
         if (!authToken) {
           Cookies.remove('authToken');

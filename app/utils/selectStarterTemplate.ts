@@ -13,7 +13,7 @@ interface FilteredFiles {
 export interface File {
   type: 'file';
   content: string;
-  isBinary: boolean;
+  isBinary?: boolean;
 }
 
 const starterTemplateSelectionPrompt = (templates: Template[]) => `

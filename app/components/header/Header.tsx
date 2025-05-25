@@ -45,8 +45,8 @@ export function Header() {
     >
       <a className="flex items-center gap-2 z-logo cursor-pointer" href="/">
         <Button
-          variant="secondary"
-          className="flex items-center gap-2 px-4 py-2 border border-[#5c5c5c40] bg-transparent"
+          variant="default"
+          className="flex items-center gap-2 px-4 py-2 border border-[#5c5c5c40]"
         >
           <ArrowLeftIcon size={16} />
           <span>Projects</span>

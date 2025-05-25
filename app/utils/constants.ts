@@ -44,7 +44,7 @@ export const STARTER_TEMPLATES: Template[] = [
   {
     name: 'vite-react-app',
     label: 'Vite + React + Typescript',
-    description: 'React starter template powered by Vite for fast development experience',
+    description: 'React + Tailwind starter template powered by Vite for fast development experience',
     tags: ['typescript', 'vite', 'vitejs', 'react', 'website', 'app'],
     icon: 'i-bolt:react',
     files: snapshotsData['vite-react-app'].files,

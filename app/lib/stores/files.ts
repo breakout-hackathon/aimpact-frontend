@@ -29,7 +29,7 @@ const utf8TextDecoder = new TextDecoder('utf8', { fatal: true });
 export interface File {
   type: 'file';
   content: string;
-  isBinary: boolean;
+  isBinary?: boolean;
   isLocked?: boolean;
   lockedByFolder?: string; // Path of the folder that locked this file
 }
