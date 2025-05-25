@@ -27,6 +27,8 @@ const persistenceEnabled = !import.meta.env.VITE_DISABLE_PERSISTENCE;
 export const db = persistenceEnabled ? await openDatabase() : undefined;
 
 export const chatId = atom<string | undefined>(undefined);
+export const lastChatIdx = atom<string | undefined>(undefined);
+export const lastChatSummary = atom<string | undefined>(undefined);
 export const description = atom<string | undefined>(undefined);
 export const chatMetadata = atom<IChatMetadata | undefined>(undefined);
 export function useChatHistory() {
@@ -172,6 +174,8 @@ export function useChatHistory() {
               description.set(storedMessages.description);
               chatId.set(storedMessages.id);
               chatMetadata.set(storedMessages.metadata);
+              lastChatIdx.set(storedMessages.messages[snapshotIndex].id);
+              lastChatSummary.set(summary);
             } else {
               navigate('/chat', { replace: true });
             }
@@ -250,6 +254,7 @@ export function useChatHistory() {
   return {
     ready: !mixedId || ready,
     initialMessages,
+    takeSnapshot,
     updateChatMestaData: async (metadata: IChatMetadata) => {
       const id = chatId.get();
 
@@ -279,7 +284,7 @@ export function useChatHistory() {
       if (initialMessages.length === 0 && !_chatId && !mixedId && !creatingProjectRef.current) {
         creatingProjectRef.current = true;
 
-        _chatId = await createProject(`Sample Project ${firstArtifact?.title || firstArtifact?.id || Date.now()}`);
+        _chatId = await createProject(`${firstArtifact?.title || `Sample Project ${Date.now()}`}`);
 
         chatId.set(_chatId);
         navigateChat(_chatId);
@@ -325,9 +330,11 @@ export function useChatHistory() {
             [...archivedMessages, ...messages],
             description.get(),
             chatMetadata.get(),
-          ).then(async () =>
-            takeSnapshot(messages[messages.length - 1].id, workbenchStore.files.get(), finalChatId, chatSummary),
-          );
+          ).then(async () => {
+            lastChatIdx.set(messages[messages.length - 1].id);
+            lastChatSummary.set(chatSummary);
+            return takeSnapshot(messages[messages.length - 1].id, workbenchStore.files.get(), finalChatId, chatSummary);
+          });
 
           await settingProjectWorkaroundPromise.current;
         } finally {

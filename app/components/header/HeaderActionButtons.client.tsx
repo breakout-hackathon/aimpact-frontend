@@ -9,7 +9,7 @@ import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
 import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
 import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react';
 import { useFetch } from '~/lib/hooks/useFetch';
-import { chatId } from '~/lib/persistence';
+import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/persistence';
 import { toast } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
 import { useGetDeploy, usePostDeploy } from '~/lib/hooks/useDeploy';
@@ -36,6 +36,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const [deployStatusInterval, setDeployStatusInterval] = useState<NodeJS.Timeout | null>(null);
   const [finalDeployLink, setFinalDeployLink] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+  const { takeSnapshot } = useChatHistory();
+  const chatIdx = useStore(lastChatIdx);
+  const chatSummary = useStore(lastChatSummary);
 
   const successDeployStatuses = [DeployStatusEnum.ready, DeployStatusEnum.success];
   const finalDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error, DeployStatusEnum.success];
@@ -163,51 +166,24 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     }
   };
 
-  const handleSavePreview = async () => {
-    if (!activePreview) {
-      toast.error('No preview available to save');
+  const handleSaveSnapshot = async () => {
+    if (!chatIdx) {
+      toast.error('Failed to get chatIdx.');
+      return;
+    }
+    if (!chatSummary) {
+      toast.error('Failed to get chatSummary.');
       return;
     }
 
     setIsSaving(true);
 
     try {
-      // Find the iframe in the workbench preview
-      const iframe = document.querySelector('iframe[title="preview"]') as HTMLIFrameElement;
-
-      if (!iframe) {
-        toast.error('Preview not found');
-        setIsSaving(false);
-
-        return;
-      }
-
-      // Try to capture the preview as an image
-      try {
-        // First attempt: Send a message to the iframe to save any canvas content
-        iframe.contentWindow?.postMessage({ action: 'save-canvas' }, '*');
-
-        // Notify the user that we attempted to save content from the iframe
-        toast.info('Attempted to save canvas from preview. Check downloads folder.');
-
-        // Set up a global event listener to catch any response from the iframe
-        const messageHandler = (event: MessageEvent) => {
-          if (event.data?.action === 'canvas-saved') {
-            toast.success('Canvas saved successfully');
-            window.removeEventListener('message', messageHandler);
-          }
-        };
-
-        window.addEventListener('message', messageHandler);
-
-        // Clean up the event listener after some time if no response
-        setTimeout(() => {
-          window.removeEventListener('message', messageHandler);
-        }, 5000);
-      } catch (error) {
-        console.error('Error saving preview:', error);
-        toast.error('Failed to save preview');
-      }
+      await takeSnapshot(chatIdx, workbenchStore.files.get(), undefined, chatSummary);
+      toast.success('Snapshot saved.');
+    } catch (error) {
+      toast.error('Failed to save snapshot.');
+      console.error(error);
     } finally {
       setIsSaving(false);
     }
@@ -218,7 +194,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       {activePreview && (
         <Button
           active
-          onClick={handleSavePreview}
+          onClick={handleSaveSnapshot}
           disabled={isSaving || !activePreview || isStreaming}
           className="px-4 mr-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2 bg-bolt-elements-item-backgroundAccent border border-bolt-elements-borderColor rounded-md"
         >
