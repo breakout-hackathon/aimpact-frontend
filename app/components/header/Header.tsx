@@ -11,6 +11,7 @@ import { ArrowLeft } from '@phosphor-icons/react';
 import React, { useEffect, type CSSProperties, type PropsWithChildren, type ReactElement, type MouseEvent } from 'react';
 import { Button } from '~/components/ui/Button';
 import waterStyles from '../ui/WaterButton.module.scss';
+import { userInfo } from '~/lib/hooks/useAuth';
 
 export type ButtonProps = PropsWithChildren<{
     className?: string;
@@ -25,6 +26,7 @@ export type ButtonProps = PropsWithChildren<{
 export function Header() {
   const chat = useStore(chatStore);
   const { connected } = useWallet();
+  const user = useStore(userInfo);
   console.log(`Connected: ${connected}`)
 
   return (
@@ -59,22 +61,40 @@ export function Header() {
         </>
       )}
       <div className="flex justify-center items-center gap-2">
-      <ClientOnly>
-        {() => {
-          return connected ?? <DepositButton />
-        }}
-      </ClientOnly>
+        {connected && user && (
+          <div className="whitespace-nowrap text-base font-medium text-bolt-elements-textPrimary bg-bolt-elements-background rounded-md border border-bolt-elements-borderColor px-4 py-2">
+            {user.messagesLeft} message{user.messagesLeft === 1 ? '' : 's'} left
+          </div>
+        )}
+        <ClientOnly>
+          {() => {
+            return connected && <DepositButton />
+          }}
+        </ClientOnly>
 
         <ClientOnly>
           {() => {
             return (
-              <div className={classNames(waterStyles.waterButton, waterStyles.green, waterStyles.walletButtonWrapper)}>
-                <div className={waterStyles.waterSurface}></div>
-                <div className={waterStyles.waterDroplets}></div>
-                <div className={waterStyles.buttonContent}>
-                  <CustomWalletButton />
-                </div>
-              </div>
+
+              <WalletMultiButton
+                className={waterStyles.buttonContent}
+                style={{
+                  fontSize: '16px',
+                  fontStyle: 'normal',
+                  height: '42px',
+                  borderRadius: '8px',
+                  padding: '0 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  whiteSpace: 'nowrap',
+                  fontWeight: 500,
+                  background: 'transparent',
+                  border: 'none',
+                  zIndex: 3,
+                  position: 'relative',
+                }}
+              />
             );
           }}
         </ClientOnly>

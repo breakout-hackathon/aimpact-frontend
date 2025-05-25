@@ -1,64 +1,45 @@
 import { useState } from 'react';
-import { Form, useNavigation } from '@remix-run/react';
-import { Info } from '@phosphor-icons/react';
-import WithTooltip from './Tooltip';
+import { useNavigation } from '@remix-run/react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Button } from '~/components/ui/Button';
+import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
+import { toast } from 'react-toastify';
 
 export default function DepositButton() {
   const [isOpen, setIsOpen] = useState(false);
-  const [txHash, setTxHash] = useState('');
   const [error, setError] = useState('');
   const navigation = useNavigation();
-  const { signMessage, publicKey } = useWallet();
+  const { publicKey, sendTransaction } = useWallet();
   const isSubmitting = navigation.state === 'submitting';
-
-  const solanaTxHashRegex = /^[1-9A-HJ-NP-Za-km-z]{88}$/;
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
 
-  const validateTxHash = () => {};
-
-  const handleChangeTxHash = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-
-    setTxHash(e.target.value);
-
-    if (solanaTxHashRegex.test(txHash)) {
-      setError('Solana Transaction Hash is invalid.');
+  const handlePurchase = async () => {
+    if (!publicKey || !sendTransaction) {
+      setError('Please connect your wallet first');
       return;
     }
 
-    setTxHash(txHash);
-  };
+    const connection = new Connection(import.meta.env.VITE_RPC_URL);
+    const toPublicKey = new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS);
 
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    if (!signMessage || !publicKey) {
-      return;
-    }
+    try {
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: toPublicKey,
+          lamports: 0.0002 * LAMPORTS_PER_SOL,
+        })
+      );
 
-    if (!txHash) {
-      setError('Transaction Hash is required.');
-      return;
-    }
-
-    const message = `You are confirming this txId: ${txHash}\n${Date.now()}`;
-    const encodedMessage = new TextEncoder().encode(message);
-    const signature = await signMessage(encodedMessage);
-    const payload = {
-      signature,
-      message,
-      txHash,
-      address: publicKey.toBase58(),
-    };
-
-    const response = await fetch('/api/deposit', { body: JSON.stringify(payload) });
-
-    if (!response.ok) {
-      setError('Failed to process deposit request.');
-      return;
+      await sendTransaction(transaction, connection);
+      
+      setIsOpen(false);
+      toast.success('Purchase completed!');
+    } catch (err) {
+      console.error('Transaction failed:', err);
+      setError('Transaction failed. Please try again.');
     }
   };
 
@@ -69,7 +50,7 @@ export default function DepositButton() {
         variant="secondary"
         className="flex items-center gap-2"
       >
-        Deposit
+        Purchase Messages
       </Button>
 
       {isOpen && (
@@ -85,43 +66,27 @@ export default function DepositButton() {
               </button>
 
               <div className="px-4 py-5 sm:p-6 bg-bolt-elements-background bg-bolt-elements-background-depth-3">
-                <div className="flex gap-2 items-center">
-                  <h3 className="text-lg font-medium leading-6">Deposit Funds</h3>
-                  <WithTooltip tooltip="test" position="right">
-                    <Info size={20} className="text-gray-500 flex" />
-                  </WithTooltip>
-                </div>
-                <div className="mt-4">
-                  <Form method="post" action="/api/deposit">
-                    <div className="mb-4">
-                      <label htmlFor="txHash" className="block text-sm font-medium">
-                        Solana Transaction Hash
-                      </label>
-                      <input
-                        type="text"
-                        id="txHash"
-                        name="txHash"
-                        value={txHash}
-                        onChange={handleChangeTxHash}
-                        className="block w-full px-3 py-2 mt-1 shadow-sm rounded-lg bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500/30 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-700"
-                        placeholder="Enter Solana tx hash"
-                      />
-                    </div>
 
-                    <div className={`mt-2 text-sm ${error ? 'text-red-600' : 'text-green-600'}`}>{error}</div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold mb-4">Purchase Messages</h3>
+                  <p className="text-xl mb-6">
+                    Get <span className="font-semibold">10 messages</span> for{' '}
+                    <span className="font-semibold">0.001 SOL</span>
+                  </p>
 
-                    <div className="mt-5 sm:mt-6">
-                      <Button
-                        type="submit"
-                        variant="default"
-                        disabled={isSubmitting}
-                        onClick={handleSubmit}
-                        className="w-full justify-center"
-                      >
-                        {isSubmitting ? 'Submitting...' : 'Submit'}
-                      </Button>
+                  {error && (
+                    <div className="mb-4 text-sm text-red-600">
+                      {error}
                     </div>
-                  </Form>
+                  )}
+
+                  <button
+                    onClick={handlePurchase}
+                    disabled={isSubmitting || !publicKey}
+                    className="inline-flex justify-center w-full px-6 py-3 text-lg font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Processing...' : 'Purchase Now'}
+                  </button>
                 </div>
               </div>
             </div>

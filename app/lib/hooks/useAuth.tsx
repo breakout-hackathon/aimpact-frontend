@@ -4,8 +4,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { WalletSignMessageError } from '@solana/wallet-adapter-base';
 import bs58 from 'bs58';
 import { toast } from 'react-toastify';
+import { atom } from 'nanostores';
 
-interface UserInfo {}
+interface UserInfo {
+  id: string;
+  wallet: string;
+  messagesLeft: number;
+}
 
 type AuthContextType = {
   isAuthorized: boolean;
@@ -22,10 +27,11 @@ type LoginWalletResponseType = {
   accessToken: string;
 };
 
+export const userInfo = atom<UserInfo | undefined>(undefined);
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { publicKey, connected, signIn, signMessage, disconnect } = useWallet();
+  const { publicKey, connected, signMessage, disconnect } = useWallet();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [jwtToken, setJwtToken] = useState('');
 
@@ -37,13 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!connected || !signMessage || !publicKey) {
-        console.log('Disconnecting');
         setIsAuthorized(false);
         return;
       }
 
       const authToken = Cookies.get('authToken');
-      console.log(`Auth token: ${authToken}`)
 
       if (!authToken || authToken === 'undefined') {
         let requestMessage;
@@ -119,9 +123,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [publicKey, connected, signMessage, disconnect]);
 
+  useEffect(() => {
+    const req = async () => {
+      const authToken = Cookies.get("authToken");
+      if (!connected || !isAuthorized || !authToken) {
+        return;
+      }
+
+      const response = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/me`, {
+        headers: {
+          accept: 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        await handleDisconnect();
+        return;
+      }
+
+      const userInfoData = await response.json() as UserInfo;
+      userInfo.set(userInfoData);
+    };
+    
+    req();
+    const interval = setInterval(req, 10000);
+    return () => clearInterval(interval);
+  }, [connected, isAuthorized])
+
   const handleDisconnect = async () => {
     Cookies.remove('authToken');
     setIsAuthorized(false);
+    userInfo.set(undefined);
     await disconnect();
   };
 
