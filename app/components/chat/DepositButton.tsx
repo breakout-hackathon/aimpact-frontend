@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { useNavigation } from '@remix-run/react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { toast } from 'react-toastify';
+import { useSolanaProxy } from '~/lib/api-hooks/useSolanaProxy';
 
 export default function DepositButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
   const navigation = useNavigation();
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey, signTransaction } = useWallet();
+  const { getRecentBlockhash, sendTransaction } = useSolanaProxy();
+
   const isSubmitting = navigation.state === 'submitting';
 
   const handleToggle = () => {
@@ -16,30 +19,55 @@ export default function DepositButton() {
   };
 
   const handlePurchase = async () => {
-    if (!publicKey || !sendTransaction) {
+    if (!publicKey || !signTransaction) {
       setError('Please connect your wallet first');
       return;
     }
 
-    const connection = new Connection(import.meta.env.VITE_RPC_URL);
-    const toPublicKey = new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS);
-
+    // 1. Fetch recent blockhash and lastValidBlockHeight from backend
+    let blockhash, lastValidBlockHeight;
     try {
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: toPublicKey,
-          lamports: 0.0002 * LAMPORTS_PER_SOL,
-        })
-      );
+      const data = await getRecentBlockhash();
+      blockhash = data.blockhash;
+      lastValidBlockHeight = data.lastValidBlockHeight;
+    } catch (err) {
+      setError('Failed to get recent blockhash');
+      return;
+    }
 
-      await sendTransaction(transaction, connection);
-      
+    // 2. Build transaction using new TransactionBlockhashCtor
+    let transaction = new Transaction({
+      blockhash,
+      lastValidBlockHeight,
+      feePayer: publicKey,
+    }).add(
+      SystemProgram.transfer({
+        fromPubkey: publicKey,
+        toPubkey: new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS),
+        lamports: 0.0002 * LAMPORTS_PER_SOL,
+      })
+    );
+
+    // 3. Sign transaction with wallet
+    try {
+      transaction = await signTransaction(transaction);
+    } catch (err) {
+      setError('Transaction signing failed');
+      return;
+    }
+
+    // 4. Serialize and send to backend
+    try {
+      const serializedTx = transaction.serialize({ requireAllSignatures: false }).toString('base64');
+      console.log(`Serialized TX: ${serializedTx}`);
+      await sendTransaction(serializedTx);
+
       setIsOpen(false);
       toast.success('Purchase completed!');
     } catch (err) {
-      console.error('Transaction failed:', err);
-      setError('Transaction failed. Please try again.');
+      const message = 'Transaction failed. Please try again.';
+      setError(message);
+      toast.error(message);
     }
   };
 
