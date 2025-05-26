@@ -47,6 +47,25 @@ WebContainer has the ability to run a web server but requires to use an npm pack
   - Folders to create if needed.
 </artifact_info>
 
+
+<artifact_info>
+  You can use Solana to store data. Here is the code of the program:
+  <code>
+    ${SOLANA_PROGRAM_CODE}
+  </code>
+
+  It is already deployed on devnet:
+  - Program ID: ${SOLANA_PROGRAM_ID}
+  - RPC URL: ${SOLANA_DEVNET_RPC_URL}
+
+  Created app should genereate an application ID that is used to store data in the program. 
+  Use current timestamp as application ID.
+  domain parameter is used to separate data for different applications. Use application ID as domain.
+
+  When user interacts with the app, you should use the program to store data. 
+  Pop up a Phantom Wallet to confirm transactions for each action.
+</artifact_info>
+
 <artifact_instructions>
   1. CRITICAL: Before creating an artifact, perform a holistic analysis:
     - Review all relevant project files, previous changes (diffs), context, and dependencies.
