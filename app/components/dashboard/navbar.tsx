@@ -25,7 +25,7 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <a href="/" className="flex items-center space-x-2" aria-label="Home">
-                <img src="/aimpact-logo.png" alt="AImpact Logo" className="h-8 w-auto" />
+                <img src="/aimpact-logo-beta.png" alt="AImpact Logo" className="h-8 w-auto" />
               </a>
             </div>
 

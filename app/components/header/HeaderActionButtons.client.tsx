@@ -5,10 +5,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { useEffect, useRef, useState } from 'react';
 import { streamingState } from '~/lib/stores/streaming';
-import { useVercelDeploy } from '~/components/deploy/VercelDeploy.client';
-import { useNetlifyDeploy } from '~/components/deploy/NetlifyDeploy.client';
 import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react';
-import { useFetch } from '~/lib/hooks/useFetch';
 import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/persistence';
 import { toast, type Id as ToastId } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
@@ -59,7 +56,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const formattedLinkToast = (url: string) => {
     toast.success(
       <div>
-        Project is deployed. You can clink to the button left from "Deploy" and go to deployed app.
+        Project is published. You can clink to the button left from "Publish" and go to app.
         <br /> <br />
         <a href={url} target="_blank" rel="noopener noreferrer" className='underline'>
           Link
@@ -85,7 +82,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
 
     if (!deployStatus || failedDeployStatueses.includes(deployStatus) && !isStreaming) {
       if (deployStatusInterval) {
-        toast.error(`Failed to deploy app. Try again later.`);
+        toast.error(`Failed to publish app. Try again later.`);
       }
       clearDeployStatusInterval();
       deployToastId && toast.dismiss(deployToastId);
@@ -105,7 +102,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     projectId: string;
     enableMessages?: boolean;
   }) => {
-    const failMessage = `Failed to deploy app. Try again later.`;
+    const failMessage = `Failed to publish app. Try again later.`;
 
     try {
       const data = await getDeployRequest(projectId);
@@ -169,7 +166,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       console.log('ON DEPLOY STATUS: ', data.status);
       setDeployStatus(data.status);
     } catch (error) {
-      toast.error(`Failed to deploy app. Try again later.`);
+      toast.error(`Failed to publish app. Try again later.`);
       console.error(error);
     }
   };
@@ -245,7 +242,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
               border border-bolt-elements-borderColor rounded-md"
           >
-            {isDeploying ? `Deploying...` : 'Deploy'}
+            {isDeploying ? `Publishing...` : 'Publish'}
             <div
               className={classNames('i-ph:caret-down w-4 h-4 transition-transform', isDropdownOpen ? 'rotate-180' : '')}
             />
@@ -261,7 +258,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2"
             >
               <RocketIcon alt="deploy icon" size={28} />
-              <span className="mx-auto">Deploy project</span>
+              <span className="mx-auto">Publish project</span>
             </Button>
           </div>
         )}

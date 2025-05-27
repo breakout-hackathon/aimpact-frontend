@@ -31,7 +31,6 @@ export default function CustomWalletButton() {
       ref={buttonRef}
       className={classNames(
         waterStyles.waterButton,
-        waterStyles.green,
         'relative',
         'text-white font-medium',
         'rounded-md',

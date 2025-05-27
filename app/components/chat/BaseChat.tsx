@@ -330,7 +330,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             {!chatStarted && (
               <div id="intro" className="mt-[8vh] max-w-chat mx-auto text-center px-4 lg:px-0">
                 <div className="flex justify-center mb-6">
-                  <img src="/aimpact-logo.png" alt="AImpact Logo" className="h-16 w-auto" />
+                  <img src="/aimpact-logo-beta.png" alt="AImpact Logo" className="h-[72px] w-auto" />
                 </div>
                 <h1 className="text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-4 animate-fade-in">
                   Your AI co-founder

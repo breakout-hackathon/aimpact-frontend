@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil } from '@phosphor-icons/react';
+import { PencilIcon } from '@phosphor-icons/react';
 import { useParams } from '@remix-run/react';
 import { useProjectsQuery } from 'query/use-project-query';
 
@@ -39,7 +39,7 @@ export default function Project() {
       <header className="bg-gradient-to-r from-gray-900 to-black p-8 border-b border-gray-800">
         <div className="max-w-7xl mx-auto flex items-center gap-6">
           <a href="/" className="mr-4">
-            <img src="/aimpact-logo.png" alt="AImpact Logo" className="h-12 w-auto" />
+            <img src="/aimpact-logo-beta.png" alt="AImpact Logo" className="h-12 w-auto" />
           </a>
           {project.image && (
             <img
@@ -68,7 +68,7 @@ export default function Project() {
                 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
                 href={`/chat/${project.id}`}
               >
-                <Pencil size={20} />
+                <PencilIcon size={20} />
                 Edit project
               </a>
             </div>

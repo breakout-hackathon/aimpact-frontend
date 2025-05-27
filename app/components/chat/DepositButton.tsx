@@ -78,7 +78,7 @@ export default function DepositButton() {
   return (
     <div className="max-w-md mx-auto">
       <Button onClick={handleToggle} variant="default" className="flex py-2.5 items-center gap-2 border border-bolt-elements-borderColor font-medium">
-        Purchase Messages
+        Get Messages
       </Button>
 
       {isOpen && (
@@ -103,26 +103,49 @@ export default function DepositButton() {
 
                   {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
-                  <button
-                    onClick={handlePurchase}
-                    disabled={isSubmitting || !publicKey}
-                    className={classNames(
-                      'relative overflow-hidden w-full px-6 py-3 text-lg font-medium text-white rounded-md',
-                      'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
-                      'disabled:opacity-50 disabled:cursor-not-allowed',
-                      'transition-all duration-300',
-                      waterStyles.waterButton,
-                      waterStyles.purple,
-                    )}
-                  >
-                    <div className={waterStyles.effectLayer}>
-                      <div className={waterStyles.waterDroplets}></div>
-                      <div className={waterStyles.waterSurface}></div>
-                    </div>
-                    <div className={waterStyles.buttonContent}>
-                      {isSubmitting ? 'Processing...' : 'Purchase Now'}
-                    </div>
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={handlePurchase}
+                      disabled={isSubmitting || !publicKey}
+                      className={classNames(
+                        'relative overflow-hidden w-full px-6 py-3 text-lg font-medium text-white rounded-md',
+                        'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
+                        'disabled:opacity-50 disabled:cursor-not-allowed',
+                        'transition-all duration-300',
+                        waterStyles.waterButton,
+                        waterStyles.purple,
+                      )}
+                    >
+                      <div className={waterStyles.effectLayer}>
+                        <div className={waterStyles.waterDroplets}></div>
+                        <div className={waterStyles.waterSurface}></div>
+                      </div>
+                      <div className={waterStyles.buttonContent}>
+                        {isSubmitting ? 'Processing...' : 'Purchase Now'}
+                      </div>
+                    </button>
+
+                    <p>or</p>
+
+                    <button
+                      className={classNames(
+                        'relative overflow-hidden w-full px-6 py-3 text-lg font-medium text-white rounded-md',
+                        'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500',
+                        'disabled:opacity-50 disabled:cursor-not-allowed',
+                        'transition-all duration-300',
+                        waterStyles.waterButton,
+                        waterStyles.green,
+                      )}
+                    >
+                      <div className={waterStyles.effectLayer}>
+                        <div className={waterStyles.waterDroplets}></div>
+                        <div className={waterStyles.waterSurface}></div>
+                      </div>
+                      <div className={waterStyles.buttonContent}>
+                        Get Free Messages!
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -68,8 +68,10 @@ export function useFetch<T = any>() {
           toast.error(msg);
           throw new Error(msg);
         }
-
-        const data = (await response.json()) as T;
+        
+        let rawData = await response.text();
+        // const data = (await response.json()) as T;
+        const data = JSON.parse(rawData) as T;
         setState({ data, error: null, loading: false });
 
         return data;

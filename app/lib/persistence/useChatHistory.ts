@@ -186,7 +186,7 @@ export function useChatHistory() {
               lastChatIdx.set(storedMessages.messages[snapshotIndex].id);
               lastChatSummary.set(summary);
             } else {
-              navigate('/chat', { replace: true });
+              navigate('/', { replace: true });
             }
 
             setReady(true);
