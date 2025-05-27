@@ -159,6 +159,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   });
 
   const { showChat } = useStore(chatStore);
+  const showWorkbench = useStore(workbenchStore.showWorkbench);
 
   const [animationScope, animate] = useAnimate();
 
@@ -590,6 +591,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       deployAlert={deployAlert}
       clearDeployAlert={() => workbenchStore.clearDeployAlert()}
       data={chatData}
+      showWorkbench={showWorkbench}
     />
   );
 });

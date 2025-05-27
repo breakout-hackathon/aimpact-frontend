@@ -1,11 +1,14 @@
 import { workbenchStore } from "~/lib/stores/workbench";
 import { IconButton } from "../ui";
 import { useStore } from "@nanostores/react";
+import { useState } from "react";
+import CustDevPopup from "./CustDevPopup";
 
-export default function Footer() { 
-  const showWorkbench = useStore(workbenchStore.showWorkbench);
-  if (showWorkbench) { // TODO: It's not really good syntax
-    return;
+export default function Footer() {
+  const [custIsOpen, setCustIsOpen] = useState(false);
+  const custHandleToggle = () => {
+    console.log(custIsOpen);
+    setCustIsOpen(!custIsOpen);
   }
 
   return (
@@ -14,12 +17,15 @@ export default function Footer() {
       <div className="relative w-full flex justify-between items-center">
         <div>
           <div className="flex flex-col gap-2">
-            <IconButton className="text-4xl">
-              <div className="i-bolt:bugbounty text-gray-400 hover:text-purple-400"></div>
+            <a href="https://forms.gle/RQs67LKavBFiP1JL8" target="_blank">
+              <IconButton className="text-4xl">
+                <div className="i-bolt:bugbounty text-gray-400 hover:text-purple-400"></div>
+              </IconButton>
+            </a>
+            <IconButton className="text-4xl" onClick={custHandleToggle}>
+              <div className="i-bolt:custdev text-gray-400 hover:text-purple-400" />
             </IconButton>
-            <IconButton className="text-4xl">
-              <div className="i-bolt:custdev text-gray-400 hover:text-purple-400"></div>
-            </IconButton>
+            {custIsOpen && <CustDevPopup handleToggle={custHandleToggle} />}
           </div>
         </div>
 
