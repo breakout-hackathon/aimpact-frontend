@@ -675,7 +675,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             )}
           </ClientOnly>
         </div>
-        {showWorkbench && <Footer />}
+        {!showWorkbench && <Footer />}
       </div>
     );
 
