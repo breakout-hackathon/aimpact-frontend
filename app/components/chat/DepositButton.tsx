@@ -48,7 +48,7 @@ export default function DepositButton() {
       SystemProgram.transfer({
         fromPubkey: publicKey,
         toPubkey: new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS),
-        lamports: 0.001 * LAMPORTS_PER_SOL,
+        lamports: 0.03 * LAMPORTS_PER_SOL,
       }),
     );
 
@@ -98,7 +98,7 @@ export default function DepositButton() {
                   <h3 className="text-2xl font-bold mb-4">Purchase Messages</h3>
                   <p className="text-xl mb-6">
                     Get <span className="font-semibold">10 messages</span> for{' '}
-                    <span className="font-semibold">0.001 SOL</span>
+                    <span className="font-semibold">0.03 SOL</span>
                   </p>
 
                   {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
