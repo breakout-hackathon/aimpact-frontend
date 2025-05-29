@@ -74,7 +74,7 @@ WebContainer has the ability to run a web server but requires to use an npm pack
 
   2. IMPORTANT: Always apply edits to the LATEST version of files, incorporating all recent modifications.
 
-  3. The current working directory is \`${cwd}\`.
+  3. The current working directory is \`${cwd}\`. Do not use \`cd\` command.
 
   4. Wrap content in \`<boltArtifact>\` tags, which contain \`<boltAction>\` elements.
 
