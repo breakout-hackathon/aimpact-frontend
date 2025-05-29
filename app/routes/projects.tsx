@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent, useRef } from 'react';
+import { useState, type FormEvent, useRef, useEffect } from 'react';
 import ProjectGrid from '@/components/dashboard/project-grid';
 import Navbar from '@/components/dashboard/navbar';
 import { motion } from 'framer-motion';
@@ -9,18 +9,44 @@ import { useNavigate } from '@remix-run/react';
 
 import { Button } from '@/components/ui/Button';
 import { useProjectsQuery } from 'query/use-project-query';
+import Footer from '~/components/footer/Footer.client';
 
 export default function Home() {
   const navigate = useNavigate();
   const projectsQuery = useProjectsQuery();
-  const [promptInput, setPromptInput] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filter, setFilter] = useState<'all' | 'my'>('all');
+
+  const endTriggerRef = useRef(null);
+  const [isFooterFixed, setIsFooterFixed] = useState(true);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterFixed(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        rootMargin: '0px 0px -100% 0px'
+      }
+    );
+
+    if (endTriggerRef.current) {
+      observer.observe(endTriggerRef.current);
+    }
+
+    return () => {
+      if (endTriggerRef.current) {
+        observer.unobserve(endTriggerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black">
       <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-      <section id="projects" className="py-16 md:py-24">
+      <section id="projects" className="py-16 md:py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -68,8 +94,12 @@ export default function Home() {
           </motion.div>
           {projectsQuery.isSuccess && <ProjectGrid filter={filter} />}
         </div>
+        <Footer positionClass={isFooterFixed ? 'fixed bottom-0 left-0 w-full' : 'absolute bottom-0 left-0 w-full'} />
+        <div ref={endTriggerRef} className="h-[1px] w-full absolute bottom-0" />
       </section>
+      
 
+      {/* Second footer */}
       <footer className="bg-black/50 border-t border-white/10 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm text-gray-400">© 2025 Aimpact. All rights reserved.</p>

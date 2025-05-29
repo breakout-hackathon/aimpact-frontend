@@ -108,6 +108,16 @@
   &:active {
     transform: translateY(0);
   }
+
+  &.noHoverTransform {
+    &:hover {
+      transform: none;
+    }
+
+    &:active {
+      transform: none;
+    }
+  }
 }
 
 .effectLayer {

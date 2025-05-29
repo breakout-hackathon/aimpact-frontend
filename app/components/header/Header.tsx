@@ -93,11 +93,7 @@ export function Header() {
           </>
         )}
 
-        <ClientOnly>
-          {() => {
-            return <CustomWalletButton />;
-          }}
-        </ClientOnly>
+        <ClientOnly>{() => <CustomWalletButton />}</ClientOnly>
       </div>
     </header>
   );
