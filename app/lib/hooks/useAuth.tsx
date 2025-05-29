@@ -90,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               nonce,
               signedMessage: signature,
               walletAddress: publicKey.toBase58(),
+              inviteCode: localStorage.getItem('refCode') || null,
             }),
             method: 'POST',
           });
