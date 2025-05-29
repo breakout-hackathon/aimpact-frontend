@@ -10,6 +10,8 @@ interface UserInfo {
   id: string;
   wallet: string;
   messagesLeft: number;
+  inviteCode: string;
+  discountPercent: number;
 }
 
 type AuthContextType = {
