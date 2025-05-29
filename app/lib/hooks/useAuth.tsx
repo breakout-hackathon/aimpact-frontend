@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkCreds = async () => {
       if (connected && isAuthorized) {
-        console.log('exit');
         return;
       }
 
@@ -78,7 +77,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const rawSignature = await signMessage(new TextEncoder().encode(message));
           const signature = bs58.encode(rawSignature);
-          console.log(message, signature.toString(), publicKey.toBase58());
 
           // backend /api/login logic
           const response = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/loginWithWallet`, {

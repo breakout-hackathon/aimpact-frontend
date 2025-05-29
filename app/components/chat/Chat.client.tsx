@@ -575,9 +575,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
             setInput(input);
             scrollTextArea();
           },
-          model,
-          provider,
-          apiKeys,
         );
       }}
       uploadedFiles={uploadedFiles}

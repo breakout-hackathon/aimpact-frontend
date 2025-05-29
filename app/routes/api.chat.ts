@@ -12,8 +12,9 @@ import { WORK_DIR } from '~/utils/constants';
 import { createSummary } from '~/lib/.server/llm/create-summary';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 
-const defaultAPiKeys = {
+const defaultApiKeys = {
   OpenAI: process.env.OPENAI_API_KEY as string,
+  Anthropic: process.env.ANTHROPIC_API_KEY as string,
 };
 
 const providersSetings = {
@@ -49,7 +50,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   messages = messages.slice(-2);
 
   // const cookieHeader = request.headers.get('Cookie');
-  const apiKeys: Record<string, string> = defaultAPiKeys; // JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
+  const apiKeys: Record<string, string> = defaultApiKeys; // JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
   const providerSettings: Record<string, IProviderSetting> = providersSetings;
 
   const stream = new SwitchableStream();

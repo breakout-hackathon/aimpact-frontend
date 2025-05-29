@@ -36,6 +36,7 @@ import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { useStore } from '@nanostores/react';
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import Footer from '../footer/Footer.client';
+import HowItWorksButton from './HowItWorksButton';
 
 const TEXTAREA_MIN_HEIGHT = 95;
 

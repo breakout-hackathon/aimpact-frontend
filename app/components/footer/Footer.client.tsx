@@ -12,7 +12,6 @@ interface FooterProps {
 export default function Footer({ positionClass }: FooterProps) {
   const [custIsOpen, setCustIsOpen] = useState(false);
   const custHandleToggle = () => {
-    console.log(custIsOpen);
     setCustIsOpen(!custIsOpen);
   }
 
