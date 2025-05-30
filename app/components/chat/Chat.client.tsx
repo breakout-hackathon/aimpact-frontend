@@ -560,7 +560,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
         <p className='text-left'>
         You can use the service if you want to, but be ready, it's not in production at the moment.
 After launch, all users will have some free messages and also, there will be quests to get more free ones. <br /> <br />
-At the moment, we removed free messages temporarily, so the service does not get abused while we are not launched, but feel free to buy some if you want to start early.
+At the moment, we removed free messages temporarily, so the service does not get abused while we are not launched, but feel free to buy some if you want to start early and support us.
 Follow our <a href='https://x.com/ostolex' target='_blank' className='underline'>Twitter</a> to be updated on our launch and other news.
         </p>
       </Popup>
