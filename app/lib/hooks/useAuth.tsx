@@ -129,6 +129,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [publicKey, connected, signMessage, disconnect]);
 
   useEffect(() => {
+    if (!connected && isAuthorized) {
+      Cookies.remove('authToken');
+      setIsAuthorized(false);
+      setJwtToken('');
+      userInfo.set(undefined);
+    }
+  }, [connected, isAuthorized]);
+
+  useEffect(() => {
     const req = async () => {
       const authToken = Cookies.get('authToken');
 
@@ -160,9 +169,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [connected, isAuthorized]);
 
   const handleDisconnect = async () => {
+    console.log('🔌 Manual disconnect triggered');
+    const tokenBefore = Cookies.get('authToken');
+    console.log('📋 Token before manual disconnect:', tokenBefore ? 'exists' : 'not found');
+    
     Cookies.remove('authToken');
     setIsAuthorized(false);
+    setJwtToken('');
     userInfo.set(undefined);
+    
+    const tokenAfter = Cookies.get('authToken');
+    console.log('✅ Token after manual disconnect:', tokenAfter ? 'still exists (ERROR)' : 'cleared successfully');
+    
     await disconnect();
   };
 
