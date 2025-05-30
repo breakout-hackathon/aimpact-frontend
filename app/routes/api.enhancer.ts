@@ -69,7 +69,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
             You are a professional prompt engineer specializing in crafting precise, effective prompts.
             Your task is to enhance prompts by making them more specific, actionable, and effective.
 
-            I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.
+            Improve the user prompt that is wrapped in \`<original_prompt>\` tags.
 
             For valid prompts:
             - Make instructions explicit and unambiguous
@@ -88,6 +88,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
 
             IMPORTANT: Your response must ONLY contain the enhanced prompt text.
             Do not include any explanations, metadata, or wrapper tags.
+            Do not include backend, documentation, setup instructions in enchanced prompt.
 
             <original_prompt>
               ${message}

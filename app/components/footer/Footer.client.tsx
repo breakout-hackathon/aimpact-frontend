@@ -1,18 +1,21 @@
-import { workbenchStore } from "~/lib/stores/workbench";
 import { IconButton } from "../ui";
-import { useStore } from "@nanostores/react";
 import { useState } from "react";
-import CustDevPopup from "./CustDevPopup";
 import { classNames } from "~/utils/classNames";
+import Popup from "../common/Popup";
 
 interface FooterProps {
   positionClass?: string;
 }
 
 export default function Footer({ positionClass }: FooterProps) {
-  const [custIsOpen, setCustIsOpen] = useState(false);
+  const [custOpen, setCustOpen] = useState(false);
+  const [bountyOpen, setBountyOpen] = useState(false);
   const custHandleToggle = () => {
-    setCustIsOpen(!custIsOpen);
+    setCustOpen(!custOpen);
+  }
+
+  const bountyHandleToggle = () => {
+    setBountyOpen(!bountyOpen);
   }
 
   return (
@@ -22,16 +25,38 @@ export default function Footer({ positionClass }: FooterProps) {
     )}>
       {/* Bug bounty button and Cast-Dev popup  */}
       <div className="relative w-full flex justify-between items-center">
-        <div className="flex flex-col gap-2">
-          <a href="https://forms.gle/RQs67LKavBFiP1JL8" target="_blank">
-            <IconButton className="text-4xl">
-              <div className="i-bolt:bugbounty text-gray-400 hover:text-purple-400"></div>
-            </IconButton>
-          </a>
+        <div className="flex flex-col gap-2" onClick={bountyHandleToggle}>
+          <IconButton className="text-4xl">
+            <div className="i-bolt:bugbounty text-gray-400 hover:text-purple-400"></div>
+          </IconButton>
+          {bountyOpen && 
+            <Popup isShow={bountyOpen} handleToggle={bountyHandleToggle}>
+              <h3 className="text-2xl font-bold mb-4">Found a bug? Fill the form</h3>
+              <a 
+                target="_blank" 
+                href="https://forms.gle/RQs67LKavBFiP1JL8"
+                className="underline font-medium text-xl hover:text-gray-200"
+              >
+                Bug bounty form
+              </a>
+            </Popup>
+          }
+
           <IconButton className="text-4xl" onClick={custHandleToggle}>
             <div className="i-bolt:custdev text-gray-400 hover:text-purple-400" />
           </IconButton>
-          {custIsOpen && <CustDevPopup handleToggle={custHandleToggle} />}
+          {custOpen && 
+            <Popup isShow={custOpen} handleToggle={custHandleToggle}>
+              <h3 className="text-2xl font-bold mb-4">Let’s discuss how you are using AImpact to make it better</h3>
+              <a
+                href="https://calendly.com/kostiantyn-aimpact/30min"
+                target="_blank"
+                className="underline font-medium text-xl hover:text-gray-200"
+              >
+                Schedule call
+              </a>
+            </Popup>
+          }
         </div>
 
         <div className="flex gap-2 text-4xl margin-0 p-0 flex-col">
@@ -41,7 +66,7 @@ export default function Footer({ positionClass }: FooterProps) {
             </IconButton>
           </a>
 
-          <a href="https://discord.gg/bRXXS9cE" target="_blank" className="margin-0 p-0">
+          <a href="https://discord.gg/MFTPPm3gwY" target="_blank" className="margin-0 p-0">
             <IconButton>
               <div className="i-ph:discord-logo text-gray-400 hover:text-purple-400 text-4xl" />
             </IconButton>

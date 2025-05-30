@@ -558,7 +558,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       <Popup isShow={showPopup} handleToggle={handleClosePopup}>
         <h3 className='text-2xl font-bold mb-4'>You are using AImpact v0.01</h3>
         <p className='text-left'>
-        <br /> <br />
+        <br />
         You can use the service if you want to, but be ready, it's not in production at the moment.
 After launch, all users will have some free messages and also, there will be quests to get more free ones. 
 <br /> <br />
