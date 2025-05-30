@@ -10,12 +10,13 @@ import { useNavigate } from '@remix-run/react';
 import { Button } from '@/components/ui/Button';
 import { useProjectsQuery } from 'query/use-project-query';
 import Footer from '~/components/footer/Footer.client';
+import { useAuth } from '~/lib/hooks/useAuth';
 
 export default function Home() {
   const navigate = useNavigate();
-  const projectsQuery = useProjectsQuery();
+  const auth = useAuth();
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [filter, setFilter] = useState<'all' | 'my'>('all');
+  const [filter, setFilter] = useState<'all' | 'owned'>(auth && auth.isAuthorized ? 'owned' : 'all');
 
   const endTriggerRef = useRef(null);
   const [isFooterFixed, setIsFooterFixed] = useState(true);
@@ -68,6 +69,7 @@ export default function Home() {
                 >
                   <Plus className="w-6 h-6" /> Build a new app
                 </Button>
+                { auth && auth.isAuthorized &&
                 <div className="absolute right-0 flex items-center">
                   <span className={`mr-3 text-sm font-medium ${filter === 'all' ? 'text-white' : 'text-gray-400'}`}>
                     All Projects
@@ -75,29 +77,30 @@ export default function Home() {
                   <button
                     type="button"
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-0 focus:ring-offset-0 ${
-                      filter === 'my' ? 'bg-[#9987EE]' : 'bg-gray-600'
+                      filter === 'owned' ? 'bg-[#9987EE]' : 'bg-gray-600'
                     }`}
-                    onClick={() => setFilter(filter === 'all' ? 'my' : 'all')}
+                    onClick={() => setFilter(filter === 'all' ? 'owned' : 'all')}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        filter === 'my' ? 'translate-x-6' : 'translate-x-1'
+                        filter === 'owned' ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
                   </button>
-                  <span className={`ml-3 text-sm font-medium ${filter === 'my' ? 'text-white' : 'text-gray-400'}`}>
+                  <span className={`ml-3 text-sm font-medium ${filter === 'owned' ? 'text-white' : 'text-gray-400'}`}>
                     My Projects
                   </span>
                 </div>
+                }
               </div>
             </div>
           </motion.div>
-          {projectsQuery.isSuccess && <ProjectGrid filter={filter} />}
+          <ProjectGrid filter={filter} />
         </div>
         <Footer positionClass={isFooterFixed ? 'fixed bottom-0 left-0 w-full' : 'absolute bottom-0 left-0 w-full'} />
         <div ref={endTriggerRef} className="h-[1px] w-full absolute bottom-0" />
       </section>
-      
+
 
       {/* Second footer */}
       <footer className="bg-black/50 border-t border-white/10 py-6">
