@@ -33,6 +33,7 @@ import { logStore } from '~/lib/stores/logs';
 import { streamingState } from '~/lib/stores/streaming';
 import { filesToArtifacts } from '~/utils/fileUtils';
 import { supabaseConnection } from '~/lib/stores/supabase';
+import Popup from '../common/Popup';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -137,6 +138,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   );
   const supabaseAlert = useStore(workbenchStore.supabaseAlert);
   const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
+  const [showPopup, setShowPopup] = useState(false);
 
   /*
    * console.log(`Auto select template: ${autoSelectTemplate}`)
@@ -255,8 +257,30 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
 
+  const setPopupShowTime = () => {
+    localStorage.setItem("lastPopupShow", Date.now().toString());
+  }
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  }
+
   useEffect(() => {
     chatStore.setKey('started', initialMessages.length > 0);
+
+    const rawLastTime = localStorage.getItem("lastPopupShow");
+    const lastTime = rawLastTime ? parseInt(rawLastTime, 10) : NaN;
+    if (isNaN(lastTime)) {
+      setPopupShowTime();
+      setShowPopup(true);
+    }
+
+    const cooldown = 60 * 30 * 1000
+    const expectedTime = lastTime + cooldown;
+    if (expectedTime < Date.now()) {
+      setPopupShowTime();
+      setShowPopup(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -530,65 +554,76 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   };
 
   return (
-    <BaseChat
-      ref={animationScope}
-      textareaRef={textareaRef}
-      input={input}
-      showChat={showChat}
-      chatStarted={chatStarted}
-      isStreaming={isLoading || fakeLoading}
-      onStreamingChange={(streaming) => {
-        streamingState.set(streaming);
-      }}
-      enhancingPrompt={enhancingPrompt}
-      promptEnhanced={promptEnhanced}
-      sendMessage={sendMessage}
-      model={model}
-      setModel={handleModelChange}
-      provider={provider}
-      setProvider={handleProviderChange}
-      providerList={activeProviders}
-      handleInputChange={(e) => {
-        onTextareaChange(e);
-        debouncedCachePrompt(e);
-      }}
-      handleStop={abort}
-      /*
-       * description={description}
-       * importChat={importChat}
-       * exportChat={exportChat}
-       */
-      messages={messages.map((message, i) => {
-        if (message.role === 'user') {
-          return message;
-        }
+    <>
+      <Popup isShow={showPopup} handleToggle={handleClosePopup}>
+        <h3 className='text-2xl font-bold mb-4'>You are using AImpact v0.01</h3>
+        <p className='text-left'>
+        You can use the service if you want to, but be ready, it's not in production at the moment.
+After launch, all users will have some free messages and also, there will be quests to get more free ones. <br /> <br />
+At the moment, we removed free messages temporarily, so the service does not get abused while we are not launched, but feel free to buy some if you want to start early.
+Follow our <a href='https://x.com/ostolex' target='_blank' className='underline'>Twitter</a> to be updated on our launch and other news.
+        </p>
+      </Popup>
+      <BaseChat
+        ref={animationScope}
+        textareaRef={textareaRef}
+        input={input}
+        showChat={showChat}
+        chatStarted={chatStarted}
+        isStreaming={isLoading || fakeLoading}
+        onStreamingChange={(streaming) => {
+          streamingState.set(streaming);
+        }}
+        enhancingPrompt={enhancingPrompt}
+        promptEnhanced={promptEnhanced}
+        sendMessage={sendMessage}
+        model={model}
+        setModel={handleModelChange}
+        provider={provider}
+        setProvider={handleProviderChange}
+        providerList={activeProviders}
+        handleInputChange={(e) => {
+          onTextareaChange(e);
+          debouncedCachePrompt(e);
+        }}
+        handleStop={abort}
+        /*
+        * description={description}
+        * importChat={importChat}
+        * exportChat={exportChat}
+        */
+        messages={messages.map((message, i) => {
+          if (message.role === 'user') {
+            return message;
+          }
 
-        return {
-          ...message,
-          content: parsedMessages[i] || '',
-        };
-      })}
-      enhancePrompt={() => {
-        enhancePrompt(
-          input,
-          (input) => {
-            setInput(input);
-            scrollTextArea();
-          },
-        );
-      }}
-      uploadedFiles={uploadedFiles}
-      setUploadedFiles={setUploadedFiles}
-      imageDataList={imageDataList}
-      setImageDataList={setImageDataList}
-      actionAlert={actionAlert}
-      clearAlert={() => workbenchStore.clearAlert()}
-      supabaseAlert={supabaseAlert}
-      clearSupabaseAlert={() => workbenchStore.clearSupabaseAlert()}
-      deployAlert={deployAlert}
-      clearDeployAlert={() => workbenchStore.clearDeployAlert()}
-      data={chatData}
-      showWorkbench={showWorkbench}
-    />
+          return {
+            ...message,
+            content: parsedMessages[i] || '',
+          };
+        })}
+        enhancePrompt={() => {
+          enhancePrompt(
+            input,
+            (input) => {
+              setInput(input);
+              scrollTextArea();
+            },
+          );
+        }}
+        uploadedFiles={uploadedFiles}
+        setUploadedFiles={setUploadedFiles}
+        imageDataList={imageDataList}
+        setImageDataList={setImageDataList}
+        actionAlert={actionAlert}
+        clearAlert={() => workbenchStore.clearAlert()}
+        supabaseAlert={supabaseAlert}
+        clearSupabaseAlert={() => workbenchStore.clearSupabaseAlert()}
+        deployAlert={deployAlert}
+        clearDeployAlert={() => workbenchStore.clearDeployAlert()}
+        data={chatData}
+        showWorkbench={showWorkbench}
+      />
+    </>
   );
 });

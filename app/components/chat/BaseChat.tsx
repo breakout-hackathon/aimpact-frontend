@@ -36,7 +36,7 @@ import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { useStore } from '@nanostores/react';
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import Footer from '../footer/Footer.client';
-import HowItWorksButton from './HowItWorksButton';
+import { useAuth } from '~/lib/hooks/useAuth';
 
 const TEXTAREA_MIN_HEIGHT = 95;
 
@@ -128,6 +128,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const expoUrl = useStore(expoUrlAtom);
     const [qrModalOpen, setQrModalOpen] = useState(false);
 
+    const { isAuthorized } = useAuth();
+
     useEffect(() => {
       if (expoUrl) {
         setQrModalOpen(true);
@@ -200,7 +202,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           .then((data) => {
             const typedData = data as { modelList: ModelInfo[] };
             setModelList(typedData.modelList);
-            console.log(typedData.modelList);
+            // console.log(typedData.modelList);
           })
           .catch((error) => {
             console.error('Error fetching model list:', error);
@@ -251,6 +253,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     };
 
     const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
+      console.log("HANDLE SEND MESSAGE")
+      if (!isAuthorized) {
+        toast.error("You cannot use chat. Connect your wallet and log in.");
+        return;
+      }
+      
       if (sendMessage) {
         sendMessage(event, messageInput);
 

@@ -45,6 +45,7 @@ export default function getMessagesButton() {
 
               <div className="px-4 py-5 sm:p-6 bg-bolt-elements-background bg-bolt-elements-background-depth-3 text-center">
                 <h3 className="text-2xl font-bold mb-4">Free messages quest</h3>
+                <p><b>Comming soon...</b></p>
               </div>
             </div>
           </div>

@@ -49,6 +49,9 @@ export function useFetch<T = any>() {
         }
 
         headers.set('Authorization', `Bearer ${authToken}`);
+        if (!headers.get('Accep')) {
+          headers.set('Accept', 'application/json');
+        }
 
         const response = await fetch(url, {
           ...fetchOptions,
@@ -70,6 +73,9 @@ export function useFetch<T = any>() {
         }
         
         let rawData = await response.text();
+        if (!rawData) {
+          return rawData as T;
+        }
         // const data = (await response.json()) as T;
         const data = JSON.parse(rawData) as T;
         setState({ data, error: null, loading: false });

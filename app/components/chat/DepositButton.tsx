@@ -124,27 +124,6 @@ export default function DepositButton() {
                         {isSubmitting ? 'Processing...' : 'Purchase Now'}
                       </div>
                     </button>
-
-                    <p>or</p>
-
-                    <button
-                      className={classNames(
-                        'relative overflow-hidden w-full px-6 py-3 text-lg font-medium text-white rounded-md',
-                        'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500',
-                        'disabled:opacity-50 disabled:cursor-not-allowed',
-                        'transition-all duration-300',
-                        waterStyles.waterButton,
-                        waterStyles.green,
-                      )}
-                    >
-                      <div className={waterStyles.effectLayer}>
-                        <div className={waterStyles.waterDroplets}></div>
-                        <div className={waterStyles.waterSurface}></div>
-                      </div>
-                      <div className={waterStyles.buttonContent}>
-                        Get Free Messages!
-                      </div>
-                    </button>
                   </div>
                 </div>
               </div>

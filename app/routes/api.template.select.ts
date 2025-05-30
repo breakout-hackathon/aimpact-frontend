@@ -132,6 +132,20 @@ async function templateSelectAction({ context, request }: ActionFunctionArgs) {
 
       logger.info(`Generating response Provider: ${provider.name}, Model: ${modelDetails.name}`);
       logger.info(`Messages:` + `System: ${systemPrompt}` + `User message: ${message}`);
+      
+//       return new Response(JSON.stringify({
+//         text: `<selection>
+//   <templateName>vite-react-app</templateName>
+//   <title>Simple React todo application</title>
+// </selection>`
+//       }),
+//       {
+//         status: 200,
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//       }
+//     );
 
       const result = await generateText({
         system: systemPrompt,
