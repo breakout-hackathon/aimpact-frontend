@@ -129,6 +129,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [publicKey, connected, signMessage, disconnect]);
 
   useEffect(() => {
+    if (!connected && isAuthorized) {
+      Cookies.remove('authToken');
+      setIsAuthorized(false);
+      setJwtToken('');
+      userInfo.set(undefined);
+    }
+  }, [connected, isAuthorized]);
+
+  useEffect(() => {
     const req = async () => {
       const authToken = Cookies.get('authToken');
 
@@ -162,6 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleDisconnect = async () => {
     Cookies.remove('authToken');
     setIsAuthorized(false);
+    setJwtToken('');
     userInfo.set(undefined);
     await disconnect();
   };
