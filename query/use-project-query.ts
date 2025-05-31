@@ -12,12 +12,23 @@ export type Project = {
   updatedAt: Date;
 };
 
-export const useProjectsQuery = () => {
+export const useProjectsQuery = (ownership: 'all' | 'owned', sortBy: 'createdAt' | 'updatedAt' | 'name', sortDirection: 'ASC' | 'DESC', jwtToken?: string) => {
   return useQuery<Project[]>({
     initialData: [],
     queryKey: ['projects'],
     queryFn: async () => {
-      const res = await ky.get('projects');
+      const requestHeaders: Record<string, string> = {};
+      if (jwtToken) {
+        requestHeaders['Authorization'] = `Bearer ${jwtToken}`;
+      }
+      const res = await ky.get('projects', {
+        searchParams: {
+          ownership,
+          sortBy,
+          sortOrder: sortDirection,
+        },
+        headers: requestHeaders
+      })
       const data = await res.json<Project[]>();
 
       if (!res.ok) {
