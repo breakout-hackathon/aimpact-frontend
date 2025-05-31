@@ -12,7 +12,7 @@ interface NavBarProps {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
+const Navbar = () => {
   const { scrollY } = useScroll();
   const backgroundColor = useTransform(scrollY, [0, 100], ['rgba(20, 20, 20, 0)', 'rgba(20, 20, 20, 0.8)']);
 

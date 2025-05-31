@@ -1,6 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const RefCodeContext = createContext<string | undefined>(undefined);
+interface RefCodeContextType {
+  refCode: string | undefined;
+}
+
+const RefCodeContext = createContext<RefCodeContextType | undefined>(undefined);
 
 export function RefCodeProvider({ children }: { children: React.ReactNode }) {
   const [refCode, setRefCode] = useState<string | undefined>(undefined);
@@ -29,11 +33,12 @@ export function RefCodeProvider({ children }: { children: React.ReactNode }) {
   }, []);
   
   return (
-    <RefCodeContext.Provider value={refCode}>
+    <RefCodeContext.Provider value={{ refCode }}>
       {children}
     </RefCodeContext.Provider>
   );
 }
+
 export function useRefCode() {
   const context = useContext(RefCodeContext);
 
