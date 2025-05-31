@@ -5,7 +5,7 @@ import ProjectCard from '@/components/dashboard/project-card';
 import { motion } from 'framer-motion';
 import { useProjectsQuery } from 'query/use-project-query';
 import { useAuth } from '~/lib/hooks/useAuth';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface ProjectGridProps {
