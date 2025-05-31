@@ -9,7 +9,7 @@ import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react';
 import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/persistence';
 import { toast, type Id as ToastId } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
-import { useGetDeploy, usePostDeploy } from '~/lib/hooks/useDeploy';
+import { useGetDeploy, usePostDeploy } from '~/lib/hooks/tanstack/useDeploy';
 
 interface HeaderActionButtonsProps {}
 
