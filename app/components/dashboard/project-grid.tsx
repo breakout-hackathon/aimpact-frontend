@@ -4,16 +4,25 @@ import type { Project } from '@/types/project';
 import ProjectCard from '@/components/dashboard/project-card';
 import { motion } from 'framer-motion';
 import { useProjectsQuery } from 'query/use-project-query';
+import { useAuth } from '~/lib/hooks/useAuth';
+import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ProjectGridProps {
   projects?: Project[];
   isLoading?: boolean;
   error?: string;
-  filter?: 'all' | 'my';
+  filter?: 'all' | 'owned';
 }
 
 const ProjectGrid = ({ filter = 'all' }: ProjectGridProps) => {
-  const projectsQuery = useProjectsQuery();
+  const auth = useAuth();
+  const queryClient = useQueryClient()
+  const projectsQuery = useProjectsQuery(filter, 'createdAt', 'DESC', auth.jwtToken);
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['projects'] })
+  }, [filter]);
 
   if (projectsQuery.isLoading) {
     return (
@@ -67,49 +76,24 @@ const ProjectGrid = ({ filter = 'all' }: ProjectGridProps) => {
     );
   }
 
-  if (!projectsQuery.data || projectsQuery.data.length === 0) {
+
+  const projects = projectsQuery.data;
+
+  if (!projects || projects.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-muted rounded-lg p-10 text-center">
         <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
         <p className="text-muted-foreground">
-          {filter === 'my'
-            ? "You haven't created any projects yet."
+          {filter === 'owned'
+            ? "You haven't created any projects yet. Press 'Build a new app' to get started or change the filter to view all projects."
             : 'There are currently no blockchain projects to display.'}
         </p>
       </motion.div>
     );
   }
-
-  // Filter projects based on the selected filter
-  const filteredProjects =
-    filter === 'my'
-      ? projectsQuery.data.filter((project) => {
-          /*
-           * TODO: Replace with actual user address check once authentication is implemented
-           * For now, we'll return all projects
-           */
-          return true;
-        })
-      : projectsQuery.data;
-
-  if (filter === 'my' && filteredProjects.length === 0) {
-    return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-muted rounded-lg p-10 text-center">
-        <h3 className="text-lg font-medium mb-2">No Projects Found</h3>
-        <p className="text-muted-foreground">You haven't created any projects yet.</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-        >
-          Refresh
-        </button>
-      </motion.div>
-    );
-  }
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {filteredProjects.map((project, index) => (
+      {projects.map((project, index) => (
         <ProjectCard key={project.id} project={project} index={index} />
       ))}
     </div>
