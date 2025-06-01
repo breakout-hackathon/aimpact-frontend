@@ -103,13 +103,13 @@ const processSampledMessages = createSampler(
     storeMessageHistory: (messages: Message[]) => Promise<void>;
   }) => {
     const { messages, initialMessages, isLoading, parseMessages, storeMessageHistory } = options;
-    parseMessages(messages, isLoading);
-
+    
     if (messages.length > initialMessages.length) {
+      parseMessages(messages, isLoading);
       storeMessageHistory(messages).catch((error) => toast.error(error.message));
     }
   },
-  50,
+  1000,
 );
 
 interface ChatProps {
