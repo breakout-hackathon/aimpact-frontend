@@ -8,7 +8,6 @@ import DepositButton from '../chat/DepositButton';
 import { useWallet } from '@solana/wallet-adapter-react';
 import CustomWalletButton from '../common/CustomWalletButton';
 import React, {
-  useEffect,
   type CSSProperties,
   type PropsWithChildren,
   type ReactElement,
@@ -73,16 +72,16 @@ export function Header() {
         </>
       ) : (
         <div className='flex items-center justify-center'>
-          
+
         </div>
       )}
-      <div className="flex justify-center items-center gap-2.5">        
+      <div className="flex justify-center items-center gap-2.5">
         {connected && user && (
           <>
             <div className="whitespace-nowrap text-base font-medium text-bolt-elements-textPrimary bg-bolt-elements-background rounded-md border border-bolt-elements-borderColor px-4 py-2">
               {user.messagesLeft} message{user.messagesLeft === 1 ? '' : 's'} left
             </div>
-          
+
             <ClientOnly>
               {() => {
                 return connected && <DepositButton />;
