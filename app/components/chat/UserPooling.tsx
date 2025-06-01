@@ -13,7 +13,7 @@ function UserPoolingPopup() {
 }
 
 export default function UserPooling() {
-  const [showNPS, setShowNPS] = useState(true);
+  const [showNPS, setShowNPS] = useState(false);
   const [showPMF, setShowPMF] = useState(false);
   const { mutateAsync: postNPS } = usePostNPS();
 
