@@ -14,6 +14,7 @@ import { useAuth } from '~/lib/hooks/useAuth';
 export default function Home() {
   const navigate = useNavigate();
   const auth = useAuth();
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [filter, setFilter] = useState<'all' | 'owned'>(auth && auth.isAuthorized ? 'owned' : 'all');
 
   const endTriggerRef = useRef(null);
@@ -44,7 +45,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black">
-      <Navbar />
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <section id="projects" className="py-16 md:py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -98,6 +99,7 @@ export default function Home() {
         <Footer positionClass={isFooterFixed ? 'fixed bottom-0 left-0 w-full' : 'absolute bottom-0 left-0 w-full'} />
         <div ref={endTriggerRef} className="h-[1px] w-full absolute bottom-0" />
       </section>
+
 
       {/* Second footer */}
       <footer className="bg-black/50 border-t border-white/10 py-6">
