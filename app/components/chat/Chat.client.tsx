@@ -411,7 +411,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
                 id: `3-${new Date().getTime()}`,
                 role: 'user',
                 content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${userMessage}`,
-                annotations: ['hidden'],
+                annotations: ['hidden', 'no-store'],
               },
             ]);
             reload();
