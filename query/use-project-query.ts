@@ -12,6 +12,10 @@ export type Project = {
   updatedAt: Date;
 };
 
+export type ProjectWithOwner = Project & {
+  projectOwnerAddress: string;
+};
+
 export const useProjectsQuery = (ownership: 'all' | 'owned', sortBy: 'createdAt' | 'updatedAt' | 'name', sortDirection: 'ASC' | 'DESC', jwtToken?: string) => {
   return useQuery<Project[]>({
     initialData: [],
@@ -33,6 +37,28 @@ export const useProjectsQuery = (ownership: 'all' | 'owned', sortBy: 'createdAt'
 
       if (!res.ok) {
         throw new Error('Not found projects');
+      }
+
+      return data;
+    },
+  });
+};
+
+export const useProjectQuery = (id: string) => {
+  return useQuery<ProjectWithOwner | null>({
+    initialData: null,
+    queryKey: ['project', id],
+    queryFn: async () => {
+      const requestHeaders: Record<string, string> = {};
+      const res = await ky.get(`projects/${id}`, { headers: requestHeaders });
+      const data = await res.json<ProjectWithOwner>();
+
+      if (res.status === 404) {
+        throw new Error('Not found project');
+      }
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch project');
       }
 
       return data;
