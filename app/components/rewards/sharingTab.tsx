@@ -2,20 +2,27 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Button } from '../ui/Button';
 import { classNames } from '~/utils/classNames';
-import { type WithdrawRewardsResponse } from '~/lib/api-hooks/useRewardsApi';
+import { useRewardsApi, type WithdrawRewardsResponse } from '~/lib/api-hooks/useRewardsApi';
 
 interface SharingTabProps {
     availableRewards: number;
     totalEarnedRewards: number;
     transactions: WithdrawRewardsResponse[];
+    isWithdrawing: boolean;
+    isBuyingMessages: boolean;
+    setIsWithdrawing: (isWithdrawing: boolean) => void;
+    setIsBuyingMessages: (isBuyingMessages: boolean) => void;
 }
 
-export default function SharingTab({ transactions, availableRewards, totalEarnedRewards }: SharingTabProps) {
-    const [isWithdrawing, setIsWithdrawing] = useState(false);
+const MINIMUM_WITHDRAWAL_AMOUNT = Number(import.meta.env.VITE_PRICE_PER_MESSAGE_IN_SOL) * 10;
+
+export default function SharingTab({ transactions, availableRewards, totalEarnedRewards, isWithdrawing, isBuyingMessages, setIsWithdrawing, setIsBuyingMessages }: SharingTabProps) {
+    const { withdrawRewards, buyMessagesForRewards } = useRewardsApi();
 
     const handleWithdraw = async () => {
         setIsWithdrawing(true);
         try {
+            await withdrawRewards();
             toast.success('Withdrawal successful!');
         } catch (error) {
             toast.error('Withdrawal failed. Please try again.');
@@ -25,42 +32,62 @@ export default function SharingTab({ transactions, availableRewards, totalEarned
         }
     };
 
+    const handleBuyMessages = async () => {
+        setIsBuyingMessages(true);
+        try {
+            await buyMessagesForRewards();
+            toast.success('Messages bought successfully!');
+        } catch (error) {
+            toast.error('Failed to buy messages. Please try again.');
+            console.error('Buy messages error:', error);
+        } finally {
+            setIsBuyingMessages(false);
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Rewards Summary */}
             <div className="bg-gray-800 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">Your Rewards</h2>
+                <h2 className="text-xl font-semibold text-white mb-4">Your rewards</h2>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-700 rounded-lg p-4">
-                        <p className="text-gray-400 text-sm">Available Rewards</p>
+                        <p className="text-gray-400 text-sm">Available rewards</p>
                         <p className="text-2xl font-bold text-white">{availableRewards || 0} SOL</p>
                     </div>
                     <div className="bg-gray-700 rounded-lg p-4">
-                        <p className="text-gray-400 text-sm">Total Earned</p>
+                        <p className="text-gray-400 text-sm">Total earned</p>
                         <p className="text-2xl font-bold text-white">{totalEarnedRewards || 0} SOL</p>
                     </div>
                 </div>
             </div>
 
+            {/* Info Text */}
+            <p className="text-center text-gray-300">
+                You can purchase <span className="font-semibold text-white">20 messages (x2 bonus)</span> for <span className="font-semibold text-white">0.03 SOL</span> or withdraw your rewards to your wallet starting from <span className="font-semibold text-white">0.03 SOL</span>.
+            </p>
+
             {/* Action Buttons */}
             <div className="flex gap-4">
                 <Button
                     onClick={handleWithdraw}
-                    disabled={isWithdrawing}
+                    disabled={availableRewards <= MINIMUM_WITHDRAWAL_AMOUNT || isWithdrawing || isBuyingMessages}
                     className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
                 >
-                    {isWithdrawing ? 'Withdrawing...' : 'Withdraw Rewards'}
+                    {isWithdrawing ? 'Withdrawing...' : 'Withdraw rewards'}
                 </Button>
                 <Button
+                    onClick={handleBuyMessages}
+                    disabled={availableRewards <= MINIMUM_WITHDRAWAL_AMOUNT || isWithdrawing || isBuyingMessages}
                     className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors"
                 >
-                    Buy Messages
+                    Buy messages
                 </Button>
             </div>
 
             {/* Transaction History */}
             <div className="bg-gray-800 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">Withdrawal History</h2>
+                <h2 className="text-xl font-semibold text-white mb-4">Withdrawal history</h2>
                 <div className="space-y-4">
                     {transactions.length ? transactions.map((tx) => (
                         <a

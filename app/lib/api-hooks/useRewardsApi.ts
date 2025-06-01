@@ -20,13 +20,9 @@ interface ReferralsCountResponse {
 export const useRewardsApi = () => {
     const { fetchDataAuthorized } = useFetch();
 
-    const buyMessagesForRewards = async (amount: number): Promise<BuyMessagesForRewardsResponse> => {
+    const buyMessagesForRewards = async (): Promise<BuyMessagesForRewardsResponse> => {
         return fetchDataAuthorized(`${host}/billing/buy-for-rewards`, {
-            method: "POST",
-            body: JSON.stringify({ amount }),
-            headers: {
-                "Content-Type": "application/json",
-            },
+            method: "POST"
         }) as Promise<BuyMessagesForRewardsResponse>;
     }
 

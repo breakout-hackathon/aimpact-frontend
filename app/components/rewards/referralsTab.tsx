@@ -38,7 +38,7 @@ export default function ReferralsTab({ referralsCount, refCode }: ReferralsTabPr
 
             {/* Stats Section */}
             <div className="bg-gray-800 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">Referral Stats</h2>
+                <h2 className="text-xl font-semibold text-white mb-4">Referral stats</h2>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-700 rounded-lg p-4">
                         <p className="text-gray-400 text-sm">My referrals</p>

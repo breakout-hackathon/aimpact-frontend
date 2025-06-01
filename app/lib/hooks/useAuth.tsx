@@ -13,6 +13,8 @@ interface UserInfo {
   inviteCode: string;
   discountPercent: number;
   referralsRewards: number;
+  totalEarnedRewards: number;
+  claimedFreeMessages: boolean;
 }
 
 type AuthContextType = {
