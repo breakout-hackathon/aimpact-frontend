@@ -37,6 +37,8 @@ import { useStore } from '@nanostores/react';
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import Footer from '../footer/Footer.client';
 import { useAuth } from '~/lib/hooks/useAuth';
+import { userInfo } from '~/lib/hooks/useAuth';
+import CustomWalletButton from '../common/CustomWalletButton';
 
 const TEXTAREA_MIN_HEIGHT = 95;
 
@@ -129,6 +131,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [qrModalOpen, setQrModalOpen] = useState(false);
 
     const { isAuthorized } = useAuth();
+    const userInfoData = useStore(userInfo);
+
+    const isDisabled = !isAuthorized || !userInfoData?.messagesLeft;
 
     useEffect(() => {
       if (expoUrl) {
@@ -498,11 +503,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   </ClientOnly>
                   <div
                     className={classNames(
-                      'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
+                      'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg transition-all duration-200',
+                      ...((!isAuthorized || !userInfoData?.messagesLeft) ? ['blur-[2px] pointer-events-none select-none'] : [])
                     )}
                   >
                     <textarea
                       ref={textareaRef}
+                      disabled={isDisabled}
                       className={classNames(
                         'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
                         'transition-all duration-200',
@@ -576,7 +583,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         <SendButton
                           show={input.length > 0 || isStreaming || uploadedFiles.length > 0}
                           isStreaming={isStreaming}
-                          disabled={!providerList || providerList.length === 0}
+                          disabled={!providerList || providerList.length === 0 || isDisabled}
                           onClick={(event) => {
                             if (isStreaming) {
                               handleStop?.();
@@ -597,7 +604,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         </IconButton>
                         <IconButton
                           title="Enhance prompt"
-                          disabled={input.length === 0 || enhancingPrompt}
+                          disabled={input.length === 0 || enhancingPrompt || isDisabled}
                           className={classNames('transition-all', enhancingPrompt ? 'opacity-100' : '')}
                           onClick={() => {
                             enhancePrompt?.();
@@ -615,7 +622,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           isListening={isListening}
                           onStart={startListening}
                           onStop={stopListening}
-                          disabled={isStreaming}
+                          disabled={isStreaming || isDisabled}
                         />
                         {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                         <IconButton
@@ -627,7 +634,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                               !isModelSettingsCollapsed,
                           })}
                           onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
-                          disabled={!providerList || providerList.length === 0}
+                          disabled={!providerList || providerList.length === 0 || isDisabled}
                         >
                           <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
                           {isModelSettingsCollapsed ? (
@@ -650,6 +657,21 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <ExpoQrModal open={qrModalOpen} onClose={() => setQrModalOpen(false)} />
                     </div>
                   </div>
+                  {(!isAuthorized || !userInfoData?.messagesLeft) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-lg z-10">
+                      {
+                        !isAuthorized ? (
+                          <div className="flex flex-col items-center justify-center">
+                            <CustomWalletButton />
+                          </div>
+                        ) : (
+                          <span className="text-white text-sm font-medium text-center px-4">
+                            You have no messages left. Get more to continue chatting.
+                          </span>
+                        )
+                      }
+                    </div>
+                  )}
                 </div>
               </div>
             </StickToBottom>
@@ -661,7 +683,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
               )} */}
               <div className="flex flex-col gap-5">
-                {!chatStarted &&
+                {!chatStarted && !isDisabled &&
                   ExamplePrompts((event, messageInput) => {
                     if (isStreaming) {
                       handleStop?.();
