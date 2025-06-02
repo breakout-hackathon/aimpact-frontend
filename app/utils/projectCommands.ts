@@ -26,6 +26,10 @@ export async function detectProjectCommands(files: FileContent[]): Promise<Proje
     try {
       const packageJson = JSON.parse(packageJsonFile.content);
       const scripts = packageJson?.scripts || {};
+      let packageManager: string = packageJson?.packageManager || "pnpm";
+      console.log(packageManager)
+      packageManager = packageManager.split("@")[0];
+      console.log(packageManager)
 
       // Check for preferred commands in priority order
       const preferredCommands = ['dev', 'start', 'preview'];
@@ -34,15 +38,15 @@ export async function detectProjectCommands(files: FileContent[]): Promise<Proje
       if (availableCommand) {
         return {
           type: 'Node.js',
-          setupCommand: `npm install`,
-          startCommand: `npm run ${availableCommand}`,
+          setupCommand: `${packageManager} install`,
+          startCommand: `${packageManager} run ${availableCommand}`,
           followupMessage: `Found "${availableCommand}" script in package.json. Running "npm run ${availableCommand}" after installation.`,
         };
       }
 
       return {
         type: 'Node.js',
-        setupCommand: 'npm install',
+        setupCommand: `${packageManager} install`,
         followupMessage:
           'Would you like me to inspect package.json to determine the available scripts for running this project?',
       };

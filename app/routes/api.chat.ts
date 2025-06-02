@@ -46,9 +46,6 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   let { messages } = body;
   const { files, promptId, contextOptimization, supabase, authToken } = body;
 
-  // TODO: Make it more clean. Rn it not really good
-  messages = messages.slice(-2);
-
   // const cookieHeader = request.headers.get('Cookie');
   const apiKeys: Record<string, string> = defaultApiKeys; // JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
   const providerSettings: Record<string, IProviderSetting> = providersSetings;

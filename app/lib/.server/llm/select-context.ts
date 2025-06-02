@@ -2,7 +2,7 @@ import { generateText, type CoreTool, type GenerateTextResult, type Message } fr
 import ignore from 'ignore';
 import type { IProviderSetting } from '~/types/model';
 import { IGNORE_PATTERNS, type FileMap } from './constants';
-import { DEFAULT_MINI_MODEL, DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
+import { DEFAULT_MINI_MODEL, DEFAULT_MINI_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { createFilesContext, extractCurrentContext, extractPropertiesFromMessage, simplifyBoltActions } from './utils';
 import { createScopedLogger } from '~/utils/logger';
 import { LLMManager } from '~/lib/modules/llm/manager';
@@ -25,12 +25,10 @@ export async function selectContext(props: {
 }) {
   const { messages, env: serverEnv, apiKeys, files, providerSettings, summary, onFinish } = props;
   let currentModel = DEFAULT_MINI_MODEL;
-  let currentProvider = DEFAULT_PROVIDER.name;
+  let currentProvider = DEFAULT_MINI_PROVIDER.name;
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
-      const { model, provider, content } = extractPropertiesFromMessage(message);
-      currentModel = model;
-      currentProvider = provider;
+      const { content } = extractPropertiesFromMessage(message);
 
       return { ...message, content };
     } else if (message.role == 'assistant') {
@@ -47,7 +45,7 @@ export async function selectContext(props: {
     return message;
   });
 
-  const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_PROVIDER;
+  const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_MINI_PROVIDER;
   const staticModels = LLMManager.getInstance().getStaticModelListFromProvider(provider);
   let modelDetails = staticModels.find((m) => m.name === currentModel);
 
@@ -117,6 +115,12 @@ export async function selectContext(props: {
   if (!lastUserMessage) {
     throw new Error('No user message found');
   }
+
+  // console.log(summaryText)
+  // console.log("--------------------")
+  // console.log(context)
+  // console.log("--------------------")
+  // console.log(filePaths.map((path) => `- ${path}`).join('\n'))
 
   // select files from the list of code file from the project that might be useful for the current request from the user
   const resp = await generateText({
@@ -224,13 +228,16 @@ export async function selectContext(props: {
   const totalFiles = Object.keys(filteredFiles).length;
   logger.info(`Total files: ${totalFiles}`);
 
+  // console.log(filePaths)
+  // console.log(filteredFiles)
+  // console.log(includeFiles)
+  // console.log(response)
+
   if (totalFiles == 0) {
     throw new Error(`Bolt failed to select files`);
   }
 
   return filteredFiles;
-
-  // generateText({
 }
 
 export function getFilePaths(files: FileMap) {

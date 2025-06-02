@@ -124,6 +124,7 @@ export async function streamText(props: {
         credentials: options?.supabaseConnection?.credentials || undefined,
       },
     }) ?? getSystemPrompt();
+    return;
 
   if (contextFiles && contextOptimization) {
     const codeContext = createFilesContext(contextFiles, true);
