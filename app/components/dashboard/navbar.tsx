@@ -6,6 +6,7 @@ import { ClientOnly } from 'remix-utils/client-only';
 import waterStyles from '../ui/WaterButton.module.scss';
 import { classNames } from '~/utils/classNames';
 import HowItWorksButton from '../chat/HowItWorksButton';
+import RewardsNavButton from '../chat/RewardsNavButton';
 
 interface NavBarProps {
   searchQuery: string;
@@ -32,15 +33,7 @@ const Navbar = () => {
 
             <nav className="flex items-center space-x-8">
               <HowItWorksButton />
-              <a
-                href="/rewards"
-                className={
-                  `text-gray-200 bg-transparent py-2 px-4 text-bolt-elements-textPrimary bg-bolt-elements-background 
-                  rounded-md border-none border-bolt-elements-borderColor opacity-85 font-medium transition-colors relative overflow-hidden ${waterStyles.water}`
-                }
-              >
-                <span className="relative z-10">Rewards</span>
-              </a>
+              <RewardsNavButton />
             </nav>
             <ClientOnly>{() => <CustomWalletButton />}</ClientOnly>
           </div>
