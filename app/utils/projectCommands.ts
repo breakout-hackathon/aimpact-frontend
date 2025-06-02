@@ -26,7 +26,10 @@ export async function detectProjectCommands(files: FileContent[]): Promise<Proje
     try {
       const packageJson = JSON.parse(packageJsonFile.content);
       const scripts = packageJson?.scripts || {};
-      const packageManager = packageJson?.packageManager || "pnpm";
+      let packageManager: string = packageJson?.packageManager || "pnpm";
+      console.log(packageManager)
+      packageManager = packageManager.split("@")[0];
+      console.log(packageManager)
 
       // Check for preferred commands in priority order
       const preferredCommands = ['dev', 'start', 'preview'];
