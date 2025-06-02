@@ -8,7 +8,6 @@ import DepositButton from '../chat/DepositButton';
 import { useWallet } from '@solana/wallet-adapter-react';
 import CustomWalletButton from '../common/CustomWalletButton';
 import React, {
-  useEffect,
   type CSSProperties,
   type PropsWithChildren,
   type ReactElement,
@@ -18,6 +17,7 @@ import { Button } from '~/components/ui/Button';
 import { userInfo } from '~/lib/hooks/useAuth';
 import GetMessagesButton from '../chat/GetMessagesButton';
 import HowItWorksButton from '../chat/HowItWorksButton';
+import RewardsNavButton from '../chat/RewardsNavButton';
 
 export type ButtonProps = PropsWithChildren<{
   className?: string;
@@ -33,7 +33,6 @@ export function Header() {
   const chat = useStore(chatStore);
   const { connected } = useWallet();
   const user = useStore(userInfo);
-  console.log(`Connected: ${connected}`);
 
   return (
     <header
@@ -53,7 +52,10 @@ export function Header() {
         </a>
 
         {!chat.started && (
-          <HowItWorksButton />
+          <>
+            <HowItWorksButton />
+            <RewardsNavButton />
+          </>
         )}
       </div>
 
@@ -73,19 +75,19 @@ export function Header() {
         </>
       ) : (
         <div className='flex items-center justify-center'>
-          
+
         </div>
       )}
-      <div className="flex justify-center items-center gap-2.5">        
+      <div className="flex justify-center items-center gap-2.5">
         {connected && user && (
           <>
             <div className="whitespace-nowrap text-base font-medium text-bolt-elements-textPrimary bg-bolt-elements-background rounded-md border border-bolt-elements-borderColor px-4 py-2">
               {user.messagesLeft} message{user.messagesLeft === 1 ? '' : 's'} left
             </div>
-          
+
             <ClientOnly>
               {() => {
-                return connected && <DepositButton />;
+                return connected && <DepositButton discountPercent={user.discountPercent || 0} />;
               }}
             </ClientOnly>
 

@@ -115,7 +115,6 @@ export function DataTab() {
     handleResetSettings,
     handleResetChats,
     handleDownloadTemplate,
-    handleImportAPIKeys,
   } = useDataOperations({
     customDb: db || undefined, // Pass the boltHistory database, converting null to undefined
     onReloadSettings: () => window.location.reload(),
@@ -177,18 +176,6 @@ export function DataTab() {
     [handleImportSettings],
   );
 
-  const handleAPIKeyFileInputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-
-      if (file) {
-        setIsImportingKeys(true);
-        handleImportAPIKeys(file).finally(() => setIsImportingKeys(false));
-      }
-    },
-    [handleImportAPIKeys],
-  );
-
   const handleChatFileInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -210,13 +197,6 @@ export function DataTab() {
     <div className="space-y-12">
       {/* Hidden file inputs */}
       <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileInputChange} className="hidden" />
-      <input
-        ref={apiKeyFileInputRef}
-        type="file"
-        accept=".json"
-        onChange={handleAPIKeyFileInputChange}
-        className="hidden"
-      />
       <input
         ref={chatFileInputRef}
         type="file"

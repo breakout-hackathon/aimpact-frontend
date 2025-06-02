@@ -2,15 +2,22 @@ import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { streamText } from '~/lib/.server/llm/stream-text';
 import type { IProviderSetting, ProviderInfo } from '~/types/model';
 import { generateText } from 'ai';
-import { PROVIDER_LIST } from '~/utils/constants';
+import { DEFAULT_MINI_MODEL, DEFAULT_MINI_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { MAX_TOKENS } from '~/lib/.server/llm/constants';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { parseCookies } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
+import { STARTER_TEMPLATES } from '~/utils/constants';
+import { starterTemplateSelectionPrompt } from '~/lib/common/prompts/prompts';
+
+const defaultApiKeys = {
+  OpenAI: process.env.OPENAI_API_KEY as string,
+};
+const providerSettings: Record<string, IProviderSetting> = {};
 
 export async function action(args: ActionFunctionArgs) {
-  return llmCallAction(args);
+  return templateSelectAction(args);
 }
 
 async function getModelList(options: {
@@ -22,27 +29,43 @@ async function getModelList(options: {
   return llmManager.updateModelList(options);
 }
 
-const logger = createScopedLogger('api.llmcall');
+const logger = createScopedLogger('api.template.select');
 
-async function llmCallAction({ context, request }: ActionFunctionArgs) {
-  const { system, message, model, provider, streamOutput } = await request.json<{
-    system: string;
+async function templateSelectAction({ context, request }: ActionFunctionArgs) {
+  const { message, streamOutput } = await request.json<{
     message: string;
-    model: string;
-    provider: ProviderInfo;
     streamOutput?: boolean;
   }>();
 
-  const { name: providerName } = provider;
+  const model = DEFAULT_MINI_MODEL;
+  const cookieHeader = request.headers.get("Cookie");
+  const cookies = parseCookies(cookieHeader);
+  const authToken = cookies.authToken;
 
-  // validate 'model' and 'provider' fields
-  if (!model || typeof model !== 'string') {
-    throw new Response('Invalid or missing model', {
-      status: 400,
-      statusText: 'Bad Request',
-    });
+  if (!authToken) {
+    throw new Response('Unauthorized', { status: 401 });
   }
 
+  const userResponse = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+  if (!userResponse.ok) {
+    throw new Response('Unauthorized', { status: 401 });
+  }
+
+  const user = (await userResponse.json()) as { id: string; messagesLeft: number };
+  if (user.messagesLeft <= 0) {
+    throw new Response('No messages left', { status: 402 });
+  }
+
+  const systemPrompt = starterTemplateSelectionPrompt(STARTER_TEMPLATES);
+
+  const provider = DEFAULT_MINI_PROVIDER as ProviderInfo;
+  const { name: providerName } = provider;
+
+  // validate 'provider' fields
   if (!providerName || typeof providerName !== 'string') {
     throw new Response('Invalid or missing provider', {
       status: 400,
@@ -50,15 +73,13 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
     });
   }
 
-  const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = getApiKeysFromCookie(cookieHeader);
-  const providerSettings = getProviderSettingsFromCookie(cookieHeader);
+  const apiKeys = defaultApiKeys;
 
   if (streamOutput) {
     try {
       const result = await streamText({
         options: {
-          system,
+          system: systemPrompt,
         },
         messages: [
           {
@@ -68,7 +89,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
         ],
         env: context.cloudflare?.env as any,
         apiKeys,
-        providerSettings,
+        providerSettings
       });
 
       return new Response(result.textStream, {
@@ -110,10 +131,24 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
       }
 
       logger.info(`Generating response Provider: ${provider.name}, Model: ${modelDetails.name}`);
-      logger.info(`Messages:` + `System: ${system}` + `User message: ${message}`);
+      logger.info(`Messages:` + `System: ${systemPrompt}` + `User message: ${message}`);
+      
+//       return new Response(JSON.stringify({
+//         text: `<selection>
+//   <templateName>vite-react-app</templateName>
+//   <title>Simple React todo application</title>
+// </selection>`
+//       }),
+//       {
+//         status: 200,
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//       }
+//     );
 
       const result = await generateText({
-        system,
+        system: systemPrompt,
         messages: [
           {
             role: 'user',

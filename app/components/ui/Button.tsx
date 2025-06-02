@@ -38,12 +38,12 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'default', size, _asChild = false, children, ...props }, ref) => {
+  ({ className, variant = 'default', size, _asChild = false, children, disabled, ...props }, ref) => {
     const isWaterEffect = variant === 'default' || variant === 'secondary' || variant === 'destructive';
 
     if (!isWaterEffect) {
       return (
-        <button className={classNames(buttonVariants({ variant, size }), className)} ref={ref} {...props}>
+        <button className={classNames(buttonVariants({ variant, size }), className)} ref={ref} disabled={disabled} {...props}>
           {children}
         </button>
       );
@@ -67,18 +67,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             'bg-bolt-elements-background-depth-1 bg-opacity-10  ': variant === 'secondary',
           },
           size === 'sm' ? 'text-xs py-1 px-3' : size === 'lg' ? 'text-base py-3 px-6' : 'text-sm py-2 px-4',
-          waterStyles.waterButton,
-          waterStyles[waterVariant],
+          disabled ? "" : waterStyles.waterButton,
+          disabled ? "" : waterStyles[waterVariant],
           className,
         )}
+        disabled={disabled}
         {...props}
       >
-        <div className={waterStyles.effectLayer}>
-          {/* ::before and ::after for flow/ripple are on .effectLayer */}
-          <div className={waterStyles.waterDroplets}></div>
-          <div className={waterStyles.waterSurface}></div>
-        </div>
-        <div className={waterStyles.buttonContent}>{children}</div>
+        {!disabled && 
+          <div className={waterStyles.effectLayer}>
+            {/* ::before and ::after for flow/ripple are on .effectLayer */}
+            <div className={waterStyles.waterDroplets}></div>
+            <div className={waterStyles.waterSurface}></div>
+          </div>
+        }
+        <div className={disabled ? "" : waterStyles.buttonContent}>{children}</div>
       </button>
     );
   },

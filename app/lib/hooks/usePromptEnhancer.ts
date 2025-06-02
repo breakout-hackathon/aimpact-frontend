@@ -16,22 +16,13 @@ export function usePromptEnhancer() {
   const enhancePrompt = async (
     input: string,
     setInput: (value: string) => void,
-    model: string,
-    provider: ProviderInfo,
-    apiKeys?: Record<string, string>,
   ) => {
     setEnhancingPrompt(true);
     setPromptEnhanced(false);
 
     const requestBody: any = {
       message: input,
-      model,
-      provider,
     };
-
-    if (apiKeys) {
-      requestBody.apiKeys = apiKeys;
-    }
 
     const response = await fetch('/api/enhancer', {
       method: 'POST',

@@ -10,6 +10,11 @@ interface UserInfo {
   id: string;
   wallet: string;
   messagesLeft: number;
+  inviteCode: string;
+  discountPercent: number;
+  referralsRewards: number;
+  totalEarnedRewards: number;
+  claimedFreeMessages: boolean;
 }
 
 type AuthContextType = {
@@ -39,7 +44,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkCreds = async () => {
       if (connected && isAuthorized) {
-        console.log('exit');
         return;
       }
 
@@ -78,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const rawSignature = await signMessage(new TextEncoder().encode(message));
           const signature = bs58.encode(rawSignature);
-          console.log(message, signature.toString(), publicKey.toBase58());
 
           // backend /api/login logic
           const response = await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/auth/loginWithWallet`, {
@@ -129,6 +132,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [publicKey, connected, signMessage, disconnect]);
 
   useEffect(() => {
+    if (!connected && isAuthorized) {
+      Cookies.remove('authToken');
+      setIsAuthorized(false);
+      setJwtToken('');
+      userInfo.set(undefined);
+    }
+  }, [connected, isAuthorized]);
+
+  useEffect(() => {
     const req = async () => {
       const authToken = Cookies.get('authToken');
 
@@ -162,6 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleDisconnect = async () => {
     Cookies.remove('authToken');
     setIsAuthorized(false);
+    setJwtToken('');
     userInfo.set(undefined);
     await disconnect();
   };

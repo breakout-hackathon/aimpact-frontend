@@ -688,90 +688,6 @@ export function useDataOperations({
   );
 
   /**
-   * Import API keys from a JSON file
-   * @param file The file to import
-   */
-  const handleImportAPIKeys = useCallback(
-    async (file: File) => {
-      setIsImporting(true);
-      setProgressPercent(0);
-
-      // Dismiss any existing toast first
-      toast.dismiss('progress-toast');
-
-      toast.loading(`Importing API keys from ${file.name}...`, {
-        position: 'bottom-right',
-        autoClose: 3000,
-        toastId: 'progress-toast',
-      });
-
-      try {
-        // Step 1: Read file
-        showProgress('Reading file', 20);
-
-        const fileContent = await file.text();
-
-        // Step 2: Parse JSON
-        showProgress('Parsing API keys data', 40);
-
-        const importedData = JSON.parse(fileContent);
-
-        // Step 3: Validate data
-        showProgress('Validating API keys data', 60);
-
-        // Get current API keys from cookies for potential undo
-        const apiKeysStr = document.cookie.split(';').find((row) => row.trim().startsWith('apiKeys='));
-        const currentApiKeys = apiKeysStr ? JSON.parse(decodeURIComponent(apiKeysStr.split('=')[1])) : {};
-        setLastOperation({ type: 'import-api-keys', data: { previous: currentApiKeys } });
-
-        // Step 4: Import API keys
-        showProgress('Applying API keys', 80);
-
-        const newKeys = ImportExportService.importAPIKeys(importedData);
-        const apiKeysJson = JSON.stringify(newKeys);
-        document.cookie = `apiKeys=${apiKeysJson}; path=/; max-age=31536000`;
-
-        // Step 5: Complete
-        showProgress('Completing import', 100);
-
-        // Dismiss progress toast before showing success toast
-        toast.dismiss('progress-toast');
-
-        // Count how many keys were imported
-        const keyCount = Object.keys(newKeys).length;
-        const newKeyCount = Object.keys(newKeys).filter(
-          (key) => !currentApiKeys[key] || currentApiKeys[key] !== newKeys[key],
-        ).length;
-
-        toast.success(
-          `${keyCount} API keys imported successfully (${newKeyCount} new/updated)\n` +
-            'Note: Keys are stored in browser cookies. For server-side usage, add them to your .env.local file.',
-          { position: 'bottom-right', autoClose: 5000 },
-        );
-
-        if (onReloadSettings) {
-          onReloadSettings();
-        }
-      } catch (error) {
-        console.error('Error importing API keys:', error);
-
-        // Dismiss progress toast before showing error toast
-        toast.dismiss('progress-toast');
-
-        toast.error(`Failed to import API keys: ${error instanceof Error ? error.message : 'Unknown error'}`, {
-          position: 'bottom-right',
-          autoClose: 3000,
-        });
-      } finally {
-        setIsImporting(false);
-        setProgressPercent(0);
-        setProgressMessage('');
-      }
-    },
-    [onReloadSettings, showProgress],
-  );
-
-  /**
    * Reset all settings to default values
    */
   const handleResetSettings = useCallback(async () => {
@@ -970,84 +886,6 @@ export function useDataOperations({
   }, [showProgress]);
 
   /**
-   * Export API keys to a JSON file
-   */
-  const handleExportAPIKeys = useCallback(async () => {
-    setIsExporting(true);
-    setProgressPercent(0);
-
-    // Dismiss any existing toast first
-    toast.dismiss('progress-toast');
-
-    toast.loading('Exporting API keys...', {
-      position: 'bottom-right',
-      autoClose: 3000,
-      toastId: 'progress-toast',
-    });
-
-    try {
-      // Step 1: Get API keys from all sources
-      showProgress('Retrieving API keys', 25);
-
-      // Create a fetch request to get API keys from server
-      const response = await fetch('/api/export-api-keys');
-
-      if (!response.ok) {
-        throw new Error('Failed to retrieve API keys from server');
-      }
-
-      const apiKeys = await response.json();
-
-      // Step 2: Create blob
-      showProgress('Creating file', 50);
-
-      const blob = new Blob([JSON.stringify(apiKeys, null, 2)], {
-        type: 'application/json',
-      });
-
-      // Step 3: Download file
-      showProgress('Downloading file', 75);
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'bolt-api-keys.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      // Step 4: Complete
-      showProgress('Completing export', 100);
-
-      // Dismiss progress toast before showing success toast
-      toast.dismiss('progress-toast');
-
-      toast.success('API keys exported successfully', {
-        position: 'bottom-right',
-        autoClose: 3000,
-      });
-
-      // Save operation for potential undo
-      setLastOperation({ type: 'export-api-keys', data: apiKeys });
-    } catch (error) {
-      console.error('Error exporting API keys:', error);
-
-      // Dismiss progress toast before showing error toast
-      toast.dismiss('progress-toast');
-
-      toast.error(`Failed to export API keys: ${error instanceof Error ? error.message : 'Unknown error'}`, {
-        position: 'bottom-right',
-        autoClose: 3000,
-      });
-    } finally {
-      setIsExporting(false);
-      setProgressPercent(0);
-      setProgressMessage('');
-    }
-  }, [showProgress]);
-
-  /**
    * Undo the last operation if possible
    */
   const handleUndo = useCallback(async () => {
@@ -1230,11 +1068,9 @@ export function useDataOperations({
     handleExportSelectedChats,
     handleImportSettings,
     handleImportChats,
-    handleImportAPIKeys,
     handleResetSettings,
     handleResetChats,
     handleDownloadTemplate,
-    handleExportAPIKeys,
     handleUndo,
   };
 }

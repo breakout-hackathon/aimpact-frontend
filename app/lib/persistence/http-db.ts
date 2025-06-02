@@ -81,7 +81,12 @@ export function useHttpDb() {
   };
 
   const getSnapshot = async (projectId: string): Promise<Snapshot | undefined> => {
-    const snapshot = (await fetchDataAuthorized(`${host}/projects/${projectId}/snapshot`)) as SnapshotResponse;
+    const snapshot = (await fetchDataAuthorized(`${host}/projects/${projectId}/snapshot`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })) as SnapshotResponse;
 
     if (!snapshot) {
       return undefined;

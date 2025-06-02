@@ -1,8 +1,15 @@
-interface CustDevPopupProps {
+import { type PropsWithChildren } from "react";
+
+interface CustDevPopupProps extends PropsWithChildren {
   handleToggle: () => void;
+  isShow: boolean;
 }
 
-export default function CustDevPopup({ handleToggle }: CustDevPopupProps) {
+export default function Popup({ isShow, handleToggle, children }: CustDevPopupProps) {
+  if (!isShow) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 z-10 overflow-y-auto">
       <div className="flex relative items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
@@ -16,14 +23,7 @@ export default function CustDevPopup({ handleToggle }: CustDevPopupProps) {
           </button>
 
           <div className="px-4 py-5 sm:p-6 bg-bolt-elements-background bg-bolt-elements-background-depth-3 text-center">
-            <h4 className="text-2xl font-bold mb-4">Let’s discuss how you are using AImpact to make it better</h4>
-            <a
-              href="https://calendly.com/kostiantyn-aimpact/30min"
-              target="_blank"
-              className="underline font-medium text-xl hover:text-gray-200"
-            >
-              Schedule call
-            </a>
+            {children}
           </div>
         </div>
       </div>

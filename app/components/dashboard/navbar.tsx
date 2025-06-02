@@ -5,15 +5,21 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ClientOnly } from 'remix-utils/client-only';
 import waterStyles from '../ui/WaterButton.module.scss';
 import { classNames } from '~/utils/classNames';
+import HowItWorksButton from '../chat/HowItWorksButton';
+import RewardsNavButton from '../chat/RewardsNavButton';
+import { useLocation } from "@remix-run/react";
 
 interface NavBarProps {
   searchQuery: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
+const Navbar = () => {
   const { scrollY } = useScroll();
   const backgroundColor = useTransform(scrollY, [0, 100], ['rgba(20, 20, 20, 0)', 'rgba(20, 20, 20, 0.8)']);
+  const location = useLocation();
+
+  const isRewardsPage = location.pathname === "/rewards";
 
   return (
     <>
@@ -30,15 +36,8 @@ const Navbar = ({ searchQuery, setSearchQuery }: NavBarProps) => {
             </div>
 
             <nav className="flex items-center space-x-8">
-              <a
-                href="#how-it-works"
-                className={`${waterStyles.waterButton} relative overflow-hidden inline-flex items-center justify-center px-4 py-2 rounded-md
-                 text-white font-medium hover:shadow-lg transition-all duration-300 border border-bolt-elements-borderColor`}
-              >
-                <div className={waterStyles.waterSurface}></div>
-                <div className={waterStyles.waterDroplets}></div>
-                <div className={waterStyles.buttonContent}>How it works</div>
-              </a>
+              <HowItWorksButton />
+              {!isRewardsPage && <RewardsNavButton />}
             </nav>
             <ClientOnly>{() => <CustomWalletButton />}</ClientOnly>
           </div>

@@ -13,6 +13,7 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { logStore } from './lib/stores/logs';
 import type { SolanaProviderProps } from './components/providers/SolanaProvider';
 import { AuthProvider } from './lib/hooks/useAuth';
+import { RefCodeProvider } from './lib/hooks/useRefCode';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
@@ -91,9 +92,11 @@ function Providers({ children }: { children: React.ReactNode }) {
       {() => (
         <Suspense fallback="">
           <SolanaProvider>
-            <AuthProvider>
-              <DndProvider backend={HTML5Backend}>{children}</DndProvider>
-            </AuthProvider>
+            <RefCodeProvider>
+              <AuthProvider>
+                <DndProvider backend={HTML5Backend}>{children}</DndProvider>
+              </AuthProvider>
+            </RefCodeProvider>
           </SolanaProvider>
         </Suspense>
       )}

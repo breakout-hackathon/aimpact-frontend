@@ -2,7 +2,6 @@ import ignore from 'ignore';
 import type { ProviderInfo } from '~/types/model';
 import type { Template } from '~/types/template';
 import { STARTER_TEMPLATES } from './constants';
-import path from 'path-browserify';
 
 interface FilteredFiles {
   name: string;
@@ -15,64 +14,6 @@ export interface File {
   content: string;
   isBinary?: boolean;
 }
-
-const starterTemplateSelectionPrompt = (templates: Template[]) => `
-You are an experienced developer who helps people choose the best starter template for their projects.
-
-Available templates:
-<template>
-  <name>blank</name>
-  <description>Empty starter for simple scripts and trivial tasks that don't require a full template setup</description>
-  <tags>basic, script</tags>
-</template>
-${templates
-  .map(
-    (template) => `
-<template>
-  <name>${template.name}</name>
-  <description>${template.description}</description>
-  ${template.tags ? `<tags>${template.tags.join(', ')}</tags>` : ''}
-</template>
-`,
-  )
-  .join('\n')}
-
-Response Format:
-<selection>
-  <templateName>{selected template name}</templateName>
-  <title>{a proper title for the project}</title>
-</selection>
-
-Examples:
-
-<example>
-User: I need to build a todo app
-Response:
-<selection>
-  <templateName>react-basic-starter</templateName>
-  <title>Simple React todo application</title>
-</selection>
-</example>
-
-<example>
-User: Write a script to generate numbers from 1 to 100
-Response:
-<selection>
-  <templateName>blank</templateName>
-  <title>script to generate numbers from 1 to 100</title>
-</selection>
-</example>
-
-Instructions:
-1. For trivial tasks and simple scripts, always recommend the blank template
-2. For more complex projects, recommend templates from the provided list
-3. Follow the exact XML format
-4. Consider both technical requirements and tags
-5. If no perfect match exists, recommend the closest option
-
-Important: Provide only the selection tags in your response, no additional text.
-MOST IMPORTANT: YOU DONT HAVE TIME TO THINK JUST START RESPONDING BASED ON HUNCH 
-`;
 
 const templates: Template[] = STARTER_TEMPLATES;
 
@@ -99,9 +40,8 @@ export const selectStarterTemplate = async (options: { message: string; model: s
     message,
     model,
     provider,
-    system: starterTemplateSelectionPrompt(templates),
   };
-  const response = await fetch('/api/llmcall', {
+  const response = await fetch('/api/template/select', {
     method: 'POST',
     body: JSON.stringify(requestBody),
   });
@@ -148,8 +88,6 @@ export async function getTemplates(templateName: string, title?: string) {
       name: path.split('/').pop() || '',
     };
   });
-  console.log('Template files');
-  console.log(files);
 
   let filteredFiles = files;
 
