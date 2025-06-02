@@ -7,6 +7,7 @@ import waterStyles from '../ui/WaterButton.module.scss';
 import { classNames } from '~/utils/classNames';
 import HowItWorksButton from '../chat/HowItWorksButton';
 import RewardsNavButton from '../chat/RewardsNavButton';
+import { useLocation } from "@remix-run/react";
 
 interface NavBarProps {
   searchQuery: string;
@@ -16,6 +17,9 @@ interface NavBarProps {
 const Navbar = () => {
   const { scrollY } = useScroll();
   const backgroundColor = useTransform(scrollY, [0, 100], ['rgba(20, 20, 20, 0)', 'rgba(20, 20, 20, 0.8)']);
+  const location = useLocation();
+
+  const isRewardsPage = location.pathname === "/rewards";
 
   return (
     <>
@@ -33,7 +37,7 @@ const Navbar = () => {
 
             <nav className="flex items-center space-x-8">
               <HowItWorksButton />
-              <RewardsNavButton />
+              {!isRewardsPage && <RewardsNavButton />}
             </nav>
             <ClientOnly>{() => <CustomWalletButton />}</ClientOnly>
           </div>
