@@ -4,9 +4,11 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { toast } from 'react-toastify';
 import { Button } from '../ui';
-import { useSolanaProxy } from '~/lib/api-hooks/useSolanaProxy';
+import { useSolanaProxy } from '~/lib/api-hooks/useSolanaProxyApi';
 import { classNames } from '~/utils/classNames';
 import waterStyles from '../ui/WaterButton.module.scss';
+
+const MESSAGE_PRICE_IN_SOL = Number(import.meta.env.VITE_PRICE_PER_MESSAGE_IN_SOL);
 
 export default function DepositButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,7 +50,7 @@ export default function DepositButton() {
       SystemProgram.transfer({
         fromPubkey: publicKey,
         toPubkey: new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS),
-        lamports: 0.03 * LAMPORTS_PER_SOL,
+        lamports: MESSAGE_PRICE_IN_SOL * 10 * LAMPORTS_PER_SOL,
       }),
     );
 
@@ -98,7 +100,7 @@ export default function DepositButton() {
                   <h3 className="text-2xl font-bold mb-4">Purchase Messages</h3>
                   <p className="text-xl mb-6">
                     Get <span className="font-semibold">10 messages</span> for{' '}
-                    <span className="font-semibold">0.03 SOL</span>
+                    <span className="font-semibold">{MESSAGE_PRICE_IN_SOL * 10} SOL</span>
                   </p>
 
                   {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
