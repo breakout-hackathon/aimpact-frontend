@@ -33,7 +33,6 @@ export function Header() {
   const chat = useStore(chatStore);
   const { connected } = useWallet();
   const user = useStore(userInfo);
-  console.log(`Connected: ${connected}`);
 
   return (
     <header
