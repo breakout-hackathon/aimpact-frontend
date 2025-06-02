@@ -12,7 +12,6 @@ const MESSAGE_PRICE_IN_SOL = Number(import.meta.env.VITE_PRICE_PER_MESSAGE_IN_SO
 
 export default function DepositButton() {
   const [isOpen, setIsOpen] = useState(false);
-  const [error, setError] = useState('');
   const navigation = useNavigation();
   const { publicKey, signTransaction } = useWallet();
   const { getRecentBlockhash, sendTransaction } = useSolanaProxy();
@@ -25,7 +24,6 @@ export default function DepositButton() {
 
   const handlePurchase = async () => {
     if (!publicKey || !signTransaction) {
-      setError('Please connect your wallet first');
       return;
     }
 
@@ -37,7 +35,6 @@ export default function DepositButton() {
       blockhash = data.blockhash;
       lastValidBlockHeight = data.lastValidBlockHeight;
     } catch (err) {
-      setError('Failed to get recent blockhash');
       return;
     }
 
@@ -58,7 +55,6 @@ export default function DepositButton() {
     try {
       transaction = await signTransaction(transaction);
     } catch (err) {
-      setError('Transaction signing failed');
       return;
     }
 
@@ -71,9 +67,7 @@ export default function DepositButton() {
       setIsOpen(false);
       toast.success('Purchase completed!');
     } catch (err) {
-      const message = 'Transaction failed. Please try again.';
-      setError(message);
-      toast.error(message);
+      toast.error('Transaction failed. Please try again.');
     }
   };
 
@@ -102,8 +96,6 @@ export default function DepositButton() {
                     Get <span className="font-semibold">10 messages</span> for{' '}
                     <span className="font-semibold">{MESSAGE_PRICE_IN_SOL * 10} SOL</span>
                   </p>
-
-                  {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
                   <div className="flex flex-col gap-2">
                     <button

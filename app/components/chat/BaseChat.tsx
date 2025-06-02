@@ -37,6 +37,8 @@ import { useStore } from '@nanostores/react';
 import { StickToBottom, useStickToBottomContext } from '~/lib/hooks';
 import Footer from '../footer/Footer.client';
 import { useAuth } from '~/lib/hooks/useAuth';
+import { userInfo } from '~/lib/hooks/useAuth';
+import CustomWalletButton from '../common/CustomWalletButton';
 
 const TEXTAREA_MIN_HEIGHT = 95;
 
@@ -129,6 +131,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [qrModalOpen, setQrModalOpen] = useState(false);
 
     const { isAuthorized } = useAuth();
+    const userInfoData = useStore(userInfo);
+
+    const isDisabled = !isAuthorized || !userInfoData?.messagesLeft;
 
     useEffect(() => {
       if (expoUrl) {
@@ -411,98 +416,16 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
                 <ScrollToBottom />
                 {progressAnnotations && <ProgressCompilation data={progressAnnotations} />}
-                <div
-                  className={classNames(
-                    'relative bg-bolt-elements-background-depth-2 p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
-
-                    /*
-                     * {
-                     *   'sticky bottom-2': chatStarted,
-                     * },
-                     */
-                  )}
-                >
-                  <svg className={classNames(styles.PromptEffectContainer)}>
-                    <defs>
-                      <linearGradient
-                        id="line-gradient"
-                        x1="20%"
-                        y1="0%"
-                        x2="-14%"
-                        y2="10%"
-                        gradientUnits="userSpaceOnUse"
-                        gradientTransform="rotate(-45)"
-                      >
-                        <stop offset="0%" stopColor="#b44aff" stopOpacity="0%"></stop>
-                        <stop offset="40%" stopColor="#b44aff" stopOpacity="80%"></stop>
-                        <stop offset="50%" stopColor="#b44aff" stopOpacity="80%"></stop>
-                        <stop offset="100%" stopColor="#b44aff" stopOpacity="0%"></stop>
-                      </linearGradient>
-                      <linearGradient id="shine-gradient">
-                        <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
-                        <stop offset="40%" stopColor="#ffffff" stopOpacity="80%"></stop>
-                        <stop offset="50%" stopColor="#ffffff" stopOpacity="80%"></stop>
-                        <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
-                      </linearGradient>
-                    </defs>
-                    <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
-                    <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
-                  </svg>
-                  {/* <div className='mb-3'>
-                    <ClientOnly>
-                      {() => (
-                        <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
-                          <ModelSelector
-                            key={provider?.name + ':' + modelList.length}
-                            model={model}
-                            setModel={setModel}
-                            modelList={modelList}
-                            provider={provider}
-                            setProvider={setProvider}
-                            providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
-                            apiKeys={apiKeys}
-                            modelLoading={isModelLoading}
-                          />
-                          {(providerList || []).length > 0 &&
-                            provider &&
-                            (!LOCAL_PROVIDERS.includes(provider.name) || 'OpenAILike') && (
-                              <APIKeyManager
-                                provider={provider}
-                                apiKey={apiKeys[provider.name] || ''}
-                                setApiKey={(key) => {
-                                  onApiKeysChange(provider.name, key);
-                                }}
-                              />
-                            )}
-                        </div>
-                      )}
-                    </ClientOnly>
-                  </div> */}
-                  <FilePreview
-                    files={uploadedFiles}
-                    imageDataList={imageDataList}
-                    onRemove={(index) => {
-                      setUploadedFiles?.(uploadedFiles.filter((_, i) => i !== index));
-                      setImageDataList?.(imageDataList.filter((_, i) => i !== index));
-                    }}
-                  />
-                  <ClientOnly>
-                    {() => (
-                      <ScreenshotStateManager
-                        setUploadedFiles={setUploadedFiles}
-                        setImageDataList={setImageDataList}
-                        uploadedFiles={uploadedFiles}
-                        imageDataList={imageDataList}
-                      />
-                    )}
-                  </ClientOnly>
+                <div className="relative">
                   <div
                     className={classNames(
-                      'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg',
+                      'relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg transition-all duration-200',
+                      ...((!isAuthorized || !userInfoData?.messagesLeft) ? ['blur-[2px] pointer-events-none select-none'] : [])
                     )}
                   >
                     <textarea
                       ref={textareaRef}
+                      disabled={isDisabled}
                       className={classNames(
                         'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
                         'transition-all duration-200',
@@ -576,7 +499,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         <SendButton
                           show={input.length > 0 || isStreaming || uploadedFiles.length > 0}
                           isStreaming={isStreaming}
-                          disabled={!providerList || providerList.length === 0}
+                          disabled={!providerList || providerList.length === 0 || isDisabled}
                           onClick={(event) => {
                             if (isStreaming) {
                               handleStop?.();
@@ -597,7 +520,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         </IconButton>
                         <IconButton
                           title="Enhance prompt"
-                          disabled={input.length === 0 || enhancingPrompt}
+                          disabled={input.length === 0 || enhancingPrompt || isDisabled}
                           className={classNames('transition-all', enhancingPrompt ? 'opacity-100' : '')}
                           onClick={() => {
                             enhancePrompt?.();
@@ -615,7 +538,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           isListening={isListening}
                           onStart={startListening}
                           onStop={stopListening}
-                          disabled={isStreaming}
+                          disabled={isStreaming || isDisabled}
                         />
                         {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                         <IconButton
@@ -627,7 +550,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                               !isModelSettingsCollapsed,
                           })}
                           onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
-                          disabled={!providerList || providerList.length === 0}
+                          disabled={!providerList || providerList.length === 0 || isDisabled}
                         >
                           <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
                           {isModelSettingsCollapsed ? (
@@ -650,6 +573,21 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       <ExpoQrModal open={qrModalOpen} onClose={() => setQrModalOpen(false)} />
                     </div>
                   </div>
+                  {(!isAuthorized || !userInfoData?.messagesLeft) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-lg z-10">
+                      {
+                        !isAuthorized ? (
+                          <div className="flex flex-col items-center justify-center">
+                            <CustomWalletButton />
+                          </div>
+                        ) : (
+                          <span className="text-white text-sm font-medium text-center px-4">
+                            You have no messages left. Get more to continue chatting.
+                          </span>
+                        )
+                      }
+                    </div>
+                  )}
                 </div>
               </div>
             </StickToBottom>
@@ -661,7 +599,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 </div>
               )} */}
               <div className="flex flex-col gap-5">
-                {!chatStarted &&
+                {!chatStarted && !isDisabled &&
                   ExamplePrompts((event, messageInput) => {
                     if (isStreaming) {
                       handleStop?.();
