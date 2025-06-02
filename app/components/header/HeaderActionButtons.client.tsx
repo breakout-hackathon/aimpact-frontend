@@ -313,11 +313,9 @@ interface ButtonProps {
   children?: any;
   onClick?: VoidFunction;
   className?: string;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
 }
 
-function Button({ active = false, disabled = false, children, onClick, className, onMouseEnter, onMouseLeave }: ButtonProps) {
+function Button({ active = false, disabled = false, children, onClick, className }: ButtonProps) {
   return (
     <button
       className={classNames(
@@ -333,8 +331,6 @@ function Button({ active = false, disabled = false, children, onClick, className
       )}
       disabled={disabled}
       onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
     >
       {children}
     </button>
