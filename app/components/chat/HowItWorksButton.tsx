@@ -19,11 +19,18 @@ export default function HowItWorksButton() {
     setIsOpen(!isOpen);
   }
 
-  const text = `**AImpact** — is AI powered agent, where you can create Web3 projects only by prompts.
+  const text = `
+** How it works**
+  
+**AImpact** — is AI powered agent, where you can create Web3 projects only by prompts.
 
-**AImpact** can generate Solana contracts and frontend of your app without knowledge in programming.
+Right now, you can generate front-end applications that interact with our prebuilt smart contracts for storage on Solana. 
+This means you can easily create apps that read, write, and manage data on-chain using a simple interface powered by AI, no coding skills needed.
 
-So, just describe your idea to AI. Try to give precise queries. Keep modifying it. Keep build.`
+Soon, **AImpact** will go even further: you'll be able to generate custom smart contracts and build full-stack Web3 apps entirely with AI.
+
+So, just describe your idea to AI. Try to give precise queries. Keep modifying it. Keep build.
+`
 
   return (
     <>
