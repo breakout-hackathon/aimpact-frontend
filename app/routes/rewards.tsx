@@ -6,7 +6,7 @@ import ReferralsTab from "~/components/rewards/referralsTab";
 import SharingTab from "~/components/rewards/sharingTab";
 import { useRewardsApi, type WithdrawRewardsResponse } from "~/lib/api-hooks/useRewardsApi";
 import { useAuth, userInfo } from "~/lib/hooks/useAuth";
-import { createSampler } from "~/utils/sampler";
+// import { createSampler } from "~/utils/sampler";
 import { classNames } from "~/utils/classNames";
 
 const TABS = {
@@ -14,12 +14,12 @@ const TABS = {
     Sharing: "Sharing",
 };
 
-interface UpdateWithdrawalHistoryParams {
-    isWithdrawing: boolean;
-    interval: NodeJS.Timeout | null;
-}
+// interface UpdateWithdrawalHistoryParams {
+//     isWithdrawing: boolean;
+//     interval: NodeJS.Timeout | null;
+// }
 
-const WITHDRAWAL_HISTORY_INTERVAL_COUNT = 10;
+// const WITHDRAWAL_HISTORY_INTERVAL_COUNT = 10;
 
 export default function Rewards() {
     const { getReferralsCount, getRewardsWithdrawalReceipts } = useRewardsApi();
@@ -33,26 +33,26 @@ export default function Rewards() {
     const { isAuthorized } = useAuth();
     const userInfoData = useStore(userInfo);
 
-    const withdrawalHistorySamplerCount = useRef(0);
-    const updateSampledWithdrawalHistory = createSampler(async (params: UpdateWithdrawalHistoryParams) => {
-        const { isWithdrawing, interval } = params;
+    // const withdrawalHistorySamplerCount = useRef(0);
+    // const updateSampledWithdrawalHistory = createSampler(async (params: UpdateWithdrawalHistoryParams) => {
+    //     const { isWithdrawing, interval } = params;
 
-        if (isWithdrawing) {
-            withdrawalHistorySamplerCount.current = WITHDRAWAL_HISTORY_INTERVAL_COUNT;
-            if (interval) clearInterval(interval);
-            return;
-        }
+    //     if (isWithdrawing) {
+    //         withdrawalHistorySamplerCount.current = WITHDRAWAL_HISTORY_INTERVAL_COUNT;
+    //         if (interval) clearInterval(interval);
+    //         return;
+    //     }
 
-        if (!isWithdrawing && withdrawalHistorySamplerCount.current <= 0) {
-            if (interval) clearInterval(interval);
-            return;
-        }
+    //     if (!isWithdrawing && withdrawalHistorySamplerCount.current <= 0) {
+    //         if (interval) clearInterval(interval);
+    //         return;
+    //     }
 
-        const rewardsWithdrawalReceipts = await getRewardsWithdrawalReceipts();
-        setRewardsWithdrawalReceipts([...rewardsWithdrawalReceipts]);
+    //     const rewardsWithdrawalReceipts = await getRewardsWithdrawalReceipts();
+    //     setRewardsWithdrawalReceipts([...rewardsWithdrawalReceipts]);
         
-        withdrawalHistorySamplerCount.current--;
-    }, 1000);
+    //     withdrawalHistorySamplerCount.current--;
+    // }, 1000);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -66,15 +66,15 @@ export default function Rewards() {
         fetchData();
     }, [isAuthorized]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            updateSampledWithdrawalHistory({ isWithdrawing, interval });
-        }, 1000);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         updateSampledWithdrawalHistory({ isWithdrawing, interval });
+    //     }, 1000);
 
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [isWithdrawing]);
+    //     return () => {
+    //         if (interval) clearInterval(interval);
+    //     };
+    // }, [isWithdrawing]);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black">
@@ -114,6 +114,7 @@ export default function Rewards() {
               {tab === TABS.Sharing && (
                 <SharingTab
                   transactions={rewardsWithdrawalReceipts}
+                  setTransactions={setRewardsWithdrawalReceipts}
                   availableRewards={userInfoData?.referralsRewards || 0}
                   totalEarnedRewards={userInfoData?.totalEarnedRewards || 0}
                   isWithdrawing={isWithdrawing}

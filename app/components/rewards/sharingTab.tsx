@@ -1,4 +1,5 @@
-import { useState } from 'react';
+'use client';
+
 import { toast } from 'react-toastify';
 import { Button } from '../ui/Button';
 import { classNames } from '~/utils/classNames';
@@ -10,6 +11,7 @@ interface SharingTabProps {
     availableRewards: number;
     totalEarnedRewards: number;
     transactions: WithdrawRewardsResponse[];
+    setTransactions: (transactions: WithdrawRewardsResponse[]) => void;
     isWithdrawing: boolean;
     isBuyingMessages: boolean;
     setIsWithdrawing: (isWithdrawing: boolean) => void;
@@ -18,14 +20,28 @@ interface SharingTabProps {
 
 const MINIMUM_WITHDRAWAL_AMOUNT = Number(import.meta.env.VITE_PRICE_PER_MESSAGE_IN_SOL) * 10;
 
-export default function SharingTab({ transactions, availableRewards, totalEarnedRewards, isWithdrawing, isBuyingMessages, setIsWithdrawing, setIsBuyingMessages }: SharingTabProps) {
+export default function SharingTab({
+    transactions,
+    setTransactions,
+    availableRewards,
+    totalEarnedRewards,
+    isWithdrawing,
+    isBuyingMessages,
+    setIsWithdrawing,
+    setIsBuyingMessages,
+}: SharingTabProps) {
     const { withdrawRewards, buyMessagesForRewards } = useRewardsApi();
     const { isAuthorized } = useAuth();
 
     const handleWithdraw = async () => {
         setIsWithdrawing(true);
         try {
-            await withdrawRewards();
+            const response = await withdrawRewards().catch(() => null);
+
+            if (response) {
+                setTransactions([response, ...transactions]);
+            }
+
             toast.success('Withdrawal successful!');
         } catch (error) {
             toast.error('Withdrawal failed. Please try again.');
@@ -78,14 +94,14 @@ export default function SharingTab({ transactions, availableRewards, totalEarned
                 <div className="flex gap-4">
                     <Button
                         onClick={handleWithdraw}
-                        disabled={availableRewards <= MINIMUM_WITHDRAWAL_AMOUNT || isWithdrawing || isBuyingMessages}
+                        disabled={availableRewards < MINIMUM_WITHDRAWAL_AMOUNT || isWithdrawing || isBuyingMessages}
                         className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
                     >
                         {isWithdrawing ? 'Withdrawing...' : 'Withdraw rewards'}
                     </Button>
                     <Button
                         onClick={handleBuyMessages}
-                        disabled={availableRewards <= MINIMUM_WITHDRAWAL_AMOUNT || isWithdrawing || isBuyingMessages}
+                        disabled={availableRewards < MINIMUM_WITHDRAWAL_AMOUNT || isWithdrawing || isBuyingMessages}
                         className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors"
                     >
                         Buy messages
