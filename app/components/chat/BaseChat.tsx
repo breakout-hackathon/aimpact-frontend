@@ -255,7 +255,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const handleSendMessage = (event: React.UIEvent, messageInput?: string) => {
       console.log("HANDLE SEND MESSAGE")
       if (!isAuthorized) {
-        toast.error("You cannot use chat. Connect your wallet and log in.");
+        toast.warning("You cannot use chat. Connect your wallet and log in.");
         return;
       }
       
