@@ -88,7 +88,7 @@ export function Header() {
 
             <ClientOnly>
               {() => {
-                return connected && <DepositButton />;
+                return connected && <DepositButton discountPercent={user.discountPercent || 0} />;
               }}
             </ClientOnly>
 

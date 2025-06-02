@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import { Clipboard, Check } from "@phosphor-icons/react";
 import CustomWalletButton from '../common/CustomWalletButton';
