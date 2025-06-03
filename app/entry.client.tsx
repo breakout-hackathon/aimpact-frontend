@@ -6,7 +6,7 @@ import { AppProvider } from '~/providers';
 
 init({
     dsn: "https://3ce6d32dc3d38efe0423220e0772c4a6@o4509436444278784.ingest.de.sentry.io/4509436451618896",
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 0.25,
 
     integrations: [browserTracingIntegration({
       useEffect,
@@ -19,7 +19,7 @@ init({
 
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1,
-    sampleRate: 0.1,
+    sampleRate: 0.25,
     environment: import.meta.env.ENVIRONMENT || 'development',
 })
 
