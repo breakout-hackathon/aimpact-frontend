@@ -38,12 +38,11 @@ export default function getMessagesButton() {
   const [verifyClicked, setVerifyClicked] = useState(false);
   const [disableVerify, setDisableVerify] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [actionClicked, setActionClicked] = useState(false);
   const [twitterHandle, setTwitterHandle] = useState("");
   const { mutateAsync: requestMessages } = useRequestMessages();
 
-  const twitterHandleRegex = /^@?[A-Za-z0-9_]{1,15}$/;
+  const twitterHandleRegex = /^@[A-Za-z0-9_]{4,15}$/;
 
   const handleTwitterHandleInput = (event: FormEvent<HTMLInputElement>) => {
     setTwitterHandle(event.currentTarget.value);
@@ -71,22 +70,26 @@ export default function getMessagesButton() {
   }
 
   const handleVerifyClicked = async () => {
+    const formattedTwitterHandle = "@" + twitterHandle
     console.log(verifyClicked);
+
     const delay = Math.random() * 1.2 + 1 * 1000;
     await sleep(delay);
 
-    if (validateTwitterHandle(twitterHandle)) {
-      setError("Invalid twitter handle.")
+    if (!validateTwitterHandle(formattedTwitterHandle)) {
+      setError("Invalid twitter handle.");
+      return;
     }
 
     if (!verifyClicked) {
-      setError("Failed to verify tasks. Looks like you didn't subscribed. Try again");
+      setError("Failed to verify tasks. It looks like you have not subscribed. Try again");
       setVerifyClicked(true);
       setDisableVerify(true);
     } else {
       setError("");
       try {
-        await requestMessages({ twitterHandle });
+        const data = await requestMessages({ twitterHandle: formattedTwitterHandle });
+        console.log(data);
         toast.info("Your messages will appear shortly!", { autoClose: false });
       } catch (error: any) {
         const errorMessage = error?.response?.data?.message || error?.message;
@@ -140,7 +143,7 @@ export default function getMessagesButton() {
                 <div className="text-left mb-4">
                   <h4 className="text-xl font-bold mb-2">Tasks</h4>
                   <div className="flex flex-col gap-2 mb-2">
-                    <div className="flex justify-between items-center px-0.5">
+                    <div className="flex justify-between items-center px-0.5 mb-1">
                       <div className="flex gap-2 items-center justify-center">
                         <p>Subscribe to @ostolex on X</p>
                         {tasksCompleted && <div className="i-ph:check-circle text-green text-xl" />}
@@ -150,20 +153,20 @@ export default function getMessagesButton() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 items-center justify-between px-0.5">
+                  <div className="flex gap-2 items-center justify-between px-0.5 mb-2">
                     <label>Twitter handle:</label>
-                    <div className="border border-bolt-elements-borderColor rounded-md flex p-0.5 bg-white">
+                    <div className="border border-bolt-elements-borderColor rounded-md flex p-0.5 bg-white disabled:cursor-not-allowed">
                       <div className="flex gap-1 mr-1">
-                        <p className="text-black">@</p>
+                        <p className="text-gray-600">@</p>
                       </div>
-                      <input className="border-none" required onInput={handleTwitterHandleInput} value={twitterHandle} placeholder="username" />
+                      <input className="border-none disabled:cursor-not-allowed" disabled={tasksCompleted} required onInput={handleTwitterHandleInput} value={twitterHandle} placeholder="username" />
                     </div>
                   </div>
 
                   <p className={classNames(
                     error ? "text-red-700" : "text-white",
                     "text-sm text-center h-[20px]"
-                  )}>{error || message}</p>
+                  )}>{error}</p>
                 </div>
 
                 {tasksCompleted ? (
@@ -171,7 +174,7 @@ export default function getMessagesButton() {
                     Close
                   </Button>
                 ) : (
-                  <Button variant="default" disabled={!twitterHandle || !actionClicked || disableVerify} onClick={handleActionClicked} className="px-10 py-2.5 text-lg">
+                  <Button variant="default" disabled={!twitterHandle || !actionClicked || disableVerify} onClick={handleVerifyClicked} className="px-10 py-2.5 text-lg">
                     Verify
                   </Button>
                 )}
