@@ -14,7 +14,6 @@ export type Board = Player[];
 export type GameStatus = 'waiting' | 'playing' | 'won' | 'draw';
 
 const PROGRAM_ID = new PublicKey(idl.address);
-const GAME_DOMAIN = new BN(1); // Domain for our tic-tac-toe game
 
 export function useTicTacToe() {
   const { connection } = useConnection();
@@ -23,6 +22,24 @@ export function useTicTacToe() {
   const [currentPlayer, setCurrentPlayer] = useState<1 | 2>(1);
   const [gameStatus, setGameStatus] = useState<GameStatus>('waiting');
   const [isLoading, setIsLoading] = useState(false);
+  const [gameId, setGameId] = useState<string>('');
+
+  // Generate or get game ID from URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    let id = urlParams.get('gameId');
+    
+    if (!id) {
+      // Generate random u64 as game ID
+      id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+      // Update URL without page reload
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('gameId', id);
+      window.history.replaceState({}, '', newUrl.toString());
+    }
+    
+    setGameId(id);
+  }, []);
 
   const getProvider = useCallback(() => {
     if (!wallet.wallet || !wallet.publicKey) return null;
@@ -35,28 +52,47 @@ export function useTicTacToe() {
     return new Program(idl as any, provider);
   }, [getProvider]);
 
-  // Get PDA for a specific board position
+  // Get PDA for a specific board position using gameId as domain
   const getPDA = useCallback((position: number) => {
+    if (!gameId) return null;
     const [pda] = PublicKey.findProgramAddressSync(
       [
-        GAME_DOMAIN.toArrayLike(Buffer, 'le', 8),
+        new BN(gameId).toArrayLike(Buffer, 'le', 8),
         new BN(position).toArrayLike(Buffer, 'le', 8)
       ],
       PROGRAM_ID
     );
     return pda;
-  }, []);
+  }, [gameId]);
 
-  // Initialize a board position
-  const initializePosition = useCallback(async (position: number) => {
+  // Check if a position is already initialized
+  const isPositionInitialized = useCallback(async (position: number): Promise<boolean> => {
     const program = getProgram();
-    if (!program || !wallet.publicKey) return false;
+    const pda = getPDA(position);
+    if (!program || !pda || !gameId) return false;
 
     try {
-      const pda = getPDA(position);
-      
       await program.methods
-        .initialize(GAME_DOMAIN, new BN(position))
+        .get(new BN(gameId), new BN(position))
+        .accounts({
+          val: pda,
+        })
+        .view();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }, [getProgram, getPDA, gameId]);
+
+  // Initialize a board position (only when needed)
+  const initializePosition = useCallback(async (position: number) => {
+    const program = getProgram();
+    const pda = getPDA(position);
+    if (!program || !wallet.publicKey || !pda || !gameId) return false;
+
+    try {
+      await program.methods
+        .initialize(new BN(gameId), new BN(position))
         .accounts({
           val: pda,
           signer: wallet.publicKey,
@@ -69,18 +105,17 @@ export function useTicTacToe() {
       console.error('Failed to initialize position:', error);
       return false;
     }
-  }, [getProgram, getPDA, wallet.publicKey]);
+  }, [getProgram, getPDA, wallet.publicKey, gameId]);
 
   // Set a value at a specific position
   const setPosition = useCallback(async (position: number, player: 1 | 2) => {
     const program = getProgram();
-    if (!program || !wallet.publicKey) return false;
+    const pda = getPDA(position);
+    if (!program || !wallet.publicKey || !pda || !gameId) return false;
 
     try {
-      const pda = getPDA(position);
-      
       await program.methods
-        .set(GAME_DOMAIN, new BN(position), new BN(player))
+        .set(new BN(gameId), new BN(position), new BN(player))
         .accounts({
           val: pda,
         })
@@ -91,30 +126,33 @@ export function useTicTacToe() {
       console.error('Failed to set position:', error);
       return false;
     }
-  }, [getProgram, getPDA, wallet.publicKey]);
+  }, [getProgram, getPDA, wallet.publicKey, gameId]);
 
   // Get value at a specific position
   const getPosition = useCallback(async (position: number): Promise<Player> => {
     const program = getProgram();
-    if (!program) return 0;
+    const pda = getPDA(position);
+    if (!program || !pda || !gameId) return 0;
 
     try {
       const result = await program.methods
-        .get(GAME_DOMAIN, new BN(position))
+        .get(new BN(gameId), new BN(position))
         .accounts({
-          val: getPDA(position),
+          val: pda,
         })
         .view();
 
       return result.toNumber() as Player;
     } catch (error) {
-      // Position not initialized yet
+      // Position not initialized yet, return 0 (empty)
       return 0;
     }
-  }, [getProgram, getPDA]);
+  }, [getProgram, getPDA, gameId]);
 
   // Load the current board state from blockchain
   const loadBoard = useCallback(async () => {
+    if (!gameId) return;
+    
     setIsLoading(true);
     try {
       const newBoard: Board = [];
@@ -138,18 +176,27 @@ export function useTicTacToe() {
     } finally {
       setIsLoading(false);
     }
-  }, [getPosition]);
+  }, [getPosition, gameId]);
 
-  // Make a move
+  // Make a move - FIXED to avoid double wallet prompts
   const makeMove = useCallback(async (position: number) => {
-    if (board[position] !== 0 || gameStatus !== 'playing' || isLoading) return;
+    if (board[position] !== 0 || gameStatus !== 'playing' || isLoading || !gameId) return;
 
     setIsLoading(true);
     try {
-      // First try to initialize the position (in case it's the first move)
-      await initializePosition(position);
+      // Check if position is already initialized
+      const initialized = await isPositionInitialized(position);
       
-      // Then set the value
+      if (!initialized) {
+        // Initialize position first (only once per position)
+        const initSuccess = await initializePosition(position);
+        if (!initSuccess) {
+          console.error('Failed to initialize position');
+          return;
+        }
+      }
+      
+      // Set the value (this happens every move)
       const success = await setPosition(position, currentPlayer);
       
       if (success) {
@@ -176,7 +223,7 @@ export function useTicTacToe() {
     } finally {
       setIsLoading(false);
     }
-  }, [board, currentPlayer, gameStatus, isLoading, initializePosition, setPosition, loadBoard]);
+  }, [board, currentPlayer, gameStatus, isLoading, gameId, isPositionInitialized, initializePosition, setPosition, loadBoard]);
 
   // Check for winner
   const checkWinner = (board: Board): Player => {
@@ -194,8 +241,16 @@ export function useTicTacToe() {
     return 0;
   };
 
-  // Reset game
+  // Reset game - creates new game ID
   const resetGame = useCallback(() => {
+    const newGameId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+    
+    // Update URL with new game ID
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('gameId', newGameId);
+    window.history.replaceState({}, '', newUrl.toString());
+    
+    setGameId(newGameId);
     setBoard(Array(9).fill(0));
     setCurrentPlayer(1);
     setGameStatus('waiting');
@@ -203,17 +258,17 @@ export function useTicTacToe() {
 
   // Start new game
   const startGame = useCallback(async () => {
-    if (!wallet.connected) return;
+    if (!wallet.connected || !gameId) return;
     setGameStatus('playing');
     await loadBoard();
-  }, [wallet.connected, loadBoard]);
+  }, [wallet.connected, loadBoard, gameId]);
 
-  // Effect to start game when wallet connects
+  // Effect to start game when wallet connects or gameId changes
   useEffect(() => {
-    if (wallet.connected && gameStatus === 'waiting') {
+    if (wallet.connected && gameId && gameStatus === 'waiting') {
       startGame();
     }
-  }, [wallet.connected, gameStatus, startGame]);
+  }, [wallet.connected, gameId, gameStatus, startGame]);
 
   return {
     board,
@@ -225,6 +280,7 @@ export function useTicTacToe() {
     startGame,
     loadBoard,
     isConnected: wallet.connected,
-    winner: gameStatus === 'won' ? checkWinner(board) : null
+    winner: gameStatus === 'won' ? checkWinner(board) : null,
+    gameId
   };
 } 

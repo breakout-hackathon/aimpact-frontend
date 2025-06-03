@@ -14,7 +14,8 @@ export function TicTacToe() {
     makeMove,
     resetGame,
     winner,
-    isConnected
+    isConnected,
+    gameId
   } = useTicTacToe();
 
   const getPlayerSymbol = (player: Player) => {
@@ -64,6 +65,11 @@ export function TicTacToe() {
     return "text-red-600";
   };
 
+  const copyGameUrl = () => {
+    navigator.clipboard.writeText(window.location.href);
+    // You could add a toast notification here
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-8">
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
@@ -75,6 +81,20 @@ export function TicTacToe() {
           <p className="text-gray-600 mb-4">
             On-chain gaming with Solana
           </p>
+          
+          {/* Game ID Display */}
+          {gameId && (
+            <div className="mb-4 p-2 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-600 mb-1">Game ID:</p>
+              <p className="text-sm font-mono text-gray-800 break-all">{gameId}</p>
+              <button 
+                onClick={copyGameUrl}
+                className="text-xs text-blue-600 hover:text-blue-800 mt-1"
+              >
+                📋 Copy game URL
+              </button>
+            </div>
+          )}
           
           {/* Wallet Connection */}
           <div className="mb-6">
@@ -129,20 +149,32 @@ export function TicTacToe() {
         {connected && (
           <div className="mt-6 text-center text-sm text-gray-500">
             <p>Game state is stored on Solana blockchain</p>
-            <p>Each move requires a transaction signature</p>
+            <p>Each move requires ONE transaction signature</p>
+            <p className="text-xs mt-1 text-gray-400">
+              Share the URL to continue this game later!
+            </p>
           </div>
         )}
       </div>
       
       {/* Instructions */}
       <div className="mt-8 max-w-md text-center text-gray-600 text-sm">
-        <h3 className="font-semibold mb-2">How to play:</h3>
+        <h3 className="font-semibold mb-2">How it works:</h3>
         <ol className="list-decimal list-inside space-y-1">
-          <li>Connect your Phantom wallet</li>
-          <li>Click on any empty cell to make your move</li>
-          <li>Each move is stored on the Solana blockchain</li>
-          <li>First to get 3 in a row wins!</li>
+          <li>Each game gets a unique ID stored in the URL</li>
+          <li>First move on a cell = <strong>Initialize</strong> + <strong>Set</strong> (1 signature)</li>
+          <li>Subsequent moves on other cells = <strong>Initialize</strong> + <strong>Set</strong> (1 signature)</li>
+          <li>Moves on initialized cells = <strong>Set</strong> only (1 signature)</li>
+          <li>Loading game = <strong>Get</strong> all positions (no signature)</li>
         </ol>
+        
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs">
+          <h4 className="font-semibold text-blue-800 mb-1">Smart Optimization:</h4>
+          <p className="text-blue-700">
+            Each board position is initialized only once per game. 
+            Subsequent moves only update the value, reducing transaction costs!
+          </p>
+        </div>
       </div>
     </div>
   );
