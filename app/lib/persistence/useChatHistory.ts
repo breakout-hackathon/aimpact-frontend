@@ -69,8 +69,6 @@ export function useChatHistory() {
                * const snapshotStr = localStorage.getItem(`snapshot:${mixedId}`); // Remove localStorage usage
                * const snapshot: Snapshot = snapshotStr ? JSON.parse(snapshotStr) : { chatIndex: 0, files: {} }; // Use snapshot from DB
                */
-              console.log('RESTORED MESSAGES');
-              console.log(storedMessages);
               const validSnapshot = snapshot || { chatIndex: '', files: {} }; // Ensure snapshot is not undefined
               const summary = validSnapshot.summary;
 
@@ -91,8 +89,7 @@ export function useChatHistory() {
               if (snapshotIndex > 0 && storedMessages.messages[snapshotIndex].id == rewindId) {
                 startingIdx = -1;
               }
-              
-              console.log(startingIdx)
+                
               let filteredMessages = storedMessages.messages.slice(startingIdx + 1, endingIdx);
               let archivedMessages: Message[] = [];
 
