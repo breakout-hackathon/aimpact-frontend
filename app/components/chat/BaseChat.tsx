@@ -263,7 +263,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         toast.warning("You cannot use chat. Connect your wallet and log in.");
         return;
       }
-      
+
+      (window as any).plausible('send_chat_message');
+
       if (sendMessage) {
         sendMessage(event, messageInput);
 

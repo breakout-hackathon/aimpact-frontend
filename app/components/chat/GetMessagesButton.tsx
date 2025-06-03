@@ -54,6 +54,8 @@ export default function getMessagesButton() {
   };
 
   const handleActionClicked = async () => {
+    (window as any).plausible('click_twitter_subscribe');
+
     if (verifyClicked) {
       setDisableVerify(false);
     } else {
@@ -73,9 +75,19 @@ export default function getMessagesButton() {
       setError("");
       try {
         await requestMessages();
+        (window as any).plausible('request_free_messages_twitter', { props: {
+            success: true,
+            error: null,
+          }
+        });
       } catch (error: any) {
         const errorMessage = error?.response?.data?.message || error?.message;
         toast.error(`Failed to request free messages: ${errorMessage}`);
+        (window as any).plausible('request_free_messages_twitter', { props: {
+            success: false,
+            error: `Failed due to server error: ${errorMessage}`,
+          }
+        });
         return;
       }
       setTasksCompleted(true);
