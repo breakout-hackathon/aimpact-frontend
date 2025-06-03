@@ -4,18 +4,33 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { toast } from 'react-toastify';
 import { Button } from '../ui';
-import { useSolanaProxy } from '~/lib/api-hooks/useSolanaProxy';
+import { useSolanaProxy } from '~/lib/api-hooks/useSolanaProxyApi';
 import { classNames } from '~/utils/classNames';
 import waterStyles from '../ui/WaterButton.module.scss';
 
-export default function DepositButton() {
+const MESSAGE_PRICE_IN_SOL = Number(import.meta.env.VITE_PRICE_PER_MESSAGE_IN_SOL);
+
+interface DepositButtonProps {
+  discountPercent?: number;
+}
+
+export default function DepositButton({ discountPercent }: DepositButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [error, setError] = useState('');
   const navigation = useNavigation();
   const { publicKey, signTransaction } = useWallet();
   const { getRecentBlockhash, sendTransaction } = useSolanaProxy();
 
   const isSubmitting = navigation.state === 'submitting';
+
+  const baseMessageCount = 10;
+  const hasDiscount = discountPercent && discountPercent > 0;
+  const discountedMessageCount = hasDiscount
+    ? Math.floor(baseMessageCount / (1 - discountPercent / 100))
+    : baseMessageCount;
+
+  const multiplier = hasDiscount
+    ? parseFloat((discountedMessageCount / baseMessageCount).toFixed(2)).toString()
+    : null;
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -23,7 +38,6 @@ export default function DepositButton() {
 
   const handlePurchase = async () => {
     if (!publicKey || !signTransaction) {
-      setError('Please connect your wallet first');
       return;
     }
 
@@ -35,7 +49,6 @@ export default function DepositButton() {
       blockhash = data.blockhash;
       lastValidBlockHeight = data.lastValidBlockHeight;
     } catch (err) {
-      setError('Failed to get recent blockhash');
       return;
     }
 
@@ -48,7 +61,7 @@ export default function DepositButton() {
       SystemProgram.transfer({
         fromPubkey: publicKey,
         toPubkey: new PublicKey(import.meta.env.VITE_DEPOSIT_ADDRESS),
-        lamports: 0.03 * LAMPORTS_PER_SOL,
+        lamports: MESSAGE_PRICE_IN_SOL * baseMessageCount * LAMPORTS_PER_SOL,
       }),
     );
 
@@ -56,7 +69,6 @@ export default function DepositButton() {
     try {
       transaction = await signTransaction(transaction);
     } catch (err) {
-      setError('Transaction signing failed');
       return;
     }
 
@@ -69,9 +81,7 @@ export default function DepositButton() {
       setIsOpen(false);
       toast.success('Purchase completed!');
     } catch (err) {
-      const message = 'Transaction failed. Please try again.';
-      setError(message);
-      toast.error(message);
+      toast.error('Transaction failed. Please try again.');
     }
   };
 
@@ -97,11 +107,24 @@ export default function DepositButton() {
                 <div className="text-center">
                   <h3 className="text-2xl font-bold mb-4">Purchase Messages</h3>
                   <p className="text-xl mb-6">
-                    Get <span className="font-semibold">10 messages</span> for{' '}
-                    <span className="font-semibold">0.03 SOL</span>
+                    Get{" "}
+                    {hasDiscount ? (
+                      <>
+                        <span className="font-semibold line-through text-gray-400">{baseMessageCount}</span>
+                        <span className="mx-1" />
+                        <span className="font-semibold text-white">{discountedMessageCount}</span>
+                        {multiplier && (
+                          <span className="text-green-400 font-semibold ml-1">
+                            (x{multiplier})
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="font-semibold">{baseMessageCount}</span>
+                    )}{" "}
+                    messages for{" "}
+                    <span className="font-semibold">{MESSAGE_PRICE_IN_SOL * baseMessageCount} SOL</span>
                   </p>
-
-                  {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
                   <div className="flex flex-col gap-2">
                     <button

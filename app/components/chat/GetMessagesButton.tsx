@@ -3,6 +3,7 @@ import { Button } from "../ui";
 import waterStyles from '../ui/WaterButton.module.scss';
 import { useEffect, useState } from "react";
 import { useRequestMessages } from "~/lib/hooks/tanstack/useMessages";
+import { toast } from "react-toastify";
 
 interface VerifyButtonsProps {
   actionButtonText?: string;
@@ -62,7 +63,6 @@ export default function getMessagesButton() {
   }
 
   const handleVerifyClicked = async () => {
-    console.log(verifyClicked);
     if (!verifyClicked) {
       const delay = Math.random() * 1.4 + 1 * 1000;
       await sleep(delay);
@@ -71,13 +71,20 @@ export default function getMessagesButton() {
       setDisableVerify(true);
     } else {
       setError("");
+      try {
+        await requestMessages();
+      } catch (error: any) {
+        const errorMessage = error?.response?.data?.message || error?.message;
+        toast.error(`Failed to request free messages: ${errorMessage}`);
+        return;
+      }
       setTasksCompleted(true);
       localStorage.setItem("tasksCompelted", "true");
     }
   }
 
   useEffect(() => {
-    setTasksCompleted(!!localStorage.getItem("tasksCompelted"))
+    setTasksCompleted(!!localStorage.getItem("tasksCompelted"));
   }, [])
 
   return (

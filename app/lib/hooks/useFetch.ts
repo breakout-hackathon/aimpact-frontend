@@ -71,7 +71,7 @@ export function useFetch<T = any>() {
           toast.error(msg);
           throw new Error(msg);
         }
-        
+
         let rawData = await response.text();
         if (!rawData) {
           return rawData as T;

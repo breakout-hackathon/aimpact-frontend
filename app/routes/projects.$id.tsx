@@ -2,13 +2,24 @@
 
 import { PencilIcon } from '@phosphor-icons/react';
 import { useParams } from '@remix-run/react';
-import { useProjectsQuery } from 'query/use-project-query';
+import { useProjectQuery } from 'query/use-project-query';
+import { useAuth } from '~/lib/hooks/useAuth';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 export default function Project() {
   const params = useParams();
-  const projectsQuery = useProjectsQuery();
+  if (!params.id) {
+    return (
+      <div className="flex items-center justify-center h-screen w-screen text-center text-red-500 bg-black">
+        Project ID is required.
+      </div>
+    );
+  }
+  const auth = useAuth();
+  const { publicKey, connected } = useWallet();
+  const projectQuery = useProjectQuery(params.id);
 
-  if (projectsQuery.isLoading) {
+  if (projectQuery.isLoading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen text-center text-gray-400 bg-black">
         Loading...
@@ -16,15 +27,15 @@ export default function Project() {
     );
   }
 
-  if (projectsQuery.isError) {
+  if (projectQuery.isError) {
     return (
-      <div className="flex items-center justify-center h-screen w-screen text-center text-red-500 bg-black">
-        Error loading project.
+      <div className="flex items-center justify-center text-center text-red-500 bg-black">
+        Error loading project. Error details: {projectQuery.error.message}
       </div>
     );
   }
 
-  const project = projectsQuery.data.find((p) => p.id === params.id);
+  const project = projectQuery.data;
 
   if (!project) {
     return (
@@ -63,14 +74,17 @@ export default function Project() {
               <p className="text-xl leading-relaxed text-gray-300">
                 {project.description || 'No description available.'}
               </p>
-              <a
-                className="flex items-center justify-center gap-2 text-center bg-purple-600 hover:bg-purple-700
+              {auth && auth.isAuthorized && connected && publicKey?.toBase58() === project.projectOwnerAddress && (
+                <a
+                  className="flex items-center justify-center gap-2 text-center bg-purple-600 hover:bg-purple-700
                 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
-                href={`/chat/${project.id}`}
-              >
-                <PencilIcon size={20} />
-                Edit project
-              </a>
+                  href={`/chat/${project.id}`}
+                >
+                  <PencilIcon size={20} />
+                  Edit project
+                </a>
+              )
+              }
             </div>
           </section>
 
