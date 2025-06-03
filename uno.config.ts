@@ -19,6 +19,9 @@ const customIconCollection = iconPaths.reduce(
   {} as Record<string, Record<string, () => Promise<string>>>,
 );
 
+const range = (start: number, stop: number, step = 1) =>
+  Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
+
 const BASE_COLORS = {
   white: '#FFFFFF',
   gray: {
@@ -98,7 +101,11 @@ const COLOR_PRIMITIVES = {
 };
 
 export default defineConfig({
-  safelist: [...Object.keys(customIconCollection[collectionName] || {}).map((x) => `i-bolt:${x}`)],
+  safelist: [
+    ...Object.keys(customIconCollection[collectionName] || {}).map((x) => `i-bolt:${x}`),
+    ...range(1, 9).map(i => `bg-green-${100 * i}`),
+    'bg-green-950'
+  ],
   shortcuts: {
     'bolt-ease-cubic-bezier': 'ease-[cubic-bezier(0.4,0,0.2,1)]',
     'transition-theme': 'transition-[background-color,border-color,color] duration-150 bolt-ease-cubic-bezier',

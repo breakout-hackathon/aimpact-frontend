@@ -186,14 +186,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       files,
       promptId,
       contextOptimization: contextOptimizationEnabled,
-      supabase: {
-        isConnected: supabaseConn.isConnected,
-        hasSelectedProject: !!selectedProject,
-        credentials: {
-          supabaseUrl: supabaseConn?.credentials?.supabaseUrl,
-          anonKey: supabaseConn?.credentials?.anonKey,
-        },
-      },
       authToken: Cookies.get('authToken'),
     },
     sendExtraMessageFields: true,
@@ -411,7 +403,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
                 id: `3-${new Date().getTime()}`,
                 role: 'user',
                 content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${userMessage}`,
-                annotations: ['hidden'],
+                annotations: ['hidden', 'no-store'],
               },
             ]);
             reload();

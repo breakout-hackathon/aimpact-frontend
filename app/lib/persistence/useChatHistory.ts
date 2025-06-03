@@ -79,6 +79,9 @@ export function useChatHistory() {
                 : storedMessages.messages.length;
               const snapshotIndex = storedMessages.messages.findIndex((m) => m.id === validSnapshot.chatIndex);
               
+              // console.log(snapshotIndex)  // Index of message when snapshot was saved
+              // console.log(endingIdx)  // Last index
+              // console.log(rewindId) // Not used yet
               if (snapshotIndex >= 0 && snapshotIndex < endingIdx) {
                 startingIdx = snapshotIndex;
               }
@@ -88,13 +91,13 @@ export function useChatHistory() {
               }
                 
               let filteredMessages = storedMessages.messages.slice(startingIdx + 1, endingIdx);
-              
               let archivedMessages: Message[] = [];
 
               if (startingIdx >= 0) {
                 archivedMessages = storedMessages.messages.slice(0, startingIdx + 1);
               }
 
+              console.log("ARCHIVED MESSAGES INIT", archivedMessages)
               setArchivedMessages(archivedMessages);
 
               if (startingIdx > 0) {
@@ -169,7 +172,8 @@ export function useChatHistory() {
                 ];
                 restoreSnapshot(mixedId);
               }
-
+              
+              console.log("FILTERED MESSAGES INIT", filteredMessages)
               setInitialMessages(filteredMessages);
 
               description.set(storedMessages.description);

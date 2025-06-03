@@ -69,18 +69,37 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
     try {
       transaction = await signTransaction(transaction);
     } catch (err) {
+      (window as any).plausible('purchase_messages', { props: {
+          message_count: baseMessageCount,
+          success: false,
+          error: 'Sign transaction failed',
+        }
+      });
       return;
     }
 
     // 4. Serialize and send to backend
     try {
       const serializedTx = transaction.serialize({ requireAllSignatures: false }).toString('base64');
-      console.log(`Serialized TX: ${serializedTx}`);
+
       await sendTransaction(serializedTx);
+
+      (window as any).plausible('purchase_messages', { props: {
+          message_count: baseMessageCount,
+          success: true,
+          error: null,
+        }
+      });
 
       setIsOpen(false);
       toast.success('Purchase completed!');
     } catch (err) {
+      (window as any).plausible('purchase_messages', { props: {
+          message_count: baseMessageCount,
+          success: false,
+          error: 'Send transaction failed',
+        }
+      });
       toast.error('Transaction failed. Please try again.');
     }
   };

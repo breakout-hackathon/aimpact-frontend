@@ -54,6 +54,8 @@ export default function getMessagesButton() {
   };
 
   const handleActionClicked = async () => {
+    (window as any).plausible('click_twitter_subscribe');
+
     if (verifyClicked) {
       setDisableVerify(false);
     } else {
@@ -63,7 +65,6 @@ export default function getMessagesButton() {
   }
 
   const handleVerifyClicked = async () => {
-    console.log(verifyClicked);
     if (!verifyClicked) {
       const delay = Math.random() * 1.4 + 1 * 1000;
       await sleep(delay);
@@ -74,9 +75,19 @@ export default function getMessagesButton() {
       setError("");
       try {
         await requestMessages();
+        (window as any).plausible('request_free_messages_twitter', { props: {
+            success: true,
+            error: null,
+          }
+        });
       } catch (error: any) {
         const errorMessage = error?.response?.data?.message || error?.message;
         toast.error(`Failed to request free messages: ${errorMessage}`);
+        (window as any).plausible('request_free_messages_twitter', { props: {
+            success: false,
+            error: `Failed due to server error: ${errorMessage}`,
+          }
+        });
         return;
       }
       setTasksCompleted(true);
@@ -85,7 +96,6 @@ export default function getMessagesButton() {
   }
 
   useEffect(() => {
-    console.log(localStorage.getItem("tasksCompelted"))
     setTasksCompleted(!!localStorage.getItem("tasksCompelted"));
   }, [])
 
