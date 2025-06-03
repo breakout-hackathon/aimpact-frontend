@@ -20,6 +20,9 @@ export default function ReferralsTab({ referralsCount, refCode }: ReferralsTabPr
         if (refCode) {
             navigator.clipboard.writeText(refLink);
             setCopied(true);
+
+            (window as any).plausible('copy_referral_link');
+
             setTimeout(() => setCopied(false), 1500);
         }
     };

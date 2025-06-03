@@ -42,8 +42,20 @@ export default function SharingTab({
                 setTransactions([response, ...transactions]);
             }
 
+            (window as any).plausible('withdraw_rewards', { props: {
+                amount: response?.amount,
+                success: true,
+                error: null,
+            }});
+
             toast.success('Withdrawal successful!');
         } catch (error) {
+            (window as any).plausible('withdraw_rewards', { props: {
+                amount: availableRewards,
+                success: false,
+                error: `Failed due to server error: ${error}`,
+            }});
+
             toast.error('Withdrawal failed. Please try again.');
             console.error('Withdrawal error:', error);
         } finally {
@@ -56,7 +68,18 @@ export default function SharingTab({
         try {
             await buyMessagesForRewards();
             toast.success('Messages bought successfully!');
+            (window as any).plausible('buy_messages_for_rewards', { props: {
+                message_count: 20,
+                success: true,
+                error: null,
+            }});
         } catch (error) {
+            (window as any).plausible('buy_messages_for_rewards', { props: {
+                message_count: 20,
+                success: false,
+                error: `Failed due to server error: ${error}`,
+            }});
+
             toast.error('Failed to buy messages. Please try again.');
             console.error('Buy messages error:', error);
         } finally {
