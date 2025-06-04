@@ -15,11 +15,13 @@ import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 const defaultApiKeys = {
   OpenAI: process.env.OPENAI_API_KEY as string,
   Anthropic: process.env.ANTHROPIC_API_KEY as string,
+  OpenRouter: process.env.OPEN_ROUTER_API_KEY as string,
 };
 
 const providersSetings = {
   OpenAI: { enabled: true },
   Anthropic: { enabled: true },
+  OpenRouter: { enabled: true },
 };
 
 export async function action(args: ActionFunctionArgs) {
