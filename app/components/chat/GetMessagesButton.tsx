@@ -72,8 +72,7 @@ export default function getMessagesButton() {
   }
 
   const handleVerifyClicked = async () => {
-    const formattedTwitterHandle = "@" + twitterHandle
-    console.log(verifyClicked);
+    const formattedTwitterHandle = "@" + twitterHandle;
 
     const delay = Math.random() * 1.2 + 1 * 1000;
     await sleep(delay);
@@ -91,7 +90,6 @@ export default function getMessagesButton() {
       setError("");
       try {
         const data = await requestMessages({ twitterHandle: formattedTwitterHandle });
-        console.log(data);
         toast.info("Your messages will appear shortly!", { autoClose: false });
         (window as any).plausible('request_free_messages_twitter', { props: {
             success: true,
