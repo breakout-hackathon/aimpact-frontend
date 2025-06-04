@@ -23,20 +23,44 @@ export class DeployService {
     const webcontainer = await this.#webcontainer;
 
     // Create a new terminal specifically for the build
-    const buildProcess = await webcontainer.spawn('npm', ['run', 'build']);
+    const buildProcess = await webcontainer.spawn('pnpm', ['run', 'build']);
 
+    console.log(buildProcess);
     let output = '';
+    let buildCompleted = false;
+    // const timeout = setTimeout(() => {
+    //   if (buildCompleted) {
+    //     buildProcess.kill();
+    //     console.log('Build completed, killing hanging process');
+    //   }
+    // }, 5000); 
+
     buildProcess.output.pipeTo(
       new WritableStream({
         write(data) {
+          console.log(data);
           output += data;
-        },
+          // Look for build completion indicators
+          if (data.includes('✓ built in') || data.includes('Build completed')) {
+            buildCompleted = true;
+            setTimeout(() => {
+              buildProcess.kill();
+            }, 2000);
+          }
+        }
       }),
     );
 
+    buildProcess.exit.then(exitCode => {
+      // clearTimeout(timeout);
+      console.log(`Process exited with code: ${exitCode}`);
+    });
+
     const exitCode = await buildProcess.exit;
 
-    if (exitCode !== 0) {
+    if (exitCode === 143 || exitCode === 0) {
+      console.log("Build completed")
+    } else {
       // Trigger build failed alert
       throw new Error('Build Failed' + "\n" + output || 'No Output Available');
     }

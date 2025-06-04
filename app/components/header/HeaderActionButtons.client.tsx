@@ -183,10 +183,11 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   };
 
   const onDeployTest = async () => {
+    console.log("Deploy started")
     const deployResult = await deployService.runDeployScript();
     console.log(deployResult);
 
-    if (deployResult.exitCode !== 0) {
+    if (deployResult.exitCode !== 0 && deployResult.exitCode !== 143) {
       toast.error(`Failed to build. Status code: ${deployResult.exitCode}.`)
     } else {
       toast.success("Build done.")
@@ -241,14 +242,18 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         </Button>
       )}
 
+      {/* <div className='flex items-center mx-2'>
+        <Button className='px-4 flex items-center border border-bolt-elements-borderColor rounded-md' onClick={onDeployTest}>Test deploy</Button>
+      </div> */}
+
       <div className="relative" ref={dropdownRef}>
         <div className="flex gap-2 mr-4 text-sm">
-        <Button
-            active
-            disabled={!finalDeployLink}
-            onClick={handleClickFinalLink}
-            className="px-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
-              border border-bolt-elements-borderColor rounded-md"
+          <Button
+              active
+              disabled={!finalDeployLink}
+              onClick={handleClickFinalLink}
+              className="px-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
+                border border-bolt-elements-borderColor rounded-md"
           >
             <ArrowSquareOutIcon size={24} />
           </Button>
@@ -292,8 +297,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             </Button>
           </div>
         )}
-
-        <Button onClick={onDeployTest}>Test deploy</Button>
       </div>
       <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-3">
         <Button
