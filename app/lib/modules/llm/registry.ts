@@ -1,4 +1,5 @@
 import AnthropicProvider from './providers/anthropic';
+import OpenRouterProvider from './providers/open-router';
 
 /*
  * import CohereProvider from './providers/cohere';
@@ -9,7 +10,6 @@ import AnthropicProvider from './providers/anthropic';
  * import LMStudioProvider from './providers/lmstudio';
  * import MistralProvider from './providers/mistral';
  * import OllamaProvider from './providers/ollama';
- * import OpenRouterProvider from './providers/open-router';
  * import OpenAILikeProvider from './providers/openai-like';
  * import PerplexityProvider from './providers/perplexity';
  * import TogetherProvider from './providers/together';
@@ -22,7 +22,8 @@ import OpenAIProvider from './providers/openai';
 
 export {
   AnthropicProvider,
-
+  OpenRouterProvider,
+  
   /*
    * CohereProvider,
    * DeepseekProvider,
@@ -32,7 +33,6 @@ export {
    * HyperbolicProvider,
    * MistralProvider,
    * OllamaProvider,
-   * OpenRouterProvider,
    * OpenAILikeProvider,
    * PerplexityProvider,
    * XAIProvider,
