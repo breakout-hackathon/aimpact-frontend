@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
 import { Chat } from '~/components/chat/Chat.client';
-import IntroPopup from '~/components/chat/IntroPopup';
+import { IntroPopup } from '~/components/chat/IntroPopup';
 import UserPooling from '~/components/chat/UserPooling';
 import Footer from '~/components/footer/Footer.client';
 import { Header } from '~/components/header/Header';
