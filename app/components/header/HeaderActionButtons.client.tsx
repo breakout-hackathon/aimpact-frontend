@@ -10,6 +10,9 @@ import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/pers
 import { toast, type Id as ToastId } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
 import { useGetDeploy, usePostDeploy } from '~/lib/hooks/tanstack/useDeploy';
+import { DeployService } from '~/lib/services/deployService';
+import { webcontainer } from '~/lib/webcontainer';
+import { TerminalStore } from '~/lib/stores/terminal';
 
 interface HeaderActionButtonsProps {}
 
@@ -37,6 +40,12 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const { takeSnapshot } = useChatHistory();
   const chatIdx = useStore(lastChatIdx);
   const chatSummary = useStore(lastChatSummary);
+
+  const terminalStore = new TerminalStore(webcontainer);
+  const deployService = new DeployService(
+    webcontainer,
+    () => terminalStore.boltTerminal,
+  );
 
   const successDeployStatuses = [DeployStatusEnum.ready, DeployStatusEnum.success];
   const loadingDeployStatuses = [DeployStatusEnum.building, DeployStatusEnum.initializing, DeployStatusEnum.queued];
@@ -173,6 +182,17 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     }
   };
 
+  const onDeployTest = async () => {
+    const deployResult = await deployService.runDeployScript();
+    console.log(deployResult);
+
+    if (deployResult.exitCode !== 0) {
+      toast.error(`Failed to build. Status code: ${deployResult.exitCode}.`)
+    } else {
+      toast.success("Build done.")
+    }
+  }
+
   const handleClickFinalLink = () => {
     if (finalDeployLink) {
       window.open(finalDeployLink, '_blank');
@@ -184,10 +204,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       toast.error('Failed to get chatIdx.');
       return;
     }
-    // if (!chatSummary) {
-    //   toast.error('Failed to get chatSummary.');
-    //   return;
-    // }
 
     setIsSaving(true);
 
@@ -276,6 +292,8 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             </Button>
           </div>
         )}
+
+        <Button onClick={onDeployTest}>Test deploy</Button>
       </div>
       <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden mr-3">
         <Button

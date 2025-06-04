@@ -97,7 +97,7 @@ export default function getMessagesButton() {
         return;
       }
       setTasksCompleted(true);
-      localStorage.setItem("tasksCompelted", "true");
+      // localStorage.setItem("tasksCompelted", "true");
     }
   }
 
