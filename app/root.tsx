@@ -69,10 +69,9 @@ export const Head = createHead(() => (
     <Meta />
     <Links />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
+    <script src="https://app.youform.com/widgets/widget.js" />
   </>
 ));
-
-const NoopProvider: FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
 
 function Providers({ children }: { children: React.ReactNode }) {
   type SolanaProviderType = FC<SolanaProviderProps>;
