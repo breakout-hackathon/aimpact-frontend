@@ -547,7 +547,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   return (
     <>
-      <Popup isShow={showPopup} handleToggle={handleClosePopup}>
+      {/* <Popup isShow={showPopup} handleToggle={handleClosePopup}>
         <h3 className='text-2xl font-bold mb-4'>You are using AImpact v0.01</h3>
         <p className='text-left'>
         <br />
@@ -558,7 +558,7 @@ At the moment, we removed free messages temporarily, so the service does not get
 <br /> <br />
 Follow our <a href='https://x.com/ostolex' target='_blank' className='underline'>Twitter</a> to be updated on our launch and other news.
         </p>
-      </Popup>
+      </Popup> */}
       <BaseChat
         ref={animationScope}
         textareaRef={textareaRef}
