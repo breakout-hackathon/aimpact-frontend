@@ -1,7 +1,7 @@
 import { classNames } from "~/utils/classNames";
 import { Button } from "../ui";
 import waterStyles from '../ui/WaterButton.module.scss';
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent, type FormEventHandler } from "react";
 import { useRequestMessages } from "~/lib/hooks/tanstack/useMessages";
 import { toast } from "react-toastify";
 
@@ -28,10 +28,6 @@ function VerifyButtons(
           {actionButtonText}
         </Button>
       </a>
-
-      <Button variant="default" disabled={completed || !actionClicked || disableVerify} onClick={handleVerifyClick}>
-        {verifyButtonText}
-      </Button>
     </div>
   )
 }
@@ -43,7 +39,14 @@ export default function getMessagesButton() {
   const [disableVerify, setDisableVerify] = useState(false);
   const [error, setError] = useState("");
   const [actionClicked, setActionClicked] = useState(false);
+  const [twitterHandle, setTwitterHandle] = useState("");
   const { mutateAsync: requestMessages } = useRequestMessages();
+
+  const twitterHandleRegex = /^@[A-Za-z0-9_]{4,15}$/;
+
+  const handleTwitterHandleInput = (event: FormEvent<HTMLInputElement>) => {
+    setTwitterHandle(event.currentTarget.value);
+  }
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -54,6 +57,8 @@ export default function getMessagesButton() {
   };
 
   const handleActionClicked = async () => {
+    (window as any).plausible('click_twitter_subscribe');
+
     if (verifyClicked) {
       setDisableVerify(false);
     } else {
@@ -62,21 +67,43 @@ export default function getMessagesButton() {
     }
   }
 
+  const validateTwitterHandle = (twitterHandle: string) => {
+    return twitterHandleRegex.test(twitterHandle);
+  }
+
   const handleVerifyClicked = async () => {
-    console.log(verifyClicked);
+    const formattedTwitterHandle = "@" + twitterHandle;
+
+    const delay = Math.random() * 1.2 + 1 * 1000;
+    await sleep(delay);
+
+    if (!validateTwitterHandle(formattedTwitterHandle)) {
+      setError("Invalid twitter handle.");
+      return;
+    }
+
     if (!verifyClicked) {
-      const delay = Math.random() * 1.4 + 1 * 1000;
-      await sleep(delay);
-      setError("Failed to verify tasks. Looks like you didn't subscribed. Try again");
+      setError("Failed to verify tasks. It looks like you have not subscribed. Try again");
       setVerifyClicked(true);
       setDisableVerify(true);
     } else {
       setError("");
       try {
-        await requestMessages();
+        const data = await requestMessages({ twitterHandle: formattedTwitterHandle });
+        toast.info("Your messages will appear shortly!", { autoClose: false });
+        (window as any).plausible('request_free_messages_twitter', { props: {
+            success: true,
+            error: null,
+          }
+        });
       } catch (error: any) {
         const errorMessage = error?.response?.data?.message || error?.message;
         toast.error(`Failed to request free messages: ${errorMessage}`);
+        (window as any).plausible('request_free_messages_twitter', { props: {
+            success: false,
+            error: `Failed due to server error: ${errorMessage}`,
+          }
+        });
         return;
       }
       setTasksCompleted(true);
@@ -85,7 +112,6 @@ export default function getMessagesButton() {
   }
 
   useEffect(() => {
-    console.log(localStorage.getItem("tasksCompelted"))
     setTasksCompleted(!!localStorage.getItem("tasksCompelted"));
   }, [])
 
@@ -127,8 +153,8 @@ export default function getMessagesButton() {
                 <div className="text-left mb-4">
                   <h4 className="text-xl font-bold mb-2">Tasks</h4>
                   <div className="flex flex-col gap-2 mb-2">
-                    <div className="flex justify-between items-center px-0.5">
-                      <div className="flex gap-2  items-center justify-center">
+                    <div className="flex justify-between items-center px-0.5 mb-1">
+                      <div className="flex gap-2 items-center justify-center">
                         <p>Subscribe to @ostolex on X</p>
                         {tasksCompleted && <div className="i-ph:check-circle text-green text-xl" />}
                       </div>
@@ -136,12 +162,32 @@ export default function getMessagesButton() {
                         handleVerifyClick={handleVerifyClicked} actionLink="https://x.com/ostolex" handleActionClicked={handleActionClicked} />
                     </div>
                   </div>
-                  <p className="text-red-700 text-sm text-center h-[20px]">{error}</p>
+
+                  <div className="flex gap-2 items-center justify-between px-0.5 mb-2">
+                    <label>Twitter handle:</label>
+                    <div className="border border-bolt-elements-borderColor rounded-md flex p-0.5 bg-white disabled:cursor-not-allowed">
+                      <div className="flex gap-1 mr-1">
+                        <p className="text-gray-600">@</p>
+                      </div>
+                      <input className="border-none disabled:cursor-not-allowed" disabled={tasksCompleted} required onInput={handleTwitterHandleInput} value={twitterHandle} placeholder="username" />
+                    </div>
+                  </div>
+
+                  <p className={classNames(
+                    error ? "text-red-700" : "text-white",
+                    "text-sm text-center h-[20px]"
+                  )}>{error}</p>
                 </div>
 
-                <Button variant="default" className="px-10 py-2.5 text-lg" onClick={handleToggle} disabled={!tasksCompleted}>
-                  Close
-                </Button>
+                {tasksCompleted ? (
+                  <Button variant="default" className="px-10 py-2.5 text-lg" onClick={handleToggle} disabled={!tasksCompleted}>
+                    Close
+                  </Button>
+                ) : (
+                  <Button variant="default" disabled={!twitterHandle || !actionClicked || disableVerify} onClick={handleVerifyClicked} className="px-10 py-2.5 text-lg">
+                    Verify
+                  </Button>
+                )}
               </div>
             </div>
           </div>

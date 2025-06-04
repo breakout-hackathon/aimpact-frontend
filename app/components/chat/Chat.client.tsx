@@ -104,12 +104,12 @@ const processSampledMessages = createSampler(
   }) => {
     const { messages, initialMessages, isLoading, parseMessages, storeMessageHistory } = options;
     parseMessages(messages, isLoading);
-
+    
     if (messages.length > initialMessages.length) {
       storeMessageHistory(messages).catch((error) => toast.error(error.message));
     }
   },
-  50,
+  1000,
 );
 
 interface ChatProps {
@@ -185,14 +185,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
       files,
       promptId,
       contextOptimization: contextOptimizationEnabled,
-      supabase: {
-        isConnected: supabaseConn.isConnected,
-        hasSelectedProject: !!selectedProject,
-        credentials: {
-          supabaseUrl: supabaseConn?.credentials?.supabaseUrl,
-          anonKey: supabaseConn?.credentials?.anonKey,
-        },
-      },
       authToken: Cookies.get('authToken'),
     },
     sendExtraMessageFields: true,
@@ -388,7 +380,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
                 id: `3-${new Date().getTime()}`,
                 role: 'user',
                 content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${userMessage}`,
-                annotations: ['hidden'],
+                annotations: ['hidden', 'no-store'],
               },
             ]);
             reload();
@@ -532,6 +524,18 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   return (
     <>
+      {/* <Popup isShow={showPopup} handleToggle={handleClosePopup}>
+        <h3 className='text-2xl font-bold mb-4'>You are using AImpact v0.01</h3>
+        <p className='text-left'>
+        <br />
+        You can use the service if you want to, but be ready, it's not in production at the moment.
+After launch, all users will have some free messages and also, there will be quests to get more free ones. 
+<br /> <br />
+At the moment, we removed free messages temporarily, so the service does not get abused while we are not launched, but feel free to buy some if you want to start early and support us.
+<br /> <br />
+Follow our <a href='https://x.com/ostolex' target='_blank' className='underline'>Twitter</a> to be updated on our launch and other news.
+        </p>
+      </Popup> */}
       <BaseChat
         ref={animationScope}
         textareaRef={textareaRef}

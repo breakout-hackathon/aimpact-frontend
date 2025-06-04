@@ -1,6 +1,7 @@
+import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/cloudflare';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
@@ -70,6 +71,8 @@ export const Head = createHead(() => (
     <Links />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
     <script src="https://app.youform.com/widgets/widget.js" />
+    <script defer data-domain="aimpact.dev" src="https://plausible.io/js/script.js" />
+    <script>{`window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }`}</script>
   </>
 ));
 
@@ -118,6 +121,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </>
   );
 }
+
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
+  return <div>Something went wrong</div>;
+};
 
 export default function App() {
   const theme = useStore(themeStore);

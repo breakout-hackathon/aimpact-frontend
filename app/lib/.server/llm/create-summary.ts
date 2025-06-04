@@ -1,10 +1,14 @@
 import { generateText, type CoreTool, type GenerateTextResult, type Message } from 'ai';
 import type { IProviderSetting } from '~/types/model';
-import { DEFAULT_MINI_MODEL, DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
+import { DEFAULT_MINI_MODEL, DEFAULT_MINI_PROVIDER, DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { extractCurrentContext, extractPropertiesFromMessage, simplifyBoltActions } from './utils';
 import { createScopedLogger } from '~/utils/logger';
 import { LLMManager } from '~/lib/modules/llm/manager';
+import { getFilePaths } from './select-context';
+import { IGNORE_PATTERNS, type FileMap } from './constants';
+import ignore from 'ignore';
 
+const ig = ignore().add(IGNORE_PATTERNS);
 const logger = createScopedLogger('create-summary');
 
 export async function createSummary(props: {
@@ -18,12 +22,10 @@ export async function createSummary(props: {
 }) {
   const { messages, env: serverEnv, apiKeys, providerSettings, onFinish } = props;
   let currentModel = DEFAULT_MINI_MODEL;
-  let currentProvider = DEFAULT_PROVIDER.name;
+  let currentProvider = DEFAULT_MINI_PROVIDER.name;
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
-      const { model, provider, content } = extractPropertiesFromMessage(message);
-      currentModel = model;
-      currentProvider = provider;
+      const { content } = extractPropertiesFromMessage(message);
 
       return { ...message, content };
     } else if (message.role == 'assistant') {
@@ -39,7 +41,7 @@ export async function createSummary(props: {
     return message;
   });
 
-  const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_PROVIDER;
+  const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_MINI_PROVIDER;
   const staticModels = LLMManager.getInstance().getStaticModelListFromProvider(provider);
   let modelDetails = staticModels.find((m) => m.name === currentModel);
 
@@ -69,6 +71,9 @@ export async function createSummary(props: {
   }
 
   let slicedMessages = processedMessages;
+  console.log("CREATE SUMMARY SLICED MESSAGES");
+  console.log(slicedMessages);
+  console.log(slicedMessages.map(x => `---${x.role}\n ${JSON.stringify(x.content, null, 2)}---`));
   const { summary } = extractCurrentContext(processedMessages);
   let summaryText: string | undefined = undefined;
   let chatId: string | undefined = undefined;
@@ -163,7 +168,7 @@ Note:
 
 Here is the previous summary of the chat:
 <old_summary>
-${summaryText} 
+${summaryText}
 </old_summary>
 
 Below is the chat after that:

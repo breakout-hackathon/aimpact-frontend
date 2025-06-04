@@ -69,12 +69,8 @@ export function useChatHistory() {
                * const snapshotStr = localStorage.getItem(`snapshot:${mixedId}`); // Remove localStorage usage
                * const snapshot: Snapshot = snapshotStr ? JSON.parse(snapshotStr) : { chatIndex: 0, files: {} }; // Use snapshot from DB
                */
-              console.log('RESTORED MESSAGES');
-              console.log(storedMessages);
               const validSnapshot = snapshot || { chatIndex: '', files: {} }; // Ensure snapshot is not undefined
               const summary = validSnapshot.summary;
-              console.log("SNAPSHOT")
-              console.log(validSnapshot);
 
               const rewindId = searchParams.get('rewindTo');
               let startingIdx = -1;
@@ -83,9 +79,9 @@ export function useChatHistory() {
                 : storedMessages.messages.length;
               const snapshotIndex = storedMessages.messages.findIndex((m) => m.id === validSnapshot.chatIndex);
               
-              console.log(snapshotIndex)  // Index of message when snapshot was saved
-              console.log(endingIdx)  // Last index
-              console.log(rewindId) // Not used yet
+              // console.log(snapshotIndex)  // Index of message when snapshot was saved
+              // console.log(endingIdx)  // Last index
+              // console.log(rewindId) // Not used yet
               if (snapshotIndex >= 0 && snapshotIndex < endingIdx) {
                 startingIdx = snapshotIndex;
               }
@@ -93,16 +89,15 @@ export function useChatHistory() {
               if (snapshotIndex > 0 && storedMessages.messages[snapshotIndex].id == rewindId) {
                 startingIdx = -1;
               }
-              
-              console.log(startingIdx)
+                
               let filteredMessages = storedMessages.messages.slice(startingIdx + 1, endingIdx);
-              console.log("FILTERED MESSAGES INIT", filteredMessages)
               let archivedMessages: Message[] = [];
 
               if (startingIdx >= 0) {
                 archivedMessages = storedMessages.messages.slice(0, startingIdx + 1);
               }
 
+              console.log("ARCHIVED MESSAGES INIT", archivedMessages)
               setArchivedMessages(archivedMessages);
 
               if (startingIdx > 0) {
@@ -177,7 +172,8 @@ export function useChatHistory() {
                 ];
                 restoreSnapshot(mixedId);
               }
-
+              
+              console.log("FILTERED MESSAGES INIT", filteredMessages)
               setInitialMessages(filteredMessages);
 
               description.set(storedMessages.description);

@@ -15,10 +15,13 @@ import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 const defaultApiKeys = {
   OpenAI: process.env.OPENAI_API_KEY as string,
   Anthropic: process.env.ANTHROPIC_API_KEY as string,
+  OpenRouter: process.env.OPEN_ROUTER_API_KEY as string,
 };
 
 const providersSetings = {
   OpenAI: { enabled: true },
+  Anthropic: { enabled: true },
+  OpenRouter: { enabled: true },
 };
 
 export async function action(args: ActionFunctionArgs) {
@@ -33,21 +36,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     files: any;
     promptId?: string;
     contextOptimization: boolean;
-    supabase?: {
-      isConnected: boolean;
-      hasSelectedProject: boolean;
-      credentials?: {
-        anonKey?: string;
-        supabaseUrl?: string;
-      };
-    };
     authToken: string;
   }>();
   let { messages } = body;
-  const { files, promptId, contextOptimization, supabase, authToken } = body;
-
-  // TODO: Make it more clean. Rn it not really good
-  messages = messages.slice(-2);
+  const { files, promptId, contextOptimization, authToken } = body;
 
   // const cookieHeader = request.headers.get('Cookie');
   const apiKeys: Record<string, string> = defaultApiKeys; // JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
@@ -95,9 +87,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         let summary: string | undefined = undefined;
         let messageSliceId = 0;
 
-        if (messages.length > 3) {
-          messageSliceId = messages.length - 3;
-        }
+        // if (messages.length > 3) {
+        //   messageSliceId = messages.length - 3;
+        // }
 
         if (filePaths.length > 0 && contextOptimization) {
           logger.debug('Generating Chat Summary');
@@ -202,7 +194,6 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         }
 
         const options: StreamingOptions = {
-          supabaseConnection: supabase,
           toolChoice: 'none',
           onFinish: async ({ text: content, finishReason, usage }) => {
             logger.debug('usage', JSON.stringify(usage));

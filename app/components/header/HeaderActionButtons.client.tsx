@@ -43,6 +43,8 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const finalDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error, DeployStatusEnum.success, DeployStatusEnum.ready];
   const failedDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error];
 
+  const [isPublishTooltipVisible, setPublishTooltipVisible] = useState(false);
+
   const clearDeployStatusInterval = () => {
     deployStatusInterval ? clearTimeout(deployStatusInterval) : undefined;
     setDeployStatusInterval(null);
@@ -224,7 +226,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       )}
 
       <div className="relative" ref={dropdownRef}>
-        <div className="flex gap-2 overflow-hidden mr-4 text-sm">
+        <div className="flex gap-2 mr-4 text-sm">
         <Button
             active
             disabled={!finalDeployLink}
@@ -235,18 +237,30 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             <ArrowSquareOutIcon size={24} />
           </Button>
 
-          <Button
-            active
-            disabled={isDeploying || !activePreview || isStreaming || (deployStatus && loadingDeployStatuses.includes(deployStatus)) || !!deployStatusInterval}
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
-              border border-bolt-elements-borderColor rounded-md"
+          <div
+            className="relative group w-full"
+            onMouseEnter={() => setPublishTooltipVisible(true)}
+            onMouseLeave={() => setPublishTooltipVisible(false)}
           >
-            {isDeploying ? `Publishing...` : 'Publish'}
-            <div
-              className={classNames('i-ph:caret-down w-4 h-4 transition-transform', isDropdownOpen ? 'rotate-180' : '')}
-            />
-          </Button>
+            <Button
+              active
+              disabled={isDeploying || !activePreview || isStreaming || (deployStatus && loadingDeployStatuses.includes(deployStatus)) || !!deployStatusInterval || true}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
+                border border-bolt-elements-borderColor rounded-md"
+            >
+              {isDeploying ? `Publishing...` : 'Publish'}
+              <div
+                className={classNames('i-ph:caret-down w-4 h-4 transition-transform', isDropdownOpen ? 'rotate-180' : '')}
+              />
+            </Button>
+            {isPublishTooltipVisible && (
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-2 bg-gray-900 text-white text-base font-semibold rounded shadow-lg whitespace-nowrap z-[100]">
+                Coming soon
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-gray-900 rotate-45 shadow-lg"></div>
+              </div>
+            )}
+          </div>
         </div>
 
         {isDropdownOpen && (

@@ -57,7 +57,7 @@ export default function UserPooling() {
 
   useEffect(() => {
     const userVisits = parseInt(localStorage.getItem("userVisits") || "1");
-    const lastUserVisit = parseInt(localStorage.getItem("lastUserVisit") || Date.now().toString());
+    const lastUserVisit = parseInt(localStorage.getItem("lastUserVisit") || "0");
     if (userVisits % 10 === 0) {
       setShowNPS(true);
     } else if (userVisits === 3 || userVisits % 18 === 0) {

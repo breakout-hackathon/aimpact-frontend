@@ -191,6 +191,12 @@ ${lockedFilesListString}
    * logger.debug(`User messages: ${messages.map(message => message + "\n")}`)
    */
 
+  console.log("NEW INPUT PROMPT")
+  console.log("SYSTEM PROMPT:")
+  console.log(systemPrompt)
+  console.log("messages:")
+  console.log(processedMessages)
+
   return await _streamText({
     model: provider.getModelInstance({
       model: modelDetails.name,
