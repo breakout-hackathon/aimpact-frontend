@@ -70,9 +70,7 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
 
     // 3. Send transaction with wallet
     try {
-      await sendTransaction(transaction, connection, {
-        skipPreflight: true,
-      });
+      await sendTransaction(transaction, connection);
 
       (window as any).plausible('purchase_messages', { props: {
         message_count: baseMessageCount,
