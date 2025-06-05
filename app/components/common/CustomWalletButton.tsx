@@ -64,6 +64,7 @@ export default function CustomWalletButton() {
           justifyContent: 'center',
           padding: '8px 8px',
         }}
+        
       >
         {!connected && 'Connect Wallet'}
       </WalletMultiButton>

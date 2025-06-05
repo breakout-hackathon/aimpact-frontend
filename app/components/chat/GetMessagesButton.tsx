@@ -38,6 +38,16 @@ export default function getMessagesButton() {
   const [actionClicked, setActionClicked] = useState(false);
   const [twitterHandle, setTwitterHandle] = useState("");
   const { mutateAsync: requestMessages } = useRequestMessages();
+  const [isMobile, setIsMobile] = useState(false);
+
+  const detectMobileScreen = () => {
+    return window.innerWidth <= 768;
+  };
+
+  useEffect(() => {
+    const mobile = detectMobileScreen();
+    setIsMobile(mobile);
+  }, [])
 
   const twitterHandleRegex = /^@[A-Za-z0-9_]{4,15}$/;
 
@@ -123,7 +133,7 @@ export default function getMessagesButton() {
           <div className={waterStyles.waterSurface}></div>
         </div>
         <div className={waterStyles.buttonContent}>
-          Get Free Messages!
+          {isMobile ? "Free" : "Get Free Messages!"}
         </div>
       </Button>
 

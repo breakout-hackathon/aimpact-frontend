@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigation } from '@remix-run/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
@@ -19,6 +19,15 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
   const navigation = useNavigation();
   const { publicKey, sendTransaction } = useWallet();
   const { getRecentBlockhash } = useSolanaProxy();
+  const [isMobile, setIsMobile] = useState(false);
+  const detectMobileScreen = () => {
+    return window.innerWidth <= 768;
+  };
+
+  useEffect(() => {
+    const mobile = detectMobileScreen();
+    setIsMobile(mobile);
+  }, [])
 
   const isSubmitting = navigation.state === 'submitting';
 
@@ -101,7 +110,7 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
   return (
     <div className="max-w-md mx-auto">
       <Button onClick={handleToggle} variant="default" className="flex py-2.5 items-center gap-2 border border-bolt-elements-borderColor font-medium">
-        Get Messages
+        {isMobile ? "Buy" : "Get Messages"}
       </Button>
 
       {isOpen && (
