@@ -12,11 +12,12 @@ import { WORK_DIR } from '~/utils/constants';
 import { createSummary } from '~/lib/.server/llm/create-summary';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 
-const defaultApiKeys = {
-  OpenAI: process.env.OPENAI_API_KEY as string,
-  Anthropic: process.env.ANTHROPIC_API_KEY as string,
-  OpenRouter: process.env.OPEN_ROUTER_API_KEY as string,
-};
+function getEnvVar(context: any, key: string): string | undefined {
+  if (context.cloudflare?.env?.[key]) {
+    return context.cloudflare.env[key];
+  }
+  return process.env[key];
+}
 
 const providersSetings = {
   OpenAI: { enabled: true },
@@ -41,8 +42,11 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   let { messages } = body;
   const { files, promptId, contextOptimization, authToken } = body;
 
-  // const cookieHeader = request.headers.get('Cookie');
-  const apiKeys: Record<string, string> = defaultApiKeys; // JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
+  const apiKeys: Record<string, string> = {
+    OpenAI: getEnvVar(context, "OPENAI_API_KEY") as string,
+    Anthropic: getEnvVar(context, "ANTHROPIC_API_KEY") as string,
+    OpenRouter: getEnvVar(context, "OPEN_ROUTER_API_KEY") as string,
+  };
   const providerSettings: Record<string, IProviderSetting> = providersSetings;
 
   const stream = new SwitchableStream();
