@@ -10,7 +10,6 @@ interface VerifyButtonsProps {
   verifyButtonText?: string;
   handleVerifyClick: () => void;
   handleActionClicked: () => void;
-  disableVerify: boolean;
   actionLink: string;
   completed: boolean;
   actionClicked: boolean;
@@ -18,7 +17,7 @@ interface VerifyButtonsProps {
 
 function VerifyButtons(
   { actionButtonText="Subscribe", verifyButtonText="Verify", handleVerifyClick, handleActionClicked,
-    actionLink, disableVerify, completed, actionClicked }: VerifyButtonsProps
+    actionLink, completed, actionClicked }: VerifyButtonsProps
 ) {
 
   return (
@@ -35,8 +34,6 @@ function VerifyButtons(
 export default function getMessagesButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [tasksCompleted, setTasksCompleted] = useState(false);
-  const [verifyClicked, setVerifyClicked] = useState(false);
-  const [disableVerify, setDisableVerify] = useState(false);
   const [error, setError] = useState("");
   const [actionClicked, setActionClicked] = useState(false);
   const [twitterHandle, setTwitterHandle] = useState("");
@@ -59,12 +56,8 @@ export default function getMessagesButton() {
   const handleActionClicked = async () => {
     (window as any).plausible('click_twitter_subscribe');
 
-    if (verifyClicked) {
-      setDisableVerify(false);
-    } else {
-      await sleep(2000);
-      setActionClicked(true);
-    }
+    await sleep(2000);
+    setActionClicked(true);
   }
 
   const validateTwitterHandle = (twitterHandle: string) => {
@@ -82,37 +75,35 @@ export default function getMessagesButton() {
       return;
     }
 
-    if (!verifyClicked) {
-      setError("Failed to verify tasks. It looks like you have not subscribed. Try again");
-      setVerifyClicked(true);
-      setDisableVerify(true);
-    } else {
-      setError("");
-      try {
-        const data = await requestMessages({ twitterHandle: formattedTwitterHandle });
-        toast.info("Your messages will appear shortly!", { autoClose: false });
-        (window as any).plausible('request_free_messages_twitter', { props: {
-            success: true,
-            error: null,
-          }
-        });
-      } catch (error: any) {
-        const errorMessage = error?.response?.data?.message || error?.message;
-        toast.error(`Failed to request free messages: ${errorMessage}`);
-        (window as any).plausible('request_free_messages_twitter', { props: {
-            success: false,
-            error: `Failed due to server error: ${errorMessage}`,
-          }
-        });
+    setError("");
+
+    try {
+      await requestMessages({ twitterHandle: formattedTwitterHandle });
+      toast.info("Your messages will appear shortly!", { autoClose: false });
+      (window as any).plausible('request_free_messages_twitter', { props: {
+          success: true,
+          error: null,
+        }
+      });
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message;
+      toast.error(`Failed to request free messages: ${errorMessage}`);
+      (window as any).plausible('request_free_messages_twitter', { props: {
+          success: false,
+          error: `Failed due to server error: ${errorMessage}`,
+        }
+      });
+
+      if (!errorMessage.includes("already claimed")) {
         return;
       }
-      setTasksCompleted(true);
-      localStorage.setItem("tasksCompelted", "true");
     }
+    setTasksCompleted(true);
+    localStorage.setItem("tasksCompleted", "true");
   }
 
   useEffect(() => {
-    setTasksCompleted(!!localStorage.getItem("tasksCompelted"));
+    setTasksCompleted(!!localStorage.getItem("tasksCompleted"));
   }, [])
 
   return (
@@ -158,7 +149,7 @@ export default function getMessagesButton() {
                         <p>Subscribe to @ostolex on X</p>
                         {tasksCompleted && <div className="i-ph:check-circle text-green text-xl" />}
                       </div>
-                      <VerifyButtons completed={tasksCompleted} disableVerify={disableVerify} actionClicked={actionClicked}
+                      <VerifyButtons completed={tasksCompleted} actionClicked={actionClicked}
                         handleVerifyClick={handleVerifyClicked} actionLink="https://x.com/ostolex" handleActionClicked={handleActionClicked} />
                     </div>
                   </div>
@@ -184,7 +175,7 @@ export default function getMessagesButton() {
                     Close
                   </Button>
                 ) : (
-                  <Button variant="default" disabled={!twitterHandle || !actionClicked || disableVerify} onClick={handleVerifyClicked} className="px-10 py-2.5 text-lg">
+                  <Button variant="default" disabled={!twitterHandle || !actionClicked || tasksCompleted} onClick={handleVerifyClicked} className="px-10 py-2.5 text-lg">
                     Verify
                   </Button>
                 )}
