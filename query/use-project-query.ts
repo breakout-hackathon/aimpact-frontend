@@ -65,3 +65,24 @@ export const useProjectQuery = (id: string) => {
     },
   });
 };
+
+export const useS3DeployemntQuery = (id: string) => {
+  return useQuery<string | null>({
+    initialData: null,
+    queryKey: ['getS3Deployment', id],
+    queryFn: async () => {
+      const res = await ky.get(`deploy-app/s3-deployment?projectId=${id}`);
+
+      if (res.status === 404) {
+        return null; // No deployment found
+      }
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch S3 deployment');
+      }
+
+      const data = await res.json<{ url: string }>();
+      return data.url;
+    },
+  });
+};

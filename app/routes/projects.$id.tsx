@@ -2,7 +2,7 @@
 
 import { PencilIcon } from '@phosphor-icons/react';
 import { useParams } from '@remix-run/react';
-import { useProjectQuery } from 'query/use-project-query';
+import { useProjectQuery, useS3DeployemntQuery } from 'query/use-project-query';
 import { useAuth } from '~/lib/hooks/useAuth';
 import { useWallet } from '@solana/wallet-adapter-react';
 
@@ -18,6 +18,7 @@ export default function Project() {
   const auth = useAuth();
   const { publicKey, connected } = useWallet();
   const projectQuery = useProjectQuery(params.id);
+  const deploymentUrlQuery = useS3DeployemntQuery(params.id);
 
   if (projectQuery.isLoading) {
     return (
@@ -106,6 +107,12 @@ export default function Project() {
                   <span className="text-xl font-bold text-white">{project.category}</span>
                 </div>
               )}
+              <div className="flex justify-between items-center border-b border-gray-800 pb-3">
+                <span className="text-gray-400">Deployment URL:</span>
+                <span className="text-xl font-bold text-white">
+                  {deploymentUrlQuery.data ? <a href={deploymentUrlQuery.data} target={'_blank'}>{deploymentUrlQuery.data}</a> : 'Not deployed yet'}
+                </span>
+              </div>
             </div>
           </section>
         </div>
