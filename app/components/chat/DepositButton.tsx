@@ -19,15 +19,9 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
   const navigation = useNavigation();
   const { publicKey, sendTransaction } = useWallet();
   const { getRecentBlockhash } = useSolanaProxy();
-  const [isMobile, setIsMobile] = useState(false);
   const detectMobileScreen = () => {
     return window.innerWidth <= 768;
   };
-
-  useEffect(() => {
-    const mobile = detectMobileScreen();
-    setIsMobile(mobile);
-  }, [])
 
   const isSubmitting = navigation.state === 'submitting';
 
@@ -108,7 +102,7 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
   return (
     <div className="max-w-md mx-auto">
       <Button onClick={handleToggle} variant="default" className="flex py-2.5 items-center gap-2 border border-bolt-elements-borderColor font-medium">
-        {isMobile ? "Buy" : "Get Messages"}
+        Get Messages
       </Button>
 
       {isOpen && (
