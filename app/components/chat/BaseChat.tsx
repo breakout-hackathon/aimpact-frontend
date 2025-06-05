@@ -96,7 +96,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       enhancingPrompt,
       handleInputChange,
 
-      // promptEnhanced,
+      promptEnhanced,
       enhancePrompt,
       sendMessage,
       handleStop,
@@ -140,6 +140,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         setQrModalOpen(true);
       }
     }, [expoUrl]);
+
+    useEffect(() => {
+      if (promptEnhanced) {
+        toast.success('Prompt enhanced!');
+      }
+    }, [promptEnhanced])
 
     useEffect(() => {
       if (data) {
@@ -610,7 +616,6 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           className={classNames('transition-all', enhancingPrompt ? 'opacity-100' : '')}
                           onClick={() => {
                             enhancePrompt?.();
-                            toast.success('Prompt enhanced!');
                           }}
                         >
                           {enhancingPrompt ? (
