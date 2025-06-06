@@ -9,6 +9,8 @@ import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import babel from 'vite-plugin-babel';
+import { visualizer } from "rollup-plugin-visualizer";
+
 
 dotenv.config();
 
@@ -122,7 +124,12 @@ export default defineConfig((config) => {
     },
     plugins: [
       UnoCSS(),
-      // tailwindcss(),
+      visualizer({
+        filename: "bundle-analysis.html",
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),  
       nodePolyfills({
         include: ['buffer', 'process', 'util', 'stream'],
         globals: {

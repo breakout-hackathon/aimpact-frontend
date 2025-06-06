@@ -198,6 +198,7 @@
     "pnpm": "^9.15.9",
     "prettier": "^3.5.3",
     "rimraf": "^4.4.1",
+    "rollup-plugin-visualizer": "^6.0.1",
     "sass-embedded": "^1.88.0",
     "stream-browserify": "^3.0.0",
     "tailwindcss": "^4.1.7",
@@ -210,6 +211,7 @@
     "vite-plugin-optimize-css-modules": "^1.2.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^2.1.9",
+    "webpack-bundle-analyzer": "^4.10.2",
     "wrangler": "^4.15.1"
   },
   "resolutions": {
