@@ -242,9 +242,9 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         </Button>
       )}
 
-      {/* <div className='flex items-center mx-2'>
+      <div className='flex items-center mx-2'>
         <Button className='px-4 flex items-center border border-bolt-elements-borderColor rounded-md' onClick={onDeployTest}>Test deploy</Button>
-      </div> */}
+      </div>
 
       <div className="relative" ref={dropdownRef}>
         <div className="flex gap-2 mr-4 text-sm">
