@@ -31,44 +31,44 @@ export default class OpenRouterProvider extends BaseProvider {
       name: 'anthropic/claude-3.5-sonnet',
       label: 'Anthropic: Claude 3.5 Sonnet (OpenRouter)',
       provider: 'OpenRouter',
-      maxTokenAllowed: 20000,
+      maxTokenAllowed: 24000,
     },
     {
       name: 'anthropic/claude-3-haiku',
       label: 'Anthropic: Claude 3 Haiku (OpenRouter)',
       provider: 'OpenRouter',
-      maxTokenAllowed: 20000,
+      maxTokenAllowed: 24000,
     },
     {
       name: 'deepseek/deepseek-coder',
       label: 'Deepseek-Coder V2 236B (OpenRouter)',
       provider: 'OpenRouter',
-      maxTokenAllowed: 20000,
+      maxTokenAllowed: 24000,
     },
     {
       name: 'google/gemini-flash-1.5',
       label: 'Google Gemini Flash 1.5 (OpenRouter)',
       provider: 'OpenRouter',
-      maxTokenAllowed: 20000,
+      maxTokenAllowed: 24000,
     },
     {
       name: 'google/gemini-pro-1.5',
       label: 'Google Gemini Pro 1.5 (OpenRouter)',
       provider: 'OpenRouter',
-      maxTokenAllowed: 20000,
+      maxTokenAllowed: 24000,
     },
     { name: 'x-ai/grok-beta', label: 'xAI Grok Beta (OpenRouter)', provider: 'OpenRouter', maxTokenAllowed: 8000 },
     {
       name: 'mistralai/mistral-nemo',
       label: 'OpenRouter Mistral Nemo (OpenRouter)',
       provider: 'OpenRouter',
-      maxTokenAllowed: 20000,
+      maxTokenAllowed: 24000,
     },
     {
       name: 'qwen/qwen-110b-chat',
       label: 'OpenRouter Qwen 110b Chat (OpenRouter)',
       provider: 'OpenRouter',
-      maxTokenAllowed: 20000,
+      maxTokenAllowed: 24000,
     },
     { name: 'cohere/command', label: 'Cohere Command (OpenRouter)', provider: 'OpenRouter', maxTokenAllowed: 4096 },
   ];
@@ -93,7 +93,7 @@ export default class OpenRouterProvider extends BaseProvider {
           name: m.id,
           label: `${m.name} - in:$${(m.pricing.prompt * 1_000_000).toFixed(2)} out:$${(m.pricing.completion * 1_000_000).toFixed(2)} - context ${Math.floor(m.context_length / 1000)}k`,
           provider: this.name,
-          maxTokenAllowed: 20000,
+          maxTokenAllowed: 24000,
         }));
     } catch (error) {
       console.error('Error getting OpenRouter models:', error);

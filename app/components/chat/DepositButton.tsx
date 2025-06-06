@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigation } from '@remix-run/react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
+import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { toast } from 'react-toastify';
 import { Button } from '../ui';
 import { useSolanaProxy } from '~/lib/api-hooks/useSolanaProxyApi';
@@ -17,8 +17,11 @@ interface DepositButtonProps {
 export default function DepositButton({ discountPercent }: DepositButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const navigation = useNavigation();
-  const { publicKey, signTransaction } = useWallet();
-  const { getRecentBlockhash, sendTransaction } = useSolanaProxy();
+  const { publicKey, sendTransaction } = useWallet();
+  const { getRecentBlockhash } = useSolanaProxy();
+  const detectMobileScreen = () => {
+    return window.innerWidth <= 768;
+  };
 
   const isSubmitting = navigation.state === 'submitting';
 
@@ -37,7 +40,7 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
   };
 
   const handlePurchase = async () => {
-    if (!publicKey || !signTransaction) {
+    if (!publicKey || !sendTransaction) {
       return;
     }
 
@@ -65,41 +68,33 @@ export default function DepositButton({ discountPercent }: DepositButtonProps) {
       }),
     );
 
-    // 3. Sign transaction with wallet
+    // public rpc connection
+    const connection = new Connection('https://api.mainnet-beta.solana.com');
+
+    // 3. Send transaction with wallet
     try {
-      transaction = await signTransaction(transaction);
-    } catch (err) {
+      await sendTransaction(transaction, connection);
+
       (window as any).plausible('purchase_messages', { props: {
-          message_count: baseMessageCount,
-          success: false,
-          error: 'Sign transaction failed',
-        }
-      });
+        message_count: baseMessageCount,
+        purchase_messages_success: true,
+        error: null,
+      }
+    });
+
+    setIsOpen(false);
+    toast.success('Purchase completed!');
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('User rejected the request')) {
+        (window as any).plausible('purchase_messages', { props: {
+            message_count: baseMessageCount,
+            purchase_messages_success: false,
+            error: 'Sign transaction failed',
+          }
+        });
       return;
-    }
+      }
 
-    // 4. Serialize and send to backend
-    try {
-      const serializedTx = transaction.serialize({ requireAllSignatures: false }).toString('base64');
-
-      await sendTransaction(serializedTx);
-
-      (window as any).plausible('purchase_messages', { props: {
-          message_count: baseMessageCount,
-          success: true,
-          error: null,
-        }
-      });
-
-      setIsOpen(false);
-      toast.success('Purchase completed!');
-    } catch (err) {
-      (window as any).plausible('purchase_messages', { props: {
-          message_count: baseMessageCount,
-          success: false,
-          error: 'Send transaction failed',
-        }
-      });
       toast.error('Transaction failed. Please try again.');
     }
   };

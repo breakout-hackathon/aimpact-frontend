@@ -6,10 +6,18 @@ import { createScopedLogger } from '~/utils/logger';
 import { DEFAULT_MINI_PROVIDER } from '~/utils/constants';
 import { parseCookies } from '~/lib/api/cookies';
 
-const defaultApiKeys = {
-  OpenAI: process.env.OPENAI_API_KEY as string,
-};
 const DEFAULT_MODEL = 'gpt-4.1-mini';
+
+const providerSettings = {
+  OpenAI: { enabled: true },
+};
+
+function getEnvVar(context: any, key: string): string | undefined {
+  if (context.cloudflare?.env?.[key]) {
+    return context.cloudflare.env[key];
+  }
+  return process.env[key];
+}
 
 export async function action(args: ActionFunctionArgs) {
   return enhancerAction(args);
@@ -55,8 +63,10 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       statusText: 'Bad Request',
     });
   }
-
-  const apiKeys = defaultApiKeys;
+  
+  const apiKeys = {
+    OpenAI: getEnvVar(context, "OPENAI_API_KEY") as string,
+  };
 
   try {
     const result = await streamText({
@@ -67,7 +77,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
             `[Model: ${model}]\n\n[Provider: ${providerName}]\n\n` +
             stripIndents`
             You are a professional prompt engineer specializing in crafting precise, effective prompts.
-            Your task is to enhance prompts by making them more specific, actionable, effective and Web3 interoperability, if relevant..
+            Your task is to enhance prompts by making them more specific, actionable, effective and Web3 interoperability, if relevant.
 
             Improve the user prompt that is wrapped in \`<original_prompt>\` tags.
 
@@ -99,7 +109,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       ],
       env: context.cloudflare?.env as any,
       apiKeys,
-      providerSettings: {},
+      providerSettings: providerSettings,
       options: {
         system:
           'You are a senior software principal architect, you should help the user analyse the user query and enrich it with the necessary context and constraints to make it more specific, actionable, and effective. You should also ensure that the prompt is self-contained and uses professional language. Your response should ONLY contain the enhanced prompt text. Do not include any explanations, metadata, or wrapper tags.',
@@ -130,13 +140,40 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       }
     })();
 
+    const encoder = new TextEncoder();
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          const reader = result.textStream.getReader();
+          
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              controller.close();
+              break;
+            }
+            
+            // Convert string to Uint8Array
+            const bytes = encoder.encode(value);
+            controller.enqueue(bytes);
+          }
+        } catch (error) {
+          console.error('Stream conversion error:', error);
+          controller.error(error);
+        }
+      }
+    });
+
     // Return the text stream directly since it's already text data
-    return new Response(result.textStream, {
+    return new Response(readableStream, {
       status: 200,
       headers: {
-        'Content-Type': 'text/event-stream',
-        Connection: 'keep-alive',
-        'Cache-Control': 'no-cache',
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+        'Transfer-Encoding': 'chunked',
       },
     });
   } catch (error: unknown) {
