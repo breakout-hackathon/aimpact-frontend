@@ -12,6 +12,7 @@ import { webcontainer } from '~/lib/webcontainer';
 import { detectProjectCommands, createCommandActionsString } from '~/utils/projectCommands';
 import type { ContextAnnotation } from '~/types/context';
 import { useHttpDb } from './http-db';
+import { filterIgnoreFiles } from '~/utils/ignoreFiles';
 
 export interface ChatHistoryItem {
   id: string;
@@ -202,13 +203,18 @@ export function useChatHistory() {
     handleMixedId();
   }, [mixedId, navigate, searchParams]);
 
-  const takeSnapshot = async (chatIdx: string, files: FileMap, _chatId?: string | undefined, chatSummary?: string) => {
+  const takeSnapshot = async (chatIdx: string, files: FileMap, _chatId?: string | undefined, chatSummary?: string, disableIngore = false) => {
     const id = _chatId || chatId.get();
 
     if (!id) {
       return;
     }
 
+    console.log("FILES NOW")
+    console.log(files);
+    const filteredFiles = disableIngore ? files : filterIgnoreFiles(files);
+    console.log("FILES AFTER")
+    console.log(filteredFiles);
     const snapshot: Snapshot = {
       chatIndex: chatIdx,
       files,

@@ -10,6 +10,9 @@ import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/pers
 import { toast, type Id as ToastId } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
 import { useGetDeploy, usePostDeploy } from '~/lib/hooks/tanstack/useDeploy';
+import { DeployService } from '~/lib/services/deployService';
+import { webcontainer } from '~/lib/webcontainer';
+import { TerminalStore } from '~/lib/stores/terminal';
 
 interface HeaderActionButtonsProps {}
 
@@ -37,6 +40,12 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const { takeSnapshot } = useChatHistory();
   const chatIdx = useStore(lastChatIdx);
   const chatSummary = useStore(lastChatSummary);
+
+  const terminalStore = new TerminalStore(webcontainer);
+  const deployService = new DeployService(
+    webcontainer,
+    () => terminalStore.boltTerminal,
+  );
 
   const successDeployStatuses = [DeployStatusEnum.ready, DeployStatusEnum.success];
   const loadingDeployStatuses = [DeployStatusEnum.building, DeployStatusEnum.initializing, DeployStatusEnum.queued];
@@ -173,6 +182,18 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     }
   };
 
+  const onDeployTest = async () => {
+    console.log("Deploy started")
+    const deployResult = await deployService.runDeployScript();
+    console.log(deployResult);
+
+    if (deployResult.exitCode !== 0 && deployResult.exitCode !== 143) {
+      toast.error(`Failed to build. Status code: ${deployResult.exitCode}.`)
+    } else {
+      toast.success("Build done.")
+    }
+  }
+
   const handleClickFinalLink = () => {
     if (finalDeployLink) {
       window.open(finalDeployLink, '_blank');
@@ -184,10 +205,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       toast.error('Failed to get chatIdx.');
       return;
     }
-    // if (!chatSummary) {
-    //   toast.error('Failed to get chatSummary.');
-    //   return;
-    // }
 
     setIsSaving(true);
 
@@ -225,14 +242,18 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         </Button>
       )}
 
+      <div className='flex items-center mx-2'>
+        <Button className='px-4 flex items-center border border-bolt-elements-borderColor rounded-md' onClick={onDeployTest}>Test deploy</Button>
+      </div>
+
       <div className="relative" ref={dropdownRef}>
         <div className="flex gap-2 mr-4 text-sm">
-        <Button
-            active
-            disabled={!finalDeployLink}
-            onClick={handleClickFinalLink}
-            className="px-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
-              border border-bolt-elements-borderColor rounded-md"
+          <Button
+              active
+              disabled={!finalDeployLink}
+              onClick={handleClickFinalLink}
+              className="px-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
+                border border-bolt-elements-borderColor rounded-md"
           >
             <ArrowSquareOutIcon size={24} />
           </Button>

@@ -101,6 +101,8 @@ export default function getMessagesButton() {
       if (!errorMessage.includes("already claimed")) {
         return;
       }
+      setTasksCompleted(true);
+      localStorage.setItem("tasksCompelted", "true");
     }
     setTasksCompleted(true);
     localStorage.setItem("tasksCompleted", "true");

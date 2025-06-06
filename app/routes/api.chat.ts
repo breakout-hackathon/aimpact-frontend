@@ -210,6 +210,20 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               cumulativeUsage.totalTokens += usage.totalTokens || 0;
             }
 
+            // Decrement messages left
+            try {
+              await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/billing/decrement-messages-left`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                },
+              });
+            } catch (err) {
+              logger.error('Failed to decrement messages left:', err);
+            }
+
+
             if (finishReason !== 'length') {
               dataStream.writeMessageAnnotation({
                 type: 'usage',
@@ -227,21 +241,6 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
                 message: 'Response Generated',
               } satisfies ProgressAnnotation);
               await new Promise((resolve) => setTimeout(resolve, 0));
-
-              // Decrement messages left
-              try {
-                await fetch(`${import.meta.env.PUBLIC_BACKEND_URL}/billing/decrement-messages-left`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-                  },
-                });
-              } catch (err) {
-                logger.error('Failed to decrement messages left:', err);
-              }
-
-              // stream.close();
               return;
             }
 
