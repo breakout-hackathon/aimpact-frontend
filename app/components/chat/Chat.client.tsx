@@ -138,7 +138,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
   );
   const supabaseAlert = useStore(workbenchStore.supabaseAlert);
   const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
-  const [showPopup, setShowPopup] = useState(false);
 
   /*
    * console.log(`Auto select template: ${autoSelectTemplate}`)
@@ -249,30 +248,8 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
 
   const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
 
-  const setPopupShowTime = () => {
-    localStorage.setItem("lastPopupShow", Date.now().toString());
-  }
-
-  const handleClosePopup = () => {
-    setShowPopup(false);
-  }
-
   useEffect(() => {
     chatStore.setKey('started', initialMessages.length > 0);
-
-    const rawLastTime = localStorage.getItem("lastPopupShow");
-    const lastTime = rawLastTime ? parseInt(rawLastTime, 10) : NaN;
-    if (isNaN(lastTime)) {
-      setPopupShowTime();
-      setShowPopup(true);
-    }
-
-    const cooldown = 60 * 30 * 1000
-    const expectedTime = lastTime + cooldown;
-    if (expectedTime < Date.now()) {
-      setPopupShowTime();
-      setShowPopup(true);
-    }
   }, []);
 
   useEffect(() => {

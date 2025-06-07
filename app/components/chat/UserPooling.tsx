@@ -3,6 +3,8 @@ import Popup from "../common/Popup";
 import { classNames } from "~/utils/classNames";
 import { range } from "~/utils/range";
 import { usePostNPS } from "~/lib/hooks/tanstack/useAnalytics";
+import { useAuth } from "~/lib/hooks/useAuth";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 function UserPoolingPopup() {
   <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -16,7 +18,9 @@ export default function UserPooling() {
   const [showNPS, setShowNPS] = useState(false);
   const [showPMF, setShowPMF] = useState(false);
   const { mutateAsync: postNPS } = usePostNPS();
-
+  const { connected } = useWallet();
+  const { isAuthorized } = useAuth();
+  
   // const npsColors: string[] = (range(1, 9).map(i => `bg-green-${i * 100}`));
   // npsColors.push("bg-green-950");
   const npsColors = [
@@ -32,8 +36,10 @@ export default function UserPooling() {
     'bg-green-800',
   ];
 
+  useEffect(() => {
+  }, [showNPS, connected, isAuthorized])
+
   const handleGradeClick = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    console.log(event.currentTarget.id);
     const grade = parseInt(event.currentTarget.id);
     try {
       if (isNaN(grade)) {
@@ -43,7 +49,7 @@ export default function UserPooling() {
     } catch (error) {
       console.error("Failed to post NPS data", error);
     } finally {
-      setShowNPS(false);
+      setShowNPS(false);  
     }
   }
 
@@ -69,10 +75,10 @@ export default function UserPooling() {
       localStorage.setItem("userVisits", (userVisits + 1).toString());
       localStorage.setItem("lastUserVisit", Date.now().toString())
     }
-  })
+  }, [])
 
   return (
-    <Popup isShow={showNPS} handleToggle={handleNPS} positionClasses="sm:my-12">
+    <Popup isShow={showNPS && connected && isAuthorized} handleToggle={handleNPS} positionClasses="sm:my-12">
       <h3 className="text-2xl mb-8">How likely you are to recommend Aimpact to a friend?</h3>
       <div className="flex w-full justify-between mb-4">
         {range(0, 9).map(i => (

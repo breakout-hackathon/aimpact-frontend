@@ -125,8 +125,9 @@ export const AssistantMessage = memo(({ content, annotations, messageId, onRewin
                   <WithTooltip tooltip="Fork chat from this message">
                     <button
                       onClick={() => onFork(messageId)}
+                      disabled
                       key="i-ph:git-fork"
-                      className="i-ph:git-fork text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+                      className="i-ph:git-fork text-xl text-bolt-elements-textSecondary disabled:text-gray-600 hover:text-bolt-elements-textPrimary transition-colors"
                     />
                   </WithTooltip>
                 )}
