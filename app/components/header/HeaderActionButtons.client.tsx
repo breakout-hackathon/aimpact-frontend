@@ -3,7 +3,7 @@ import useViewport from '~/lib/hooks';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import { streamingState } from '~/lib/stores/streaming';
 import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react';
 import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/persistence';
@@ -29,14 +29,13 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isStreaming = useStore(streamingState);
 
-  const { mutateAsync: getDeployRequest, error: getDeployError } = useGetDeploy();
-  const { data: postDeployData, error: postDeployError, mutateAsync: createDeployRequest } = usePostDeploy();
-  const [deployStatus, setDeployStatus] = useState<DeployStatusEnum | null>(null);
-  const [isRequestFirst, setIsRequestFirst] = useState(true);
-  const [deployStatusInterval, setDeployStatusInterval] = useState<NodeJS.Timeout | null>(null);
+  const publishButtonRef = useRef<HTMLButtonElement>(null);
+
+  const { mutateAsync: getDeployRequest } = useGetDeploy();
+  const { mutateAsync: createDeployRequest } = usePostDeploy();
   const [finalDeployLink, setFinalDeployLink] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
-  const [deployToastId, setDeployToastId] = useState<ToastId | null>(null)
+
   const { takeSnapshot } = useChatHistory();
   const chatIdx = useStore(lastChatIdx);
   const chatSummary = useStore(lastChatSummary);
@@ -46,23 +45,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     webcontainer,
     () => terminalStore.boltTerminal,
   );
-
-  const successDeployStatuses = [DeployStatusEnum.ready, DeployStatusEnum.success];
-  const loadingDeployStatuses = [DeployStatusEnum.building, DeployStatusEnum.initializing, DeployStatusEnum.queued];
-  const finalDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error, DeployStatusEnum.success, DeployStatusEnum.ready];
-  const failedDeployStatueses = [DeployStatusEnum.canceled, DeployStatusEnum.error];
-
-  const [isPublishTooltipVisible, setPublishTooltipVisible] = useState(false);
-
-  const clearDeployStatusInterval = () => {
-    deployStatusInterval ? clearTimeout(deployStatusInterval) : undefined;
-    setDeployStatusInterval(null);
-  };
-
-  const formatVercelLink = (url: string) => {
-    const splitted = url.split("-");
-    return splitted.slice(0, 5).join("-") + splitted[5].slice(9);  // FIXME: It's too hardcoded
-  }
 
   const formattedLinkToast = (url: string) => {
     toast.success(
@@ -89,73 +71,45 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   }, []);
 
   useEffect(() => {
-    console.log(!deployStatus, finalDeployStatueses.includes(deployStatus!));
+    const currentChatId = chatId.get();
+    if (!currentChatId) return;
 
-    if (!deployStatus || failedDeployStatueses.includes(deployStatus) && !isStreaming) {
-      if (deployStatusInterval) {
-        toast.error(`Failed to publish app. Try again later.`);
-      }
-      clearDeployStatusInterval();
-      deployToastId && toast.dismiss(deployToastId);
-      setIsDeploying(false);
-    }
-    if (deployStatus && finalDeployStatueses.includes(deployStatus)) {
-      deployToastId && toast.dismiss(deployToastId);
-      setIsDeploying(false);
-      clearDeployStatusInterval();
-    }
-  }, [deployStatus]);
+    fetchDeployRequest({ 
+      projectId: currentChatId,
+      showError: false,
+    });
+  }, [chatId])
 
-  const fetchDeployStatus = async ({
+  const fetchDeployRequest = async ({
     projectId,
     enableMessages = true,
+    showError = true,
   }: {
     projectId: string;
     enableMessages?: boolean;
+    showError?: boolean;
   }) => {
-    const failMessage = `Failed to publish app. Try again later.`;
-
     try {
       const data = await getDeployRequest(projectId);
-      setFinalDeployLink(data.finalUrl);
-      setDeployStatus(() => data.status);
-      console.log(data.status, deployStatus);
+      setFinalDeployLink(data.url);
+      console.log(data);
 
-      if (!enableMessages && data.status && successDeployStatuses.includes(data.status)) {
-        formattedLinkToast("https://" + data.finalUrl);
-      } else {
+      if (enableMessages && data.url) {
+        formattedLinkToast(data.url);
       }
     } catch (error) {
-      if (!isRequestFirst) {
+      const failMessage = `Failed to publish app. Try again later.`;
+      if (showError) {
         toast.error(failMessage);
+        console.error(error);
       }
-
-      console.error(error);
-      setDeployStatus(DeployStatusEnum.unknown);
-      clearDeployStatusInterval();
-    } finally {
-      setIsRequestFirst(false);
     }
   };
-
-  useEffect(() => {
-    const currentChatId = chatId.get();
-    console.log(`Current chat id: ${currentChatId}`);
-
-    if (!currentChatId) {
-      return;
-    }
-
-    fetchDeployStatus({ projectId: currentChatId, enableMessages: false });
-
-    return clearDeployStatusInterval;
-  }, [chatId]);
 
   const onDeploy = async () => {
     setIsDeploying(true);
 
     const toastId = toast.info('Deploying...', { autoClose: false });
-    setDeployToastId(toastId);
 
     try {
       const currentChatId = chatId.get();
@@ -165,32 +119,33 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         return;
       }
 
-      const data = await createDeployRequest({
-        projectId: currentChatId,
-      });
+      const deployResult = await deployService.runDeployScript();
 
-      if (!postDeployError && data) {
-        clearDeployStatusInterval();
-        setDeployStatusInterval(setInterval(async () => await fetchDeployStatus({ projectId: currentChatId }), 5000));
+      if (deployResult.exitCode !== 0 && deployResult.exitCode !== 143) {
+        toast.error(`Failed to build. Status code: ${deployResult.exitCode}.`, { autoClose: false })
       }
 
-      console.log('ON DEPLOY STATUS: ', data.status);
-      setDeployStatus(data.status);
+      const files = workbenchStore.files.get();
+      const filteredFiles = Object.fromEntries(Object.entries(files).filter(
+        ([key, value]) => {
+          return key.startsWith("/home/project/dist/");
+        }
+      ));
+
+      const data = await createDeployRequest({
+        projectId: currentChatId,
+        snapshot: filteredFiles,
+      });
+
+      setFinalDeployLink(data.url);
     } catch (error) {
       toast.error(`Failed to publish app. Try again later.`);
-      console.error(error);
-    }
-  };
-
-  const onDeployTest = async () => {
-    console.log("Deploy started")
-    const deployResult = await deployService.runDeployScript();
-    console.log(deployResult);
-
-    if (deployResult.exitCode !== 0 && deployResult.exitCode !== 143) {
-      toast.error(`Failed to build. Status code: ${deployResult.exitCode}.`)
-    } else {
-      toast.success("Build done.")
+    } finally {
+      setIsDeploying(false);
+      console.log(toastId)
+      if (toastId) {
+        toast.dismiss(toastId);
+      }
     }
   }
 
@@ -242,10 +197,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
         </Button>
       )}
 
-      <div className='flex items-center mx-2'>
-        <Button className='px-4 flex items-center border border-bolt-elements-borderColor rounded-md' onClick={onDeployTest}>Test deploy</Button>
-      </div>
-
       <div className="relative" ref={dropdownRef}>
         <div className="flex gap-2 mr-4 text-sm">
           <Button
@@ -258,37 +209,26 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             <ArrowSquareOutIcon size={24} />
           </Button>
 
-          <div
-            className="relative group w-full"
-            onMouseEnter={() => setPublishTooltipVisible(true)}
-            onMouseLeave={() => setPublishTooltipVisible(false)}
-          >
             <Button
               active
-              disabled={isDeploying || !activePreview || isStreaming || (deployStatus && loadingDeployStatuses.includes(deployStatus)) || !!deployStatusInterval || true}
+              disabled={isDeploying || !activePreview || isStreaming}
+              ref={publishButtonRef}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="px-4 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
-                border border-bolt-elements-borderColor rounded-md"
+                border border-bolt-elements-borderColor rounded-md m-0"
             >
               {isDeploying ? `Publishing...` : 'Publish'}
               <div
                 className={classNames('i-ph:caret-down w-4 h-4 transition-transform', isDropdownOpen ? 'rotate-180' : '')}
               />
             </Button>
-            {isPublishTooltipVisible && (
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-4 py-2 bg-gray-900 text-white text-base font-semibold rounded shadow-lg whitespace-nowrap z-[100]">
-                Coming soon
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-gray-900 rotate-45 shadow-lg"></div>
-              </div>
-            )}
-          </div>
         </div>
 
         {isDropdownOpen && (
           <div className="absolute right-2 flex flex-col gap-1 z-50 p-1 mt-1 min-w-[13.5rem] bg-bolt-elements-background-depth-2 rounded-md shadow-lg bg-bolt-elements-backgroundDefault border border-bolt-elements-borderColor">
             <Button
               active={false}
-              disabled={isDeploying || !activePreview || isStreaming || (deployStatus && loadingDeployStatuses.includes(deployStatus)) || !!deployStatusInterval}
+              disabled={publishButtonRef?.current ? publishButtonRef.current.disabled : false}
               onClick={onDeploy}
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2"
             >
@@ -336,24 +276,27 @@ interface ButtonProps {
   className?: string;
 }
 
-function Button({ active = false, disabled = false, children, onClick, className }: ButtonProps) {
-  return (
-    <button
-      className={classNames(
-        'flex items-center p-1.5',
-        {
-          'bg-bolt-elements-item-backgroundDefault hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary':
-            !active,
-          'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': active && !disabled,
-          'bg-bolt-elements-item-backgroundDefault text-alpha-gray-20 dark:text-alpha-white-20 cursor-not-allowed':
-            disabled,
-        },
-        className,
-      )}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  );
-}
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ active = false, disabled = false, children, onClick, className }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={classNames(
+          'flex items-center p-1.5',
+          {
+            'bg-bolt-elements-item-backgroundDefault hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary':
+              !active,
+            'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': active && !disabled,
+            'bg-bolt-elements-item-backgroundDefault text-alpha-gray-20 dark:text-alpha-white-20 cursor-not-allowed':
+              disabled,
+          },
+          className,
+        )}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        {children}
+      </button>
+    )
+  }
+)

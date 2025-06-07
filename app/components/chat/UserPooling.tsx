@@ -37,11 +37,9 @@ export default function UserPooling() {
   ];
 
   useEffect(() => {
-    console.log(showNPS, connected, isAuthorized)
   }, [showNPS, connected, isAuthorized])
 
   const handleGradeClick = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    console.log(event.currentTarget.id);
     const grade = parseInt(event.currentTarget.id);
     try {
       if (isNaN(grade)) {
@@ -52,7 +50,6 @@ export default function UserPooling() {
       console.error("Failed to post NPS data", error);
     } finally {
       setShowNPS(false);  
-      console.log(showNPS);
     }
   }
 

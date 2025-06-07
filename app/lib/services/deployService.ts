@@ -28,19 +28,11 @@ export class DeployService {
     console.log(buildProcess);
     let output = '';
     let buildCompleted = false;
-    // const timeout = setTimeout(() => {
-    //   if (buildCompleted) {
-    //     buildProcess.kill();
-    //     console.log('Build completed, killing hanging process');
-    //   }
-    // }, 5000); 
 
     buildProcess.output.pipeTo(
       new WritableStream({
         write(data) {
-          console.log(data);
           output += data;
-          // Look for build completion indicators
           if (data.includes('✓ built in') || data.includes('Build completed')) {
             buildCompleted = true;
             setTimeout(() => {

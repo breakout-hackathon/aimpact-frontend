@@ -24,10 +24,13 @@ const IGNORE_PATTERNS = [
 const defaultIgnore = ignore().add(IGNORE_PATTERNS);
 
 export const filterIgnoreFiles = (files: FileMap) => {
-  const filteredFiles = Object.keys(files).filter(key => {
-    if (defaultIgnore.ignores(key)) return false;
+  const filterFunc = ([key, value]: any) => {
+    const relPath = key.replace('/home/project/', '');
+    if (defaultIgnore.ignores(relPath)) return false;
+
     return true;
-  });
+  }
+  const filteredFiles = Object.fromEntries(Object.entries(files).filter(filterFunc));
 
   return filteredFiles;
 }
