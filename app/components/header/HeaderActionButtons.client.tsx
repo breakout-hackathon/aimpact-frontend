@@ -138,6 +138,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       });
 
       setFinalDeployLink(data.url);
+      formattedLinkToast(data.url);
     } catch (error) {
       toast.error(`Failed to publish app. Try again later.`);
     } finally {
@@ -198,17 +199,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       )}
 
       <div className="relative" ref={dropdownRef}>
-        <div className="flex gap-2 mr-4 text-sm">
-          <Button
-              active
-              disabled={!finalDeployLink}
-              onClick={handleClickFinalLink}
-              className="px-2 hover:bg-bolt-elements-item-backgroundActive flex items-center gap-2
-                border border-bolt-elements-borderColor rounded-md"
-          >
-            <ArrowSquareOutIcon size={24} />
-          </Button>
-
+        <div className="flex gap-2 mr-4 text-sm h-full">
             <Button
               active
               disabled={isDeploying || !activePreview || isStreaming}
@@ -234,6 +225,16 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
             >
               <RocketIcon alt="deploy icon" size={28} />
               <span className="mx-auto">Publish project</span>
+            </Button>
+
+            <Button
+              active={false}
+              disabled={!finalDeployLink}
+              onClick={handleClickFinalLink}
+              className="flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textTertiaryx gap-2 rounded-md"
+            >
+              <ArrowSquareOutIcon size={24} />
+              <span className="mx-auto">Project link</span>
             </Button>
           </div>
         )}
