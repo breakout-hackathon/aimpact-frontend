@@ -13,7 +13,6 @@ export const useGetDeploy = () => {
       const { data, request } = await client.get('/deploy-app/s3-deployment', {
         params: { projectId },
       });
-      console.log(request);
 
       return data;
     },
