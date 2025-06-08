@@ -209,7 +209,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
           let { status } = action;
           const isLast = index === actions.length - 1;
 
-          if (!isStreaming && status === 'running') {
+          if (!isStreaming && type !== 'shell' && status === 'running') {
             status = 'failed';
           }
 
@@ -225,7 +225,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
               }}
             >
               <div className="flex items-center gap-1.5 text-sm">
-                <div className={classNames('text-lg', getIconColor(action.status))}>
+                <div className={classNames('text-lg', getIconColor(status))}>
                   {status === 'running' ? (
                     <>
                       {type !== 'start' ? (
