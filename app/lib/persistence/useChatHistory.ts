@@ -74,15 +74,11 @@ export function useChatHistory() {
               const summary = validSnapshot.summary;
 
               const rewindId = searchParams.get('rewindTo') ?? storedMessages.messages.at(-1)?.id;
-              // console.log(storedMessages.messages.length)
-              // console.log(storedMessages.messages.map(m => m.id))
+
               let startingIdx = -1;
               const endingIdx = storedMessages.messages.length;
               const snapshotIndex = storedMessages.messages.findIndex((m) => m.id === validSnapshot.chatIndex);
               
-              // console.log(snapshotIndex)  // Index of message when snapshot was saved
-              // console.log(endingIdx)  // Last index
-              // console.log(rewindId) // Not used yet
               if (snapshotIndex >= 0 && snapshotIndex < endingIdx) {
                 startingIdx = snapshotIndex;
               }
@@ -98,7 +94,6 @@ export function useChatHistory() {
                 archivedMessages = storedMessages.messages.slice(0, startingIdx + 1);
               }
 
-              console.log("ARCHIVED MESSAGES INIT", archivedMessages)
               setArchivedMessages(archivedMessages);
 
               if (startingIdx > 0) {
@@ -174,13 +169,12 @@ export function useChatHistory() {
                 restoreSnapshot(mixedId);
               }
               
-              console.log("FILTERED MESSAGES INIT", filteredMessages)
               setInitialMessages(filteredMessages);
 
               description.set(storedMessages.description);
               chatId.set(storedMessages.id);
               chatMetadata.set(storedMessages.metadata);
-              lastChatIdx.set(storedMessages.messages[snapshotIndex].id);
+              lastChatIdx.set(storedMessages.messages[snapshotIndex]?.id);
               lastChatSummary.set(summary);
             } else {
               navigate('/', { replace: true });
@@ -210,11 +204,8 @@ export function useChatHistory() {
       return;
     }
 
-    console.log("FILES NOW")
-    console.log(files);
     const filteredFiles = disableIngore ? files : filterIgnoreFiles(files);
-    console.log("FILES AFTER")
-    console.log(filteredFiles);
+
     const snapshot: Snapshot = {
       chatIndex: chatIdx,
       files,
