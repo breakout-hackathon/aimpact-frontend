@@ -40,7 +40,7 @@ export interface Folder {
   lockedByFolder?: string; // Path of the folder that locked this folder (for nested folders)
 }
 
-type Dirent = File | Folder;
+export type Dirent = File | Folder;
 
 export type FileMap = Record<string, Dirent | undefined>;
 export type SaveFileMap = Record<string, Dirent>;

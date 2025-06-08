@@ -1,6 +1,5 @@
 import type { Template } from '~/types/template';
 import { WORK_DIR } from '~/utils/constants';
-import { allowedHTMLElements } from '~/utils/markdown';
 import { stripIndents } from '~/utils/stripIndent';
 
 const ENABLE_SOLANA_PROMPT = process.env.ENABLE_SOLANA_PROMPT === "true";
