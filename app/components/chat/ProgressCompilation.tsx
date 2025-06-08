@@ -1,10 +1,14 @@
+import { useStore } from '@nanostores/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
+import { streamingState } from '~/lib/stores/streaming';
 import type { ProgressAnnotation } from '~/types/context';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 
 export default function ProgressCompilation({ data }: { data?: ProgressAnnotation[] }) {
+  const isStreaming = useStore(streamingState);
+
   const [progressList, setProgressList] = React.useState<ProgressAnnotation[]>([]);
   const [expanded, setExpanded] = useState(false);
   React.useEffect(() => {
@@ -29,7 +33,7 @@ export default function ProgressCompilation({ data }: { data?: ProgressAnnotatio
     setProgressList(newData);
   }, [data]);
 
-  if (progressList.length === 0) {
+  if (progressList.length === 0 || !isStreaming) {
     return <></>;
   }
 
