@@ -127,7 +127,7 @@ export function useChatHistory() {
                     annotations: ['no-store', 'hidden'],
                   },
                   {
-                    id: storedMessages.messages[snapshotIndex].id,
+                    id: storedMessages.messages[snapshotIndex].?id,
                     role: 'assistant',
 
                     // Combine followup message and the artifact with files and command actions
@@ -154,7 +154,7 @@ export function useChatHistory() {
                       ...(summary
                         ? [
                             {
-                              chatId: storedMessages.messages[snapshotIndex].id,
+                              chatId: storedMessages.messages[snapshotIndex]?.id,
                               type: 'chatSummary',
                               summary,
                             } satisfies ContextAnnotation,
@@ -180,7 +180,7 @@ export function useChatHistory() {
               description.set(storedMessages.description);
               chatId.set(storedMessages.id);
               chatMetadata.set(storedMessages.metadata);
-              lastChatIdx.set(storedMessages.messages[snapshotIndex].id);
+              lastChatIdx.set(storedMessages.messages[snapshotIndex]?.id);
               lastChatSummary.set(summary);
             } else {
               navigate('/', { replace: true });
