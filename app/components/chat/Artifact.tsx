@@ -8,6 +8,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 import { WORK_DIR } from '~/utils/constants';
+import { streamingState } from '~/lib/stores/streaming';
 
 const highlighterOptions = {
   langs: ['shell'],
@@ -198,12 +199,19 @@ function openArtifactInWorkbench(filePath: any) {
 }
 
 const ActionList = memo(({ actions }: ActionListProps) => {
+  const isStreaming = useStore(streamingState);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
       <ul className="list-none space-y-2.5">
         {actions.map((action, index) => {
-          const { status, type, content } = action;
+          const { type, content } = action;
+          let { status } = action;
           const isLast = index === actions.length - 1;
+
+          if (!isStreaming && status === 'running') {
+            status = 'failed';
+          }
 
           return (
             <motion.li
