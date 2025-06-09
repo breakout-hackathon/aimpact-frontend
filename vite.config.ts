@@ -11,6 +11,7 @@ import { join } from 'path';
 import babel from 'vite-plugin-babel';
 import { visualizer } from "rollup-plugin-visualizer";
 import { analyzer } from 'vite-bundle-analyzer'
+import { DH_CHECK_P_NOT_SAFE_PRIME } from 'constants';
 
 
 dotenv.config();
@@ -78,8 +79,11 @@ const pkg = getPackageJson();
 const gitInfo = getGitInfo();
 
 export default defineConfig((config) => {
-  const isDev = process.env.ENVIRONMENT == "development";
-  console.log("DEV? ", isDev)
+  const isDev = process.env.ENVIROMENT == "development";
+  if (isDev) {
+    console.log("App running in dev mode!")
+  }
+  
   return {
     define: {
       __COMMIT_HASH: JSON.stringify(gitInfo.commitHash),
