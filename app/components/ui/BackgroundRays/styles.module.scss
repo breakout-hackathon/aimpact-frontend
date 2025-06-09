@@ -741,3 +741,10 @@
     opacity: 0.4;
   }
 }
+
+.lightRay,
+.waterStream,
+.waterRipple,
+.waterParticle {
+  will-change: transform, opacity, filter;
+}

@@ -144,6 +144,22 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
    * console.log(`Prompt id: ${promptId}`)
    */
 
+  useEffect(() => {
+    return () => {
+      processSampledMessages.cancel?.();
+      
+      debouncedCachePrompt.cancel?.();
+      
+      // Stop any ongoing chat requests
+      if (isLoading) {
+        stop();
+      }
+      
+      // Clear any pending toasts
+      toast.dismiss();
+    };
+  }, []); // Empty dependency array for cleanup on unmount
+
   const [model, setModel] = useState(() => {
     const savedModel = Cookies.get('selectedModel');
     return DEFAULT_MODEL || savedModel;
@@ -222,7 +238,7 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     },
     initialMessages,
     initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
-    experimental_throttle: 50,
+    experimental_throttle: 75,
   });
   useEffect(() => {
     const prompt = searchParams.get('prompt');
@@ -503,6 +519,12 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     }, 1000),
     [],
   );
+
+  useEffect(() => {
+    return () => {
+      debouncedCachePrompt.cancel?.();
+    };
+  }, [debouncedCachePrompt]);
 
   useEffect(() => {
     const storedApiKeys = Cookies.get('apiKeys');

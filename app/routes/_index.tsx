@@ -9,6 +9,7 @@ import OnlyDesktopMessage from '~/components/common/OnlyDesktopMessage';
 import Footer from '~/components/footer/Footer.client';
 import { Header } from '~/components/header/Header';
 import BackgroundRays from '~/components/ui/BackgroundRays';
+import { useMemoryMonitor } from '~/lib/hooks/useMemoryMonitor';
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,6 +31,7 @@ export default function Index() {
   const detectMobileScreen = () => {
     return window.innerWidth <= 768;
   };
+  useMemoryMonitor();
 
   useEffect(() => {
     const mobile = detectMobileScreen();

@@ -10,6 +10,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import babel from 'vite-plugin-babel';
 import { visualizer } from "rollup-plugin-visualizer";
+import { analyzer } from 'vite-bundle-analyzer'
 
 
 dotenv.config();
@@ -77,6 +78,8 @@ const pkg = getPackageJson();
 const gitInfo = getGitInfo();
 
 export default defineConfig((config) => {
+  const isDev = process.env.ENVIRONMENT == "development";
+  console.log("DEV? ", isDev)
   return {
     define: {
       __COMMIT_HASH: JSON.stringify(gitInfo.commitHash),
@@ -120,16 +123,29 @@ export default defineConfig((config) => {
           'electron-store',
           '@remix-run/node',
         ],
+        treeshake: {
+          preset: 'recommended',
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false
+        },
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            ai: ['@ai-sdk/react', '@ai-sdk/anthropic', '@ai-sdk/openai', 'ai'],
+            editor: ['@codemirror/state', '@codemirror/view'],
+          },
+        }
       },
     },
     plugins: [
       UnoCSS(),
-      visualizer({
-        filename: "bundle-analysis.html",
-        open: true,
+      !isDev && visualizer({
+        filename: 'dist/stats.html',
+        open: false,
         gzipSize: true,
         brotliSize: true,
-      }),  
+        template: 'treemap' // or 'sunburst', 'network'
+      }),
       nodePolyfills({
         include: ['buffer', 'process', 'util', 'stream'],
         globals: {
