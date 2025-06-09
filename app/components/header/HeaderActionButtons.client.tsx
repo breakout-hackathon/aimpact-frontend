@@ -51,7 +51,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
       <div>
         Project is published. You can click to the button in the "Publish" dropdown and go to app.
         <br /> <br />
-        <a href={url} target="_blank" rel="noopener noreferrer" className='underline'>
+        <a href={url} target="_blank" rel="noopener noreferrer" className='underline cursor-pointer'>
           Link
         </a>
       </div>,
@@ -92,7 +92,6 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     try {
       const data = await getDeployRequest(projectId);
       setFinalDeployLink(data.url);
-      console.log(data);
 
       if (enableMessages && data.url) {
         formattedLinkToast(data.url);
