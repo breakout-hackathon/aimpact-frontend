@@ -79,7 +79,10 @@ const gitInfo = getGitInfo();
 
 export default defineConfig((config) => {
   const isDev = process.env.ENVIRONMENT == "development";
-  console.log("DEV? ", isDev)
+  const isSsrBuild = Boolean(config.isSsrBuild);
+  console.log("Is dev? ", isDev)
+
+
   return {
     define: {
       __COMMIT_HASH: JSON.stringify(gitInfo.commitHash),
@@ -129,11 +132,18 @@ export default defineConfig((config) => {
           tryCatchDeoptimization: false
         },
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            ai: ['@ai-sdk/react', '@ai-sdk/anthropic', '@ai-sdk/openai', 'ai'],
-            editor: ['@codemirror/state', '@codemirror/view'],
-          },
+          manualChunks: isSsrBuild
+            ? undefined
+            : {
+                vendor: ["react", "react-dom"],
+                ai: [
+                  "@ai-sdk/react",
+                  "@ai-sdk/anthropic",
+                  "@ai-sdk/openai",
+                  "ai",
+                ],
+                editor: ["@codemirror/state", "@codemirror/view"],
+              },
         }
       },
     },
