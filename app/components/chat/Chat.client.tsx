@@ -148,8 +148,6 @@ export const ChatImpl = memo(({ initialMessages, storeMessageHistory }: ChatProp
     return () => {
       processSampledMessages.cancel?.();
       
-      debouncedCachePrompt.cancel?.();
-      
       // Stop any ongoing chat requests
       if (isLoading) {
         stop();
