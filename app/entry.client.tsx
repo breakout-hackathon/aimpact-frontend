@@ -1,4 +1,4 @@
-import { init, replayIntegration, browserTracingIntegration } from "@sentry/remix";
+import { init, replayIntegration, browserTracingIntegration, browserProfilingIntegration } from "@sentry/remix";
 import { RemixBrowser, useLocation, useMatches } from '@remix-run/react';
 import { startTransition, useEffect } from 'react';
 import { hydrateRoot } from 'react-dom/client';
@@ -15,12 +15,14 @@ init({
     }), replayIntegration({
         maskAllText: true,
         blockAllMedia: true
-    })],
+    }), browserProfilingIntegration()],
 
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1,
     sampleRate: 0.25,
     environment: import.meta.env.ENVIRONMENT || 'development',
+    profileSessionSampleRate: 1.0,
+    profileLifecycle: 'trace',
 })
 
 const root = document.getElementById('root')!;
