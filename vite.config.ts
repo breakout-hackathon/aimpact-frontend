@@ -103,12 +103,6 @@ export default defineConfig((config) => {
       __PKG_OPTIONAL_DEPENDENCIES: JSON.stringify(pkg.optionalDependencies),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     },
-    
-    // resolve: {
-    //   alias: {
-    //     "util/types": "node:util"
-    //   },
-    // },
     build: {
       target: 'esnext',
       cssCodeSplit: true,
@@ -146,7 +140,6 @@ export default defineConfig((config) => {
                   "ai",
                 ],
                 editor: ["@codemirror/state", "@codemirror/view"],
-                animations: ['./src/components/Background/styles.module.scss'],
               },
         }
       },
