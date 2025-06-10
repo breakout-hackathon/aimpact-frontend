@@ -496,6 +496,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         minHeight: TEXTAREA_MIN_HEIGHT,
                         maxHeight: TEXTAREA_MAX_HEIGHT,
                       }}
+                      maxLength={16000}
                       placeholder="How can AImpact help you today?"
                       translate="no"
                     />
