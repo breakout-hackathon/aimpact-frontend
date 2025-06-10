@@ -5,7 +5,6 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import { streamingState } from '~/lib/stores/streaming';
-import { ArrowSquareOutIcon, RocketIcon } from '@phosphor-icons/react';
 import { chatId, lastChatIdx, lastChatSummary, useChatHistory } from '~/lib/persistence';
 import { toast, type Id as ToastId } from 'react-toastify';
 import { DeployStatusEnum, type DeployResponse } from '~/types/deploy';
@@ -222,7 +221,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
               onClick={onDeploy}
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-gray-200 gap-2"
             >
-              <RocketIcon alt="deploy icon" size={28} />
+              <div className="i-ph:rocket h-[28px] w-[28px]"></div>
               <span className="mx-auto">Publish project</span>
             </Button>
 
@@ -231,7 +230,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
               onClick={handleClickFinalLink}
               className="flex items-center w-full px-4 py-2 text-sm text-gray-200 gap-2 rounded-md"
             >
-              <ArrowSquareOutIcon size={24} />
+              <div className="i-ph:arrow-square-out w-6 h-6"></div>
               <span className="mx-auto">Project link</span>
             </Button>
           </div>
