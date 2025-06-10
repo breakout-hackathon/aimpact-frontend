@@ -10,8 +10,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import babel from 'vite-plugin-babel';
 import { visualizer } from "rollup-plugin-visualizer";
-import { analyzer } from 'vite-bundle-analyzer'
-import { DH_CHECK_P_NOT_SAFE_PRIME } from 'constants';
 
 
 dotenv.config();
