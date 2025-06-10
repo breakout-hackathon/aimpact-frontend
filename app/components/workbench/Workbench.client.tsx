@@ -398,7 +398,8 @@ export const Workbench = memo(
                       <DropdownMenu.Root>
                         <DropdownMenu.Trigger className="text-sm flex items-center gap-1 text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed">
                           <div className="i-ph:box-arrow-up" />
-                          Sync & Export
+                          {/* Sync & Export */}
+                          Export
                         </DropdownMenu.Trigger>
                         <DropdownMenu.Content
                           className={classNames(
@@ -425,7 +426,7 @@ export const Workbench = memo(
                               <span>Download Code</span>
                             </div>
                           </DropdownMenu.Item>
-                          <DropdownMenu.Item
+                          {/* <DropdownMenu.Item
                             className={classNames(
                               'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
                             )}
@@ -436,7 +437,7 @@ export const Workbench = memo(
                               {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
                               <span>{isSyncing ? 'Syncing...' : 'Sync Files'}</span>
                             </div>
-                          </DropdownMenu.Item>
+                          </DropdownMenu.Item> */}
                         </DropdownMenu.Content>
                       </DropdownMenu.Root>
                     </div>
