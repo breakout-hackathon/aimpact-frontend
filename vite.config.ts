@@ -10,7 +10,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import babel from 'vite-plugin-babel';
 import { visualizer } from "rollup-plugin-visualizer";
-import { analyzer } from 'vite-bundle-analyzer'
 
 
 dotenv.config();
@@ -80,8 +79,10 @@ const gitInfo = getGitInfo();
 export default defineConfig((config) => {
   const isDev = process.env.ENVIRONMENT == "development";
   const isSsrBuild = Boolean(config.isSsrBuild);
-  console.log("Is dev? ", isDev)
-
+  if (isDev) {
+    console.log("App running in dev mode!")
+  }
+  
 
   return {
     define: {
