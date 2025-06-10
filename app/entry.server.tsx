@@ -37,26 +37,27 @@ export default async function handleRequest(
 
       const reader = readable.getReader();
 
-      function read() {
-        reader
-          .read()
-          .then(({ done, value }) => {
+      const pump = async () => {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            
             if (done) {
-              controller.enqueue(new Uint8Array(new TextEncoder().encode('</div></body></html>')));
+              controller.enqueue(
+                new Uint8Array(new TextEncoder().encode('</div></body></html>'))
+              );
               controller.close();
-
-              return;
+              break;
             }
-
+            
             controller.enqueue(value);
-            read();
-          })
-          .catch((error) => {
-            controller.error(error);
-            readable.cancel();
-          });
-      }
-      read();
+          }
+        } catch (error) {
+          controller.error(error);
+          reader.cancel();
+        }
+    };
+      pump();
     },
 
     cancel() {

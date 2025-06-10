@@ -10,8 +10,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import babel from 'vite-plugin-babel';
 import { visualizer } from "rollup-plugin-visualizer";
-import { analyzer } from 'vite-bundle-analyzer'
-import { DH_CHECK_P_NOT_SAFE_PRIME } from 'constants';
 
 
 dotenv.config();
@@ -105,13 +103,9 @@ export default defineConfig((config) => {
       __PKG_OPTIONAL_DEPENDENCIES: JSON.stringify(pkg.optionalDependencies),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     },
-    // resolve: {
-    //   alias: {
-    //     "util/types": "node:util"
-    //   },
-    // },
     build: {
       target: 'esnext',
+      cssCodeSplit: true,
       rollupOptions: {
         external: [
           'vite',
