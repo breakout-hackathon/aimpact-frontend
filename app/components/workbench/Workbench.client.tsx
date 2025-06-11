@@ -404,12 +404,12 @@ export const Workbench = memo(
                         aria-pressed={isAutoSaveEnabled}
                       >
                         <span className="text-sm">Auto-save</span>
-                        <span className="relative ml-1">
+                        <span className="relative ml-1 flex items-center h-5">
                           <span
-                            className={`block w-7 h-4 rounded-full transition-colors duration-300 ${isAutoSaveEnabled ? 'bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500' : 'bg-gray-600'}`}
+                            className={`block w-8 h-4 rounded-full transition-colors duration-200 ${isAutoSaveEnabled ? 'bg-accent-500' : 'bg-gray-600'}`}
                           ></span>
                           <span
-                            className={`absolute left-0 top-0 w-4 h-4 bg-white rounded-full shadow-md border border-gray-300 transform transition-transform duration-300 ${isAutoSaveEnabled ? 'translate-x-3' : ''}`}
+                            className={`absolute left-0 top-0 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 border border-gray-300 translate-y-1/9 ${isAutoSaveEnabled ? 'translate-x-4' : ''}`}
                           ></span>
                         </span>
                       </PanelHeaderButton>
