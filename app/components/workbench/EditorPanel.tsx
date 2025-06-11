@@ -38,6 +38,7 @@ interface EditorPanelProps {
   onFileSelect?: (value?: string) => void;
   onFileSave?: OnEditorSave;
   onFileReset?: () => void;
+  isAutoSaveEnabled?: boolean;
 }
 
 const DEFAULT_EDITOR_SIZE = 100 - DEFAULT_TERMINAL_SIZE;
@@ -57,6 +58,7 @@ export const EditorPanel = memo(
     onEditorScroll,
     onFileSave,
     onFileReset,
+    isAutoSaveEnabled,
   }: EditorPanelProps) => {
     renderLogger.trace('EditorPanel');
 
@@ -66,18 +68,18 @@ export const EditorPanel = memo(
 
     // Auto-save when switching files
     useEffect(() => {
-      if (previousFileRef.current && previousFileRef.current !== selectedFile) {
+      if (isAutoSaveEnabled && previousFileRef.current && previousFileRef.current !== selectedFile) {
         // If there are unsaved changes in the previous file, save it
         if (unsavedFiles?.has(previousFileRef.current)) {
           onFileSave?.();
         }
       }
       previousFileRef.current = selectedFile;
-    }, [selectedFile, unsavedFiles, onFileSave]);
+    }, [selectedFile, unsavedFiles, onFileSave, isAutoSaveEnabled]);
 
     // Auto-save when editor loses focus
     const handleEditorBlur = () => {
-      if (editorDocument && unsavedFiles?.has(editorDocument.filePath)) {
+      if (isAutoSaveEnabled && editorDocument && unsavedFiles?.has(editorDocument.filePath)) {
         onFileSave?.();
       }
     };
