@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react';
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useEffect, useRef } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
@@ -62,6 +62,25 @@ export const EditorPanel = memo(
 
     const theme = useStore(themeStore);
     const showTerminal = useStore(workbenchStore.showTerminal);
+    const previousFileRef = useRef<string | undefined>(selectedFile);
+
+    // Auto-save when switching files
+    useEffect(() => {
+      if (previousFileRef.current && previousFileRef.current !== selectedFile) {
+        // If there are unsaved changes in the previous file, save it
+        if (unsavedFiles?.has(previousFileRef.current)) {
+          onFileSave?.();
+        }
+      }
+      previousFileRef.current = selectedFile;
+    }, [selectedFile, unsavedFiles, onFileSave]);
+
+    // Auto-save when editor loses focus
+    const handleEditorBlur = () => {
+      if (editorDocument && unsavedFiles?.has(editorDocument.filePath)) {
+        onFileSave?.();
+      }
+    };
 
     const activeFileSegments = useMemo(() => {
       if (!editorDocument) {
@@ -173,6 +192,7 @@ export const EditorPanel = memo(
                   onScroll={onEditorScroll}
                   onChange={onEditorChange}
                   onSave={onFileSave}
+                  onBlur={handleEditorBlur}
                 />
               </div>
             </Panel>
