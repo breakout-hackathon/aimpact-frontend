@@ -6,22 +6,21 @@ import { AppProvider } from '~/providers';
 
 init({
     dsn: "https://3ce6d32dc3d38efe0423220e0772c4a6@o4509436444278784.ingest.de.sentry.io/4509436451618896",
-    tracesSampleRate: 0.25,
-
+    tracesSampleRate: 0.05,
     integrations: [browserTracingIntegration({
       useEffect,
       useLocation,
       useMatches
     }), replayIntegration({
         maskAllText: true,
-        blockAllMedia: true
+        blockAllMedia: true,
     }), browserProfilingIntegration()],
 
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1,
+    replaysSessionSampleRate: 0.01,
+    replaysOnErrorSampleRate: 0.1,
     sampleRate: 0.25,
     environment: import.meta.env.ENVIRONMENT || 'development',
-    profileSessionSampleRate: 1.0,
+    profileSessionSampleRate: 0.01,
     profileLifecycle: 'trace',
 })
 

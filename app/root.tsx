@@ -22,6 +22,7 @@ import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 import 'virtual:uno.css';
 import { workbenchStore } from "./lib/stores/workbench";
 import LoadingScreen from "./components/common/LoadingScreen";
+import { useMemoryMonitor } from "./lib/hooks/useMemoryMonitor";
 
 const SolanaProvider = React.lazy(() => 
   import('./components/providers/SolanaProvider').then(mod => ({
@@ -125,6 +126,7 @@ export const ErrorBoundary = () => {
 
 export default function App() {
   const theme = useStore(themeStore);
+  useMemoryMonitor();
 
   useEffect(() => {
     logStore.logSystem('Application initialized', {
@@ -134,7 +136,6 @@ export default function App() {
       timestamp: new Date().toISOString(),
     });
 
-    // ADD THIS: Global cleanup on app unmount
     return () => {
       console.log('App unmounting, cleaning up...');
       workbenchStore.cleanup();
