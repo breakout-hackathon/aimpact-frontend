@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { HTTPError } from 'ky';
 import { ky } from 'query';
 
 export type Project = {
@@ -16,7 +15,12 @@ export type ProjectWithOwner = Project & {
   projectOwnerAddress: string;
 };
 
-export const useProjectsQuery = (ownership: 'all' | 'owned', sortBy: 'createdAt' | 'updatedAt' | 'name', sortDirection: 'ASC' | 'DESC', jwtToken?: string) => {
+export const useProjectsQuery = (
+  ownership: 'all' | 'owned',
+  sortBy: 'createdAt' | 'updatedAt' | 'name',
+  sortDirection: 'ASC' | 'DESC',
+  jwtToken?: string,
+) => {
   return useQuery<Project[]>({
     initialData: [],
     queryKey: ['projects'],
@@ -31,8 +35,8 @@ export const useProjectsQuery = (ownership: 'all' | 'owned', sortBy: 'createdAt'
           sortBy,
           sortOrder: sortDirection,
         },
-        headers: requestHeaders
-      })
+        headers: requestHeaders,
+      });
       const data = await res.json<Project[]>();
 
       if (!res.ok) {
@@ -46,12 +50,10 @@ export const useProjectsQuery = (ownership: 'all' | 'owned', sortBy: 'createdAt'
 
 export const useProjectQuery = (id: string) => {
   return useQuery<ProjectWithOwner | null>({
-    initialData: null,
     queryKey: ['project', id],
     queryFn: async () => {
       const requestHeaders: Record<string, string> = {};
       const res = await ky.get(`projects/${id}`, { headers: requestHeaders });
-      const data = await res.json<ProjectWithOwner>();
 
       if (res.status === 404) {
         throw new Error('Not found project');
@@ -61,6 +63,7 @@ export const useProjectQuery = (id: string) => {
         throw new Error('Failed to fetch project');
       }
 
+      const data = await res.json<ProjectWithOwner>();
       return data;
     },
   });
