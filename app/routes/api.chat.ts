@@ -41,6 +41,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   }>();
   let { messages } = body;
   const { files, promptId, contextOptimization, authToken } = body;
+  console.log("BODY MESSAGES");
+  console.log(messages);
+  // return;
 
   const apiKeys: Record<string, string> = {
     OpenAI: getEnvVar(context, "OPENAI_API_KEY") as string,
@@ -96,14 +99,14 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         }
 
         if (filePaths.length > 0 && contextOptimization) {
-          logger.debug('Generating Chat Summary');
-          dataStream.writeData({
-            type: 'progress',
-            label: 'summary',
-            status: 'in-progress',
-            order: progressCounter++,
-            message: 'Analysing Request',
-          } satisfies ProgressAnnotation);
+          // logger.debug('Generating Chat Summary');
+          // dataStream.writeData({
+          //   type: 'progress',
+          //   label: 'summary',
+          //   status: 'in-progress',
+          //   order: progressCounter++,
+          //   message: 'Analysing Request',
+          // } satisfies ProgressAnnotation);
 
           // Create a summary of the chat
           console.log(`Messages count: ${messages.length}`);
