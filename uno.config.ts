@@ -14,7 +14,6 @@ const customIconCollection = iconPaths.reduce(
     const [iconName] = basename(iconPath).split('.');
 
     acc[collectionName] ??= {};
-    console.log(iconName)
     acc[collectionName][iconName] = async () => fs.readFile(iconPath, 'utf8');
 
     return acc;
