@@ -26,6 +26,8 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isStreaming = useStore(streamingState);
 
+  const mockedProjectLink = "" // project link here
+
   const publishButtonRef = useRef<HTMLButtonElement>(null);
 
   const { mutateAsync: getDeployRequest } = useGetDeploy();
@@ -170,6 +172,34 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
     }
   }
 
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const onDeployToIcp = async () => {
+    setIsDeploying(true);
+
+    const toastId = toast.info('Publishing to ICP...', { autoClose: false });
+
+    try {
+      if (!deployService?.current) {
+        toast.error("Failed to init deploy service. Try to reload page");
+        return;
+      }
+
+      await sleep(13.5 * 1000);
+
+      setFinalDeployLink(mockedProjectLink);
+      formattedLinkToast(mockedProjectLink);
+    } catch (error) {
+      toast.error(`Failed to publish app. Maybe you have some errors in your app's code.`);
+      console.error(error);
+    } finally {
+      setIsDeploying(false);
+      if (toastId) {
+        toast.dismiss(toastId);
+      }
+    }
+  }
+
   const handleClickFinalLink = () => {
     if (finalDeployLink) {
       window.open(finalDeployLink, '_blank');
@@ -242,8 +272,17 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
               onClick={onDeploy}
               className="flex items-center w-full rounded-md px-4 py-2 text-sm text-gray-200 gap-2"
             >
-              <div className="i-ph:rocket h-[28px] w-[28px]"></div>
-              <span className="mx-auto">Publish project</span>
+              <div className="i-bolt:aws h-[28px] w-[28px]"></div>
+              <span className="mx-auto">Publish project to AWS</span>
+            </Button>
+
+            <Button
+              disabled={isDeploying || !activePreview || isStreaming}
+              onClick={onDeployToIcp}
+              className="flex items-center w-full rounded-md px-4 py-2 text-sm text-gray-200 gap-2"
+            >
+              <div className="i-ph:infinity h-[28px] w-[28px]"></div>
+              <span className="mx-auto">Publish project to ICP</span>
             </Button>
 
             <Button

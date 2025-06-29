@@ -4,7 +4,6 @@ import { basename } from 'node:path';
 import { defineConfig, presetIcons, presetUno, transformerDirectives, presetWind } from 'unocss';
 import { getIcons } from '@iconify/utils';
 import type { IconifyJSON } from '@iconify/types';
-import phIcons from '@iconify-json/ph/icons.json';
 
 const iconPaths = globSync('./icons/*.svg');
 
@@ -15,6 +14,7 @@ const customIconCollection = iconPaths.reduce(
     const [iconName] = basename(iconPath).split('.');
 
     acc[collectionName] ??= {};
+    console.log(iconName)
     acc[collectionName][iconName] = async () => fs.readFile(iconPath, 'utf8');
 
     return acc;
